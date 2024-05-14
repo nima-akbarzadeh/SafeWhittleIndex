@@ -12,9 +12,9 @@ if __name__ == '__main__':
 
     # Basic Parameters
 
-    n_steps_set = [4]
-    n_states_set = [3, 4]
-    n_arms_set = [3, 5]
+    n_steps_set = [4, 5]
+    n_states_set = [2, 3]
+    n_arms_set = [3, 4, 5]
     f_type_set = ['hom']
     t_type_set = [3]
     u_type_set = [2, 4, 8]

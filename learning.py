@@ -3,6 +3,7 @@ from scipy.stats import dirichlet
 import joblib
 from Markov import *
 from safe_whittle import *
+import time
 
 
 def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type):
@@ -18,6 +19,7 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
     counts = np.ones((n_iterations, n_states, n_states, 2, n_arms))
 
     for i in range(n_iterations):
+        start_time = time.time()
         print(f'Iteration {i+1} out of {n_iterations}')
 
         M = MarkovDynamics(n_arms, n_states, est_prob[i, :, 0], t_type, t_increasing)
@@ -26,7 +28,7 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
         sw_indices = SafeW.w_indices
 
         for k in range(n_episodes):
-            print(f'Episode {k}')
+            # print(f'Episode {k}')
             states = initial_states.copy()
             _lifted = np.zeros(n_arms, dtype=np.int32)
             for t in range(n_steps):
@@ -39,7 +41,7 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
                     objectives[i, a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[i, a, k]))**(1/u_type)
                     states[a] = np.random.choice(n_states, p=tru_dyn[_states[a], :, actions[a], a])
                     counts[i, _states[a], states[a], actions[a], a] += 1
-            print('Update...')
+            # print('Update...')
 
             est_transitions = np.zeros((n_states, n_states, 2, n_arms))
             for a in range(n_arms):
@@ -76,10 +78,12 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
             for a in range(n_arms):
                 sum_wi[i, a, k] = np.sum(sw_indices[a])
 
-    joblib.dump(objectives, f'obj_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
-    joblib.dump(totalrewards, f'rew_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
-    joblib.dump(est_prob, f'probs_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
-    joblib.dump(counts, f'counts_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
-    joblib.dump(sum_wi, f'sumwi_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        end_time = time.time()
+        print(end_time - start_time)
+        joblib.dump(objectives, f'obj_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        joblib.dump(totalrewards, f'rew_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        joblib.dump(est_prob, f'probs_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        joblib.dump(counts, f'counts_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        joblib.dump(sum_wi, f'sumwi_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
     return totalrewards, objectives, est_prob, counts, sum_wi

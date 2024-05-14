@@ -127,4 +127,4 @@ if __name__ == '__main__':
     plt.legend()
     plt.grid(True)
     plt.show()
-    plt.savefig(f'/content/drive/MyDrive/Restless_Bandits/HEC_RiskAware/regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.png')
+    plt.savefig(f'regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.png')
