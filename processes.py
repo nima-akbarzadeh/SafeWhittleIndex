@@ -20,7 +20,8 @@ def Process_Greedy(n_episodes, n_steps, n_states, n_bandits, n_choices, threshol
             actions[top_indices] = 1
             for a in range(n_bandits):
                 totalrewards[a, k] += rewards[_states[a], a]
-                objectives[a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_type)
+                objectives[a, k] = (1 + np.exp(-u_type * (1 - thresholds[a]))) / (1 + np.exp(-u_type * (totalrewards[a, k] - thresholds[a])))
+                # objectives[a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_type)
                 counts[_states[a], actions[a], a] += 1
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
 
@@ -56,7 +57,8 @@ def Process_Myopic(n_episodes, n_steps, n_states, n_bandits, n_choices, threshol
             _states = np.copy(states)
             for a in range(n_bandits):
                 totalrewards[a, k] += rewards[_states[a], actions[a], a]
-                objectives[a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_type)
+                objectives[a, k] = (1 + np.exp(-u_type * (1 - thresholds[a]))) / (1 + np.exp(-u_type * (totalrewards[a, k] - thresholds[a])))
+                # objectives[a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_type)
                 counts[_states[a], actions[a], a] += 1
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
 
@@ -79,7 +81,8 @@ def Process_WhtlRB(W, n_episodes, n_steps, n_states, n_bandits, n_choices, thres
                     totalrewards[a, k] += rewards[_states[a], actions[a], a]
                 else:
                     totalrewards[a, k] += rewards[_states[a], a]
-                objectives[a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_type)
+                objectives[a, k] = (1 + np.exp(-u_type * (1 - thresholds[a]))) / (1 + np.exp(-u_type * (totalrewards[a, k] - thresholds[a])))
+                # objectives[a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_type)
                 counts[_states[a], actions[a], a] += 1
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 if states[a] == n_states:
@@ -107,7 +110,8 @@ def Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, t
                     totalrewards[a, k] += rewards[_states[a], actions[a], a]
                 else:
                     totalrewards[a, k] += rewards[_states[a], a]
-                objectives[a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_type)
+                objectives[a, k] = (1 + np.exp(-u_type * (1 - thresholds[a]))) / (1 + np.exp(-u_type * (totalrewards[a, k] - thresholds[a])))
+                # objectives[a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_type)
                 counts[_states[a], actions[a], a] += 1
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
 

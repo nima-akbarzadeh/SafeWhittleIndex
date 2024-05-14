@@ -38,7 +38,8 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
                 actions = SafeW.Whittle_policy(sw_indices, n_choices, _states, _lifted, t)
                 for a in range(n_arms):
                     totalrewards[i, a, k] += tru_rew[_states[a], a]
-                    objectives[i, a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[i, a, k]))**(1/u_type)
+                    objectives[i, a, k] = (1 + np.exp(-u_type * (1 - thresholds[a]))) / (1 + np.exp(-u_type * (totalrewards[i, a, k] - thresholds[a])))
+                    # objectives[i, a, k] = 1 - thresholds[a]**(1 - 1/u_type) * (np.maximum(0, thresholds[a] - totalrewards[i, a, k]))**(1/u_type)
                     states[a] = np.random.choice(n_states, p=tru_dyn[_states[a], :, actions[a], a])
                     counts[i, _states[a], states[a], actions[a], a] += 1
             # print('Update...')
