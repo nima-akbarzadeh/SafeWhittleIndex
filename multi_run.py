@@ -17,12 +17,12 @@ if __name__ == '__main__':
     n_arms_set = [3, 4, 5]
     f_type_set = ['hom']
     t_type_set = [3]
-    u_type_set = [2, 4, 8, 16]
-    threshold_set = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    u_type_set = [16]
+    threshold_set = [0.3, 0.4, 0.5]
     fraction_set = [0.3, 0.4, 0.5]
 
-    PATH1 = f'TestRes_t{n_steps_set[-1]}.xlsx'
-    PATH2 = f'TestRes_t{n_steps_set[-1]}_avg.xlsx'
+    PATH1 = f'TestRes_t{n_steps_set}.xlsx'
+    PATH2 = f'TestRes_t{n_steps_set}_avg.xlsx'
 
     method = 3
     n_episodes = 100
@@ -284,7 +284,7 @@ if __name__ == '__main__':
 
                                     initial_states = (ns - 1) * np.ones(na, dtype=np.int32)
 
-                                    rew_n, obj_n, _ = Process_Greedy(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut)
+                                    rew_n, obj_n, _ = Process_Random(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut)
                                     rew_w, obj_w, _ = Process_WhtlRB(WhtlW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, ww_indices, initial_states, ut)
                                     # rew_n, obj_n, _ = Process_NeutRB(NeutW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, nw_indices, initial_states, ut)
                                     rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, sw_indices, initial_states, ut)
@@ -306,7 +306,7 @@ if __name__ == '__main__':
                                     cvar_prc2 = np.round(100 * (cvar_s - cvar_n) / cvar_n, 2)
                                     key_value = f'nt{nt}_nc{nc}_ns{ns}_{ft_type}_tt{tt}_ut{ut}_th{th}_fr{fr}'
                                     count += 1
-                                    print(f"{count} / {total}: {key_value} ---> MEAN-Relative: {impr_prc}, CVAR-Relative: {cvar_prc}, MEAN-Relative2: {impr_prc2}, CVAR-Relative2: {cvar_prc2}")
+                                    print(f"{count} / {total}: {key_value} ---> MEAN-Relative: {impr_prc}, MEAN-Relative2: {impr_prc2}")
                                     results1[key_value] = wavg
                                     results2[key_value] = savg
                                     results3[key_value] = impr_val
