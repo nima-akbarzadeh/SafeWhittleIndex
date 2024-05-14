@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --mail-user=nima.akbarzadeh@mail.mcgill.ca
-#SBATCH --account=rrg-adulyasa
+#SBATCH --account=def-adulyasa
 #SBATCH --mem-per-cpu=2G
 #SBATCH --cpus-per-task=1
 #SBATCH --output=~/projects/def-adulyasa/mcnima/bandits/SafeWhittleIndex/output.txt
