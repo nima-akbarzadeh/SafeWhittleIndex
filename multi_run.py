@@ -5,21 +5,20 @@ from Markov import *
 import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
-import time
 
 
 if __name__ == '__main__':
 
     # Basic Parameters
 
-    n_steps_set = [4, 5]
-    n_states_set = [2, 3]
-    armcoef_set = [3, 4, 5]
+    n_steps_set = [5, 4, 3]
+    n_states_set = [4, 3, 2]
+    armcoef_set = [4, 3]
     f_type_set = ['hom']
     t_type_set = [3]
-    u_type_set = [16]
+    u_type_set = [4, 8, 16]
     threshold_set = [0.3, 0.4, 0.5]
-    fraction_set = [0.3, 0.4, 0.5]
+    fraction_set = [0.2, 0.3, 0.4, 0.5]
 
     PATH1 = f'TestRes_t{n_steps_set}.xlsx'
     PATH2 = f'TestRes_t{n_steps_set}_avg.xlsx'
