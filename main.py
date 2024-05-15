@@ -1,3 +1,4 @@
+import joblib
 import numpy as np
 from whittle import *
 from safe_whittle import *
@@ -11,16 +12,16 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 4
-    n_coeff = 3
+    n_steps = 5
+    n_coeff = 5
     n_states = 2
-    u_type = 8
+    u_type = 16
     n_arms = n_coeff * n_states
     thresholds = 0.5 * np.ones(n_arms)
     choice_fraction = 0.3
 
-    n_episodes = 100
-    n_iterations = 10
+    n_episodes = 1000
+    n_iterations = 1
 
     function_type = np.ones(n_arms, dtype=np.int32)
     # function_type = 1 + np.arange(n_arms)
@@ -106,15 +107,17 @@ if __name__ == '__main__':
                                                                transition_type, transition_increasing, method, reward_bandits, transition_bandits,
                                                                initial_states, u_type)
 
-    prb_err = np.mean(prob_remain.mean()*np.ones(n_episodes) - est_probs.mean(axis=[0, 1]))
-    plt.figure(figsize=(8, 6))
-    plt.plot(prb_err, label='Mean')
-    plt.xlabel('Episodes')
-    plt.ylabel('Regret')
-    plt.title('Mean and Bounds over regret')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    # prb_err = np.mean(prob_remain.mean()*np.ones(n_episodes) - est_probs.mean(axis=[0, 1]))
+    # plt.figure(figsize=(8, 6))
+    # plt.plot(prb_err, label='Mean')
+    # plt.xlabel('Episodes')
+    # plt.ylabel('Regret')
+    # plt.title('Mean and Bounds over regret')
+    # plt.legend()
+    # plt.grid(True)
+    # plt.show()
+
+    # obj_l = joblib.load(f"rew_safetsrb_{n_steps}{n_states}{n_arms}{transition_type}{u_type}{n_choices}{thresholds[0]}.joblib")
 
     reg = np.cumsum(np.mean(obj_s, axis=0) - np.mean(obj_l, axis=1), axis=1)
 
