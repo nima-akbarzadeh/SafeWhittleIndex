@@ -10,7 +10,6 @@ warnings.filterwarnings("ignore")
 if __name__ == '__main__':
 
     # Basic Parameters
-
     n_steps_set = [5, 4, 3]
     n_states_set = [4, 3, 2]
     armcoef_set = [4, 3]
@@ -208,7 +207,7 @@ if __name__ == '__main__':
                                     initial_states = (ns - 1) * np.ones(na, dtype=np.int32)
 
                                     rew_r, obj_r, _ = Process_Random(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut)
-                                    rew_m, obj_m, _ = Process_Myopic(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut)
+                                    rew_m, obj_m, _ = Process_Greedy(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut)
                                     rew_w, obj_w, _ = Process_WhtlRB(WhtlW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, ww_indices, initial_states, ut)
                                     # rew_n, obj_n, _ = Process_NeutRB(NeutW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, nw_indices, initial_states, ut)
                                     rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, sw_indices, initial_states, ut)
