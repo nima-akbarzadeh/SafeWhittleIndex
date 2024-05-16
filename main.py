@@ -1,11 +1,6 @@
-import joblib
-import numpy as np
 from whittle import *
-from safe_whittle import *
-from Markov import *
 from processes import *
 from learning import *
-import time
 import matplotlib.pyplot as plt
 
 
@@ -15,6 +10,7 @@ if __name__ == '__main__':
     n_steps = 5
     n_coeff = 5
     n_states = 2
+    u_order = 2
     u_type = 16
     n_arms = n_coeff * n_states
     thresholds = 0.5 * np.ones(n_arms)
@@ -79,14 +75,14 @@ if __name__ == '__main__':
     W.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_neutrl)
     w_bandits = W.w_indices
 
-    SafeW = SafeWhittle(n_states, n_arms, reward_bandits, transition_bandits, n_steps, u_type, thresholds)
+    SafeW = SafeWhittle(n_states, n_arms, reward_bandits, transition_bandits, n_steps, u_type, u_order, thresholds)
     SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
     sw_bandits = SafeW.w_indices
 
     print('Process Begins ...')
-    rew_m, obj_m, _ = Process_Greedy(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type)
-    rew_w, obj_w, _ = Process_WhtlRB(W, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, w_bandits, initial_states, u_type)
-    rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, sw_bandits, initial_states, u_type)
+    rew_m, obj_m, _ = Process_Greedy(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
+    rew_w, obj_w, _ = Process_WhtlRB(W, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, w_bandits, initial_states, u_type, u_order)
+    rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, sw_bandits, initial_states, u_type, u_order)
     print('Process Ends ...')
 
     print("====================== REWARDS =========================")
@@ -105,7 +101,7 @@ if __name__ == '__main__':
 
     rew_l, obj_l, est_probs, counts, sum_wi = Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
                                                                transition_type, transition_increasing, method, reward_bandits, transition_bandits,
-                                                               initial_states, u_type)
+                                                               initial_states, u_type, u_order, True)
 
     # prb_err = np.mean(prob_remain.mean()*np.ones(n_episodes) - est_probs.mean(axis=[0, 1]))
     # plt.figure(figsize=(8, 6))
@@ -116,8 +112,7 @@ if __name__ == '__main__':
     # plt.legend()
     # plt.grid(True)
     # plt.show()
-
-    # obj_l = joblib.load(f"rew_safetsrb_{n_steps}{n_states}{n_arms}{transition_type}{u_type}{n_choices}{thresholds[0]}.joblib")
+    # obj_l = joblib.load(f"obj_safetsrb_{n_steps}{n_states}{n_arms}{transition_type}{u_type}{u_order}{n_choices}{thresholds[0]}.joblib")
 
     reg = np.cumsum(np.mean(obj_s, axis=0) - np.mean(obj_l, axis=1), axis=1)
 
@@ -140,4 +135,5 @@ if __name__ == '__main__':
     plt.legend()
     plt.grid(True)
     plt.show()
-    plt.savefig(f'regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.png')
+    plt.savefig(f'regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{u_order}{n_choices}{thresholds[0]}.png')
+    plt.savefig(f'regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{u_order}{n_choices}{thresholds[0]}.jpg')

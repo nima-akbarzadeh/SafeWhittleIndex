@@ -27,8 +27,6 @@ class Values:
         self.vals = np.round(self.vals / num_steps, 3)
 
 
-
-
 # Define the Markov dynamics for each arm
 class MarkovDynamics:
 

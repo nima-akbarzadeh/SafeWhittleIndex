@@ -1,12 +1,8 @@
 from processes import *
-from whittle import *
-from safe_whittle import *
 from learning import *
 from Markov import *
-import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
-import time
 import matplotlib.pyplot as plt
 
 
@@ -19,19 +15,21 @@ if __name__ == '__main__':
     n_arms_set = [4, 3]
     f_type_set = ['hom']
     t_type_set = [3]
-    u_type_set = [4, 8]
+    u_type_set = [1, 2]
+    u_order_set = [4, 8]
     threshold_set = [0.4, 0.5]
     fraction_set = [0.3, 0.4]
 
     PATH1 = f'TestRes_t{n_steps_set[-1]}.xlsx'
     PATH2 = f'TestRes_t{n_steps_set[-1]}_avg.xlsx'
+    PATH3 = f'./output/'
 
     method = 3
     n_episodes = 100
     n_iterations = 10
 
     count = 0
-    total = len(n_steps_set) * len(n_arms_set) * len(n_states_set) * len(f_type_set) * len(t_type_set) * len(u_type_set) * len(fraction_set) * len(threshold_set)
+    total = len(n_steps_set) * len(n_arms_set) * len(n_states_set) * len(f_type_set) * len(t_type_set) * len(u_type_set) * len(u_type_set) * len(fraction_set) * len(threshold_set)
     for nt in n_steps_set:
         for ns in n_states_set:
             for nc in n_arms_set:
@@ -65,54 +63,49 @@ if __name__ == '__main__':
                         M = MarkovDynamics(na, ns, prob_remain, tt, True)
                         max_wi = 1
 
-                        # WhtlW = WhittleV3(ns, na, R.vals, M.transitions, nt)
-                        # WhtlW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=nt*na*ns)
-                        # ww_indices = WhtlW.w_indices
-
                         for ut in u_type_set:
+                            for uo in u_order_set:
+                                for th in threshold_set:
 
-                            # NeutW = SafeWhittleV3(ns, na, R.vals, M.transitions, nt, ut, np.ones(na))
-                            # NeutW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=nt*na*ns)
-                            # nw_indices = NeutW.w_indices
+                                    thresh = th * np.ones(na)
+                                    SafeW = SafeWhittle(ns, na, R.vals, M.transitions, nt, ut, uo, thresh)
+                                    SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=nt * na * ns)
+                                    sw_indices = SafeW.w_indices
 
-                            for th in threshold_set:
+                                    for fr in fraction_set:
+                                        nch = np.maximum(1, int(np.around(fr * na)))
+                                        initial_states = (ns - 1) * np.ones(na, dtype=np.int32)
 
-                                thresh = th * np.ones(na)
-                                SafeW = SafeWhittle(ns, na, R.vals, M.transitions, nt, ut, thresh)
-                                SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=nt * na * ns)
-                                sw_indices = SafeW.w_indices
+                                        # rew_n, obj_n, _ = Process_Myopic(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut)
+                                        # rew_w, obj_w, _ = Process_WhtlRB(WhtlW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, ww_indices, initial_states, ut)
+                                        # rew_n, obj_n, _ = Process_NeutRB(NeutW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, nw_indices, initial_states, ut)
+                                        rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, sw_indices, initial_states, ut, uo)
+                                        rew_l, obj_l, _, _, _ = Process_SafeTSRB(n_iterations, n_episodes, nt, ns, na, nch, thresh, tt, True, method, R.vals, M.transitions,
+                                                                                 initial_states, ut, uo, False)
 
-                                for fr in fraction_set:
-                                    nch = np.maximum(1, int(np.around(fr * na)))
+                                        key_value = f'nt{nt}_nc{nc}_ns{ns}_{ft_type}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}'
+                                        joblib.dump([rew_l, obj_l], PATH3 + key_value + "_Learning.joblib")
+                                        joblib.dump([rew_s, obj_s], PATH3 + key_value + "_SafatyLr.joblib")
 
-                                    initial_states = (ns - 1) * np.ones(na, dtype=np.int32)
+                                        count += 1
+                                        print(f"{count} / {total}: {key_value}")
 
-                                    # rew_n, obj_n, _ = Process_Myopic(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut)
-                                    # rew_w, obj_w, _ = Process_WhtlRB(WhtlW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, ww_indices, initial_states, ut)
-                                    # rew_n, obj_n, _ = Process_NeutRB(NeutW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, nw_indices, initial_states, ut)
-                                    rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, sw_indices, initial_states, ut)
-                                    rew_l, obj_l, _, _, _ = Process_SafeTSRB(n_iterations, n_episodes, nt, ns, na, nch, thresh, tt, True, method, R.vals, M.transitions, initial_states, ut)
+                                        reg = np.cumsum(np.mean(obj_s, axis=0) - np.mean(obj_l, axis=1), axis=1)
+                                        mean_reg = np.mean(reg, axis=0)
+                                        # Calculate upper and lower bounds
+                                        upper_bound = np.max(reg, axis=0)
+                                        lower_bound = np.min(reg, axis=0)
+                                        # Plotting
+                                        plt.figure(figsize=(4, 3))
+                                        plt.plot(mean_reg, label='Mean')
+                                        # Fill between lower bound and upper bound
+                                        plt.fill_between(range(len(mean_reg)), lower_bound, upper_bound, color='skyblue', alpha=0.4, label='Bounds')
 
-                                    key_value = f'nt{nt}_nc{nc}_ns{ns}_{ft_type}_tt{tt}_ut{ut}_th{th}_fr{fr}'
-                                    count += 1
-                                    print(f"{count} / {total}: {key_value}")
-
-                                    reg = np.cumsum(np.mean(obj_s, axis=0) - np.mean(obj_l, axis=1), axis=1)
-                                    mean_reg = np.mean(reg, axis=0)
-                                    # Calculate upper and lower bounds
-                                    upper_bound = np.max(reg, axis=0)
-                                    lower_bound = np.min(reg, axis=0)
-                                    # Plotting
-                                    plt.figure(figsize=(4, 3))
-                                    plt.plot(mean_reg, label='Mean')
-                                    # Fill between lower bound and upper bound
-                                    plt.fill_between(range(len(mean_reg)), lower_bound, upper_bound, color='skyblue', alpha=0.4, label='Bounds')
-
-                                    plt.xlabel('Episodes')
-                                    plt.ylabel('Regret')
-                                    plt.title(f'Mean and Bounds over regret {nt}{ns}{na}{tt}{ut}{int(10 * nch)}{int(10 * th)}')
-                                    plt.legend()
-                                    plt.grid(True)
-                                    plt.show()
-                                    plt.savefig(f'regret_{nt}{ns}{na}{tt}{ut}{int(10 * nch)}{int(10 * th)}.png')
-                                    plt.savefig(f'regret_{nt}{ns}{na}{tt}{ut}{int(10 * nch)}{int(10 * th)}.jpg')
+                                        plt.xlabel('Episodes')
+                                        plt.ylabel('Regret')
+                                        plt.title(f'Mean and Bounds over regret {nt}{ns}{na}{tt}{ut}{int(10 * nch)}{int(10 * th)}')
+                                        plt.legend()
+                                        plt.grid(True)
+                                        plt.show()
+                                        plt.savefig(f'/content/drive/MyDrive/Restless_Bandits/HEC_RiskAware/regret_{nt}{ns}{na}{tt}{ut}{uo}{int(10 * nch)}{int(10 * th)}.png')
+                                        plt.savefig(f'/content/drive/MyDrive/Restless_Bandits/HEC_RiskAware/regret_{nt}{ns}{na}{tt}{ut}{uo}{int(10 * nch)}{int(10 * th)}.jpg')

@@ -5,7 +5,7 @@ from scipy.special import softmax
 
 class SafeWhittle:
 
-    def __init__(self, num_states: int, num_arms: int, rewards, transition, horizon, u_type, thresholds):
+    def __init__(self, num_states: int, num_arms: int, rewards, transition, horizon, u_type, u_order, thresholds):
         self.num_x = num_states
         self.num_a = num_arms
         self.rewards = rewards
@@ -40,8 +40,11 @@ class SafeWhittle:
 
             arm_valus = []
             for total_rewards in all_total_rewards:
-                arm_valus.append(np.round((1 + np.exp(-u_type * (1-thresholds[a]))) / (1 + np.exp(-u_type * (total_rewards-thresholds[a]))), 3))
-                # arm_valus.append(np.round(1 - thresholds[a] ** (1 - 1 / u_type) * (np.maximum(0, thresholds[a] - total_rewards)) ** (1 / u_type), 3))
+                if u_type == 1:
+                    arm_valus.append(np.round(1 - thresholds[a] ** (1 - 1 / u_order) * (np.maximum(0, thresholds[a] - total_rewards)) ** (1 / u_order), 3))
+                else:
+                    arm_valus.append(np.round((1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (total_rewards - thresholds[a]))), 3))
+
             self.all_valus.append(arm_valus)
 
         # print(self.all_rews[0])
@@ -189,7 +192,7 @@ class SafeWhittle:
                             reward_added = self.rewards[x, arm]
                         total_reward = self.all_rews[arm][l]
                         next_total_r = total_reward + reward_added
-                        nxt_l = next((i for i, x in enumerate(self.all_rews[arm]) if x ==  next_total_r), -1)
+                        nxt_l = next((i for i, x in enumerate(self.all_rews[arm]) if x == next_total_r), -1)
                         nxt_l = max(0, min(self.n_augment[arm] - 1, l + x))
 
                         Q[l, x, t, act] = np.round(- penalty * act + np.dot(V[nxt_l, :, t + 1], self.transition[x, :, act, arm]), self.digits + 1)
@@ -233,8 +236,13 @@ class SafeWhittle:
         num_a = len(whittle_indices)
 
         current_indices = np.zeros(num_a)
+        count_positive = 0
         for arm in range(num_a):
-            current_indices[arm] = whittle_indices[arm][current_l[arm], current_x[arm], current_t]
+            w_idx = whittle_indices[arm][current_l[arm], current_x[arm], current_t]
+            current_indices[arm] = w_idx
+            if w_idx >= 0:
+                count_positive += 1
+        n_selection = np.minimum(n_selection, count_positive)
 
         # Sort indices based on values and shuffle indices with same values
         sorted_indices = np.argsort(current_indices)[::-1]
@@ -282,8 +290,13 @@ def Whittle_regularpolicy(whittle_indices, n_selection, current_x, current_t):
     num_a = len(whittle_indices)
 
     current_indices = np.zeros(num_a)
+    count_positive = 0
     for arm in range(num_a):
-        current_indices[arm] = whittle_indices[arm][current_x[arm], current_t]
+        w_idx = whittle_indices[arm][current_x[arm], current_t]
+        current_indices[arm] = w_idx
+        if w_idx >= 0:
+            count_positive += 1
+    n_selection = np.minimum(n_selection, count_positive)
 
     # Sort indices based on values and shuffle indices with same values
     sorted_indices = np.argsort(current_indices)[::-1]

@@ -3,6 +3,7 @@ from whittle import *
 from safe_whittle import *
 from Markov import *
 import pandas as pd
+import joblib
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -15,12 +16,14 @@ if __name__ == '__main__':
     armcoef_set = [4, 3]
     f_type_set = ['hom']
     t_type_set = [3]
-    u_type_set = [4, 8, 16]
+    u_type_set = [1, 2]
+    u_order_set = [4, 8, 16]
     threshold_set = [0.3, 0.4, 0.5]
     fraction_set = [0.2, 0.3, 0.4, 0.5]
 
     PATH1 = f'TestRes_t{n_steps_set}.xlsx'
     PATH2 = f'TestRes_t{n_steps_set}_avg.xlsx'
+    PATH3 = f'./output/'
 
     method = 3
     n_episodes = 100
@@ -122,6 +125,19 @@ if __name__ == '__main__':
         mean_relw[f'u_type_set_{ut}'] = 0
         mean_relm[f'u_type_set_{ut}'] = 0
         mean_relr[f'u_type_set_{ut}'] = 0
+    for uo in u_order_set:
+        res1[f'u_order_set_{uo}'] = []
+        res2[f'u_order_set_{uo}'] = []
+        res3[f'u_order_set_{uo}'] = []
+        res4[f'u_order_set_{uo}'] = []
+        res5[f'u_order_set_{uo}'] = []
+        res6[f'u_order_set_{uo}'] = []
+        mean_neut[f'u_order_set_{uo}'] = 0
+        mean_safe[f'u_order_set_{uo}'] = 0
+        mean_impr[f'u_order_set_{uo}'] = 0
+        mean_relw[f'u_order_set_{uo}'] = 0
+        mean_relm[f'u_order_set_{uo}'] = 0
+        mean_relr[f'u_order_set_{uo}'] = 0
     for fr in fraction_set:
         res1[f'fraction_set_{fr}'] = []
         res2[f'fraction_set_{fr}'] = []
@@ -150,7 +166,7 @@ if __name__ == '__main__':
         mean_relr[f'threshold_set_{th}'] = 0
 
     count = 0
-    total = len(n_steps_set) * len(armcoef_set) * len(n_states_set) * len(f_type_set) * len(t_type_set) * len(u_type_set) * len(fraction_set) * len(threshold_set)
+    total = len(n_steps_set) * len(armcoef_set) * len(n_states_set) * len(f_type_set) * len(t_type_set) * len(u_type_set) * len(u_order_set) * len(fraction_set) * len(threshold_set)
     for nt in n_steps_set:
         for ns in n_states_set:
             for nc in armcoef_set:
@@ -189,128 +205,139 @@ if __name__ == '__main__':
                         ww_indices = WhtlW.w_indices
 
                         for ut in u_type_set:
+                            for uo in u_order_set:
 
-                            # NeutW = SafeWhittleV3(ns, na, R.vals, M.transitions, nt, ut, np.ones(na))
-                            # NeutW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=nt*na*ns)
-                            # nw_indices = NeutW.w_indices
+                                # NeutW = SafeWhittleV3(ns, na, R.vals, M.transitions, nt, ut, uo, np.ones(na))
+                                # NeutW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=nt*na*ns)
+                                # nw_indices = NeutW.w_indices
 
-                            for th in threshold_set:
+                                for th in threshold_set:
 
-                                thresh = th * np.ones(na)
-                                SafeW = SafeWhittle(ns, na, R.vals, M.transitions, nt, ut, thresh)
-                                SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=nt * na * ns)
-                                sw_indices = SafeW.w_indices
+                                    thresh = th * np.ones(na)
+                                    SafeW = SafeWhittle(ns, na, R.vals, M.transitions, nt, ut, uo, thresh)
+                                    SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=nt * na * ns)
+                                    sw_indices = SafeW.w_indices
 
-                                for fr in fraction_set:
-                                    nch = np.maximum(1, int(np.around(fr * na)))
+                                    for fr in fraction_set:
+                                        nch = np.maximum(1, int(np.around(fr * na)))
+                                        initial_states = (ns - 1) * np.ones(na, dtype=np.int32)
 
-                                    initial_states = (ns - 1) * np.ones(na, dtype=np.int32)
+                                        rew_r, obj_r, _ = Process_Random(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut, uo)
+                                        rew_m, obj_m, _ = Process_Greedy(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut, uo)
+                                        rew_w, obj_w, _ = Process_WhtlRB(WhtlW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, ww_indices, initial_states, ut, uo)
+                                        # rew_n, obj_n, _ = Process_NeutRB(NeutW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, nw_indices, initial_states, ut, uo)
+                                        rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, sw_indices, initial_states, ut, uo)
 
-                                    rew_r, obj_r, _ = Process_Random(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut)
-                                    rew_m, obj_m, _ = Process_Greedy(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut)
-                                    rew_w, obj_w, _ = Process_WhtlRB(WhtlW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, ww_indices, initial_states, ut)
-                                    # rew_n, obj_n, _ = Process_NeutRB(NeutW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, nw_indices, initial_states, ut)
-                                    rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, sw_indices, initial_states, ut)
+                                        key_value = f'nt{nt}_nc{nc}_ns{ns}_{ft_type}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}'
+                                        joblib.dump([rew_r, obj_r], PATH3 + key_value + "_Random.joblib")
+                                        joblib.dump([rew_m, obj_m], PATH3 + key_value + "_Myopic.joblib")
+                                        joblib.dump([rew_w, obj_w], PATH3 + key_value + "_Whittl.joblib")
+                                        joblib.dump([rew_s, obj_s], PATH3 + key_value + "_Safaty.joblib")
 
-                                    ravg_vec = obj_r.mean(axis=0)
-                                    mavg_vec = obj_m.mean(axis=0)
-                                    wavg_vec = obj_w.mean(axis=0)
-                                    savg_vec = obj_s.mean(axis=0)
-                                    ravg = np.round(np.mean(obj_r), 3)
-                                    mavg = np.round(np.mean(obj_m), 3)
-                                    wavg = np.round(np.mean(obj_w), 3)
-                                    savg = np.round(np.mean(obj_s), 3)
-                                    impr_val = np.round(savg - wavg, 2)
-                                    impr_prcw = np.round(100 * (savg - wavg) / wavg, 2)
-                                    impr_prcr = np.round(100 * (savg - ravg) / ravg, 2)
-                                    impr_prcm = np.round(100 * (savg - mavg) / mavg, 2)
-                                    key_value = f'nt{nt}_nc{nc}_ns{ns}_{ft_type}_tt{tt}_ut{ut}_th{th}_fr{fr}'
-                                    count += 1
+                                        ravg_vec = obj_r.mean(axis=0)
+                                        mavg_vec = obj_m.mean(axis=0)
+                                        wavg_vec = obj_w.mean(axis=0)
+                                        savg_vec = obj_s.mean(axis=0)
+                                        ravg = np.round(np.mean(obj_r), 3)
+                                        mavg = np.round(np.mean(obj_m), 3)
+                                        wavg = np.round(np.mean(obj_w), 3)
+                                        savg = np.round(np.mean(obj_s), 3)
+                                        impr_val = np.round(savg - wavg, 2)
+                                        impr_prcw = np.round(100 * (savg - wavg) / wavg, 2)
+                                        impr_prcr = np.round(100 * (savg - ravg) / ravg, 2)
+                                        impr_prcm = np.round(100 * (savg - mavg) / mavg, 2)
+                                        count += 1
 
-                                    print(f"{count} / {total}: {key_value} ---> MEAN-Rel-W: {impr_prcw}, MEAN-Rel-M: {impr_prcm}, MEAN-Rel-R: {impr_prcr}")
-                                    results1[key_value] = wavg
-                                    results2[key_value] = savg
-                                    results3[key_value] = impr_val
-                                    results4[key_value] = impr_prcw
-                                    results5[key_value] = impr_prcm
-                                    results6[key_value] = impr_prcr
-                                    df1_1 = pd.DataFrame(list(results1.items()), columns=['Key', 'MEAN-Neut'])
-                                    df1_2 = pd.DataFrame(results2.values(), columns=['MEAN-Safe'])
-                                    df1_3 = pd.DataFrame(results3.values(), columns=['MEAN-Impr'])
-                                    df1_4 = pd.DataFrame(results4.values(), columns=['MEAN-RelW'])
-                                    df1_5 = pd.DataFrame(results5.values(), columns=['MEAN-RelM'])
-                                    df1_6 = pd.DataFrame(results6.values(), columns=['MEAN-RelR'])
-                                    df1 = pd.concat([df1_1, df1_2, df1_3, df1_4, df1_5, df1_6], axis=1)
-                                    df1.to_excel(PATH1, index=False)
+                                        print(f"{count} / {total}: {key_value} ---> MEAN-Rel-W: {impr_prcw}, MEAN-Rel-M: {impr_prcm}, MEAN-Rel-R: {impr_prcr}")
+                                        results1[key_value] = wavg
+                                        results2[key_value] = savg
+                                        results3[key_value] = impr_val
+                                        results4[key_value] = impr_prcw
+                                        results5[key_value] = impr_prcm
+                                        results6[key_value] = impr_prcr
+                                        df1_1 = pd.DataFrame(list(results1.items()), columns=['Key', 'MEAN-Neut'])
+                                        df1_2 = pd.DataFrame(results2.values(), columns=['MEAN-Safe'])
+                                        df1_3 = pd.DataFrame(results3.values(), columns=['MEAN-Impr'])
+                                        df1_4 = pd.DataFrame(results4.values(), columns=['MEAN-RelW'])
+                                        df1_5 = pd.DataFrame(results5.values(), columns=['MEAN-RelM'])
+                                        df1_6 = pd.DataFrame(results6.values(), columns=['MEAN-RelR'])
+                                        df1 = pd.concat([df1_1, df1_2, df1_3, df1_4, df1_5, df1_6], axis=1)
+                                        df1.to_excel(PATH1, index=False)
 
-                                    res1[f'n_steps_set_{nt}'].append(results1[key_value])
-                                    res1[f'armcoef_set_{nc}'].append(results1[key_value])
-                                    res1[f'n_states_set_{ns}'].append(results1[key_value])
-                                    res1[f'f_type_set_{ft_type}'].append(results1[key_value])
-                                    res1[f't_type_set_{tt}'].append(results1[key_value])
-                                    res1[f'u_type_set_{ut}'].append(results1[key_value])
-                                    res1[f'fraction_set_{fr}'].append(results1[key_value])
-                                    res1[f'threshold_set_{th}'].append(results1[key_value])
-                                    res2[f'n_steps_set_{nt}'].append(results2[key_value])
-                                    res2[f'armcoef_set_{nc}'].append(results2[key_value])
-                                    res2[f'n_states_set_{ns}'].append(results2[key_value])
-                                    res2[f'f_type_set_{ft_type}'].append(results2[key_value])
-                                    res2[f't_type_set_{tt}'].append(results2[key_value])
-                                    res2[f'u_type_set_{ut}'].append(results2[key_value])
-                                    res2[f'fraction_set_{fr}'].append(results2[key_value])
-                                    res2[f'threshold_set_{th}'].append(results2[key_value])
-                                    res3[f'n_steps_set_{nt}'].append(results3[key_value])
-                                    res3[f'armcoef_set_{nc}'].append(results3[key_value])
-                                    res3[f'n_states_set_{ns}'].append(results3[key_value])
-                                    res3[f'f_type_set_{ft_type}'].append(results3[key_value])
-                                    res3[f't_type_set_{tt}'].append(results3[key_value])
-                                    res3[f'u_type_set_{ut}'].append(results3[key_value])
-                                    res3[f'fraction_set_{fr}'].append(results3[key_value])
-                                    res3[f'threshold_set_{th}'].append(results3[key_value])
-                                    res4[f'n_steps_set_{nt}'].append(results4[key_value])
-                                    res4[f'armcoef_set_{nc}'].append(results4[key_value])
-                                    res4[f'n_states_set_{ns}'].append(results4[key_value])
-                                    res4[f'f_type_set_{ft_type}'].append(results4[key_value])
-                                    res4[f't_type_set_{tt}'].append(results4[key_value])
-                                    res4[f'u_type_set_{ut}'].append(results4[key_value])
-                                    res4[f'fraction_set_{fr}'].append(results4[key_value])
-                                    res4[f'threshold_set_{th}'].append(results4[key_value])
-                                    res5[f'n_steps_set_{nt}'].append(results5[key_value])
-                                    res5[f'armcoef_set_{nc}'].append(results5[key_value])
-                                    res5[f'n_states_set_{ns}'].append(results5[key_value])
-                                    res5[f'f_type_set_{ft_type}'].append(results5[key_value])
-                                    res5[f't_type_set_{tt}'].append(results5[key_value])
-                                    res5[f'u_type_set_{ut}'].append(results5[key_value])
-                                    res5[f'fraction_set_{fr}'].append(results5[key_value])
-                                    res5[f'threshold_set_{th}'].append(results5[key_value])
-                                    res6[f'n_steps_set_{nt}'].append(results6[key_value])
-                                    res6[f'armcoef_set_{nc}'].append(results6[key_value])
-                                    res6[f'n_states_set_{ns}'].append(results6[key_value])
-                                    res6[f'f_type_set_{ft_type}'].append(results6[key_value])
-                                    res6[f't_type_set_{tt}'].append(results6[key_value])
-                                    res6[f'u_type_set_{ut}'].append(results6[key_value])
-                                    res6[f'fraction_set_{fr}'].append(results6[key_value])
-                                    res6[f'threshold_set_{th}'].append(results6[key_value])
+                                        res1[f'n_steps_set_{nt}'].append(results1[key_value])
+                                        res1[f'armcoef_set_{nc}'].append(results1[key_value])
+                                        res1[f'n_states_set_{ns}'].append(results1[key_value])
+                                        res1[f'f_type_set_{ft_type}'].append(results1[key_value])
+                                        res1[f't_type_set_{tt}'].append(results1[key_value])
+                                        res1[f'u_type_set_{ut}'].append(results1[key_value])
+                                        res1[f'u_order_set_{uo}'].append(results6[key_value])
+                                        res1[f'fraction_set_{fr}'].append(results1[key_value])
+                                        res1[f'threshold_set_{th}'].append(results1[key_value])
+                                        res2[f'n_steps_set_{nt}'].append(results2[key_value])
+                                        res2[f'armcoef_set_{nc}'].append(results2[key_value])
+                                        res2[f'n_states_set_{ns}'].append(results2[key_value])
+                                        res2[f'f_type_set_{ft_type}'].append(results2[key_value])
+                                        res2[f't_type_set_{tt}'].append(results2[key_value])
+                                        res2[f'u_type_set_{ut}'].append(results2[key_value])
+                                        res2[f'u_order_set_{uo}'].append(results6[key_value])
+                                        res2[f'fraction_set_{fr}'].append(results2[key_value])
+                                        res2[f'threshold_set_{th}'].append(results2[key_value])
+                                        res3[f'n_steps_set_{nt}'].append(results3[key_value])
+                                        res3[f'armcoef_set_{nc}'].append(results3[key_value])
+                                        res3[f'n_states_set_{ns}'].append(results3[key_value])
+                                        res3[f'f_type_set_{ft_type}'].append(results3[key_value])
+                                        res3[f't_type_set_{tt}'].append(results3[key_value])
+                                        res3[f'u_type_set_{ut}'].append(results3[key_value])
+                                        res3[f'u_order_set_{uo}'].append(results6[key_value])
+                                        res3[f'fraction_set_{fr}'].append(results3[key_value])
+                                        res3[f'threshold_set_{th}'].append(results3[key_value])
+                                        res4[f'n_steps_set_{nt}'].append(results4[key_value])
+                                        res4[f'armcoef_set_{nc}'].append(results4[key_value])
+                                        res4[f'n_states_set_{ns}'].append(results4[key_value])
+                                        res4[f'f_type_set_{ft_type}'].append(results4[key_value])
+                                        res4[f't_type_set_{tt}'].append(results4[key_value])
+                                        res4[f'u_type_set_{ut}'].append(results4[key_value])
+                                        res4[f'u_order_set_{uo}'].append(results6[key_value])
+                                        res4[f'fraction_set_{fr}'].append(results4[key_value])
+                                        res4[f'threshold_set_{th}'].append(results4[key_value])
+                                        res5[f'n_steps_set_{nt}'].append(results5[key_value])
+                                        res5[f'armcoef_set_{nc}'].append(results5[key_value])
+                                        res5[f'n_states_set_{ns}'].append(results5[key_value])
+                                        res5[f'f_type_set_{ft_type}'].append(results5[key_value])
+                                        res5[f't_type_set_{tt}'].append(results5[key_value])
+                                        res5[f'u_type_set_{ut}'].append(results5[key_value])
+                                        res5[f'u_order_set_{uo}'].append(results6[key_value])
+                                        res5[f'fraction_set_{fr}'].append(results5[key_value])
+                                        res5[f'threshold_set_{th}'].append(results5[key_value])
+                                        res6[f'n_steps_set_{nt}'].append(results6[key_value])
+                                        res6[f'armcoef_set_{nc}'].append(results6[key_value])
+                                        res6[f'n_states_set_{ns}'].append(results6[key_value])
+                                        res6[f'f_type_set_{ft_type}'].append(results6[key_value])
+                                        res6[f't_type_set_{tt}'].append(results6[key_value])
+                                        res6[f'u_type_set_{ut}'].append(results6[key_value])
+                                        res6[f'u_order_set_{uo}'].append(results6[key_value])
+                                        res6[f'fraction_set_{fr}'].append(results6[key_value])
+                                        res6[f'threshold_set_{th}'].append(results6[key_value])
 
-                                    for key in list(res1.keys()):
-                                        if len(res1[key]) != 0:
-                                            mean_neut[key] = sum(res1[key]) / len(res1[key])
-                                        if len(res2[key]) != 0:
-                                            mean_safe[key] = sum(res2[key]) / len(res2[key])
-                                        if len(res3[key]) != 0:
-                                            mean_impr[key] = sum(res3[key]) / len(res3[key])
-                                        if len(res4[key]) != 0:
-                                            mean_relw[key] = sum(res4[key]) / len(res4[key])
-                                        if len(res5[key]) != 0:
-                                            mean_relm[key] = sum(res5[key]) / len(res5[key])
-                                        if len(res6[key]) != 0:
-                                            mean_relr[key] = sum(res6[key]) / len(res6[key])
+                                        for key in list(res1.keys()):
+                                            if len(res1[key]) != 0:
+                                                mean_neut[key] = sum(res1[key]) / len(res1[key])
+                                            if len(res2[key]) != 0:
+                                                mean_safe[key] = sum(res2[key]) / len(res2[key])
+                                            if len(res3[key]) != 0:
+                                                mean_impr[key] = sum(res3[key]) / len(res3[key])
+                                            if len(res4[key]) != 0:
+                                                mean_relw[key] = sum(res4[key]) / len(res4[key])
+                                            if len(res5[key]) != 0:
+                                                mean_relm[key] = sum(res5[key]) / len(res5[key])
+                                            if len(res6[key]) != 0:
+                                                mean_relr[key] = sum(res6[key]) / len(res6[key])
 
-                                    df2_1 = pd.DataFrame(list(mean_neut.items()), columns=['Key', 'MEAN-Neut'])
-                                    df2_2 = pd.DataFrame(list(mean_safe.values()), columns=['MEAN-Safe'])
-                                    df2_3 = pd.DataFrame(list(mean_impr.values()), columns=['MEAN-Impr'])
-                                    df2_4 = pd.DataFrame(list(mean_relw.values()), columns=['MEAN-RelW'])
-                                    df2_5 = pd.DataFrame(list(mean_relm.values()), columns=['MEAN-RelM'])
-                                    df2_6 = pd.DataFrame(list(mean_relr.values()), columns=['MEAN-RelR'])
-                                    df2 = pd.concat([df2_1, df2_2, df2_3, df2_4, df2_5, df2_6], axis=1)
-                                    df2.to_excel(PATH2, index=False)
+                                        df2_1 = pd.DataFrame(list(mean_neut.items()), columns=['Key', 'MEAN-Neut'])
+                                        df2_2 = pd.DataFrame(list(mean_safe.values()), columns=['MEAN-Safe'])
+                                        df2_3 = pd.DataFrame(list(mean_impr.values()), columns=['MEAN-Impr'])
+                                        df2_4 = pd.DataFrame(list(mean_relw.values()), columns=['MEAN-RelW'])
+                                        df2_5 = pd.DataFrame(list(mean_relm.values()), columns=['MEAN-RelM'])
+                                        df2_6 = pd.DataFrame(list(mean_relr.values()), columns=['MEAN-RelR'])
+                                        df2 = pd.concat([df2_1, df2_2, df2_3, df2_4, df2_5, df2_6], axis=1)
+                                        df2.to_excel(PATH2, index=False)
