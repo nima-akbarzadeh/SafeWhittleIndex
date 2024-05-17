@@ -36,6 +36,11 @@ class MarkovDynamics:
         self.increasing = increasing
         self.transitions = self.purereset_and_deteriorate(prob_remain, transition_type)
 
+    @staticmethod
+    def ceil_to_decimals(arr, decimals):
+        factor = 10 ** decimals
+        return np.floor(arr * factor) / factor
+
     def purereset_and_deteriorate(self, prob_remain, transition_type):
         transitions = np.zeros((self.num_s, self.num_s, 2, self.num_a))
         for a in range(self.num_a):
@@ -95,20 +100,117 @@ class MarkovDynamics:
                 transitions[:, :, 1, a] = np.round(((1 - prob_remain[a]) / (self.num_s-1)) * np.triu(np.ones((self.num_s, self.num_s))), 2)
                 for s in range(self.num_s):
                     transitions[s, -1, 1, a] = 1 - sum(transitions[s, :self.num_s-1, 1, a])
-            elif transition_type == 14:
-                pr01 = prob_remain[0]
-                pr02 = prob_remain[1]
-                pr11 = prob_remain[2]
-                pr12 = prob_remain[3]
+            elif transition_type == 11:
+                pr_ss_0 = prob_remain[0][a]
+                pr_sr_0 = prob_remain[1][a]
+                pr_sp_0 = prob_remain[2][a]
+                if pr_ss_0 + pr_sr_0 + pr_sp_0 > 1:
+                    sumprobs = pr_ss_0 + pr_sr_0 + pr_sp_0
+                    pr_ss_0 = self.ceil_to_decimals(pr_ss_0 / sumprobs, 3)
+                    pr_sr_0 = self.ceil_to_decimals(pr_sr_0 / sumprobs, 3)
+                    pr_sp_0 = self.ceil_to_decimals(pr_sp_0 / sumprobs, 3)
+                pr_rr_0 = prob_remain[3][a]
+                pr_rp_0 = prob_remain[4][a]
+                if pr_rr_0 + pr_rp_0 > 1:
+                    sumprobs = pr_rr_0 + pr_rp_0
+                    pr_rr_0 = self.ceil_to_decimals(pr_rr_0 / sumprobs, 3)
+                    pr_rp_0 = self.ceil_to_decimals(pr_rp_0 / sumprobs, 3)
+                pr_pp_0 = prob_remain[5][a]
+                pr_ss_1 = prob_remain[6][a]
+                pr_sr_1 = prob_remain[7][a]
+                pr_sp_1 = prob_remain[8][a]
+                if pr_ss_1 + pr_sr_1 + pr_sp_1 > 1:
+                    sumprobs = pr_ss_1 + pr_sr_1 + pr_sp_1
+                    pr_ss_1 = self.ceil_to_decimals(pr_ss_1 / sumprobs, 3)
+                    pr_sr_1 = self.ceil_to_decimals(pr_sr_1 / sumprobs, 3)
+                    pr_sp_1 = self.ceil_to_decimals(pr_sp_1 / sumprobs, 3)
+                pr_rr_1 = prob_remain[3][a]
+                pr_rp_1 = prob_remain[4][a]
+                if pr_rr_1 + pr_rp_1 > 1:
+                    sumprobs = pr_rr_1 + pr_rp_1
+                    pr_rr_1 = self.ceil_to_decimals(pr_rr_1 / sumprobs, 3)
+                    pr_rp_1 = self.ceil_to_decimals(pr_rp_1 / sumprobs, 3)
+                pr_pp_1 = prob_remain[11][a]
+                transitions[:, :, 0, a] = np.array([
+                    [1, 0, 0, 0],
+                    [1 - pr_pp_0, pr_pp_0, 0, 0],
+                    [1 - (pr_rp_0 + pr_rr_0), pr_rp_0, pr_rr_0, 0],
+                    [1 - (pr_sp_0 + pr_sr_0 + pr_ss_0), pr_sp_0, pr_sr_0, pr_ss_0]
+                ])
+                transitions[:, :, 1, a] = np.array([
+                    [1, 0, 0, 0],
+                    [1 - pr_pp_1, pr_pp_1, 0, 0],
+                    [1 - (pr_rp_1 + pr_rr_1), pr_rp_1, pr_rr_1, 0],
+                    [1 - (pr_sp_1 + pr_sr_1 + pr_ss_1), pr_sp_1, pr_sr_1, pr_ss_1]
+                ])
+            elif transition_type == 12:
+                pr_ss_0 = prob_remain[0][a]
+                pr_sr_0 = prob_remain[1][a]
+                if pr_ss_0 + pr_sr_0 > 1:
+                    sumprobs = pr_ss_0 + pr_sr_0
+                    pr_ss_0 = self.ceil_to_decimals(pr_ss_0 / sumprobs, 3)
+                    pr_sr_0 = self.ceil_to_decimals(pr_sr_0 / sumprobs, 3)
+                pr_rr_0 = prob_remain[2][a]
+                pr_pp_0 = prob_remain[3][a]
+                pr_ss_1 = prob_remain[4][a]
+                pr_sr_1 = prob_remain[5][a]
+                if pr_ss_1 + pr_sr_1 > 1:
+                    sumprobs = pr_ss_1 + pr_sr_1
+                    pr_ss_1 = self.ceil_to_decimals(pr_ss_1 / sumprobs, 3)
+                    pr_sr_1 = self.ceil_to_decimals(pr_sr_1 / sumprobs, 3)
+                pr_rr_1 = prob_remain[6][a]
+                pr_pp_1 = prob_remain[7][a]
+                transitions[:, :, 0, a] = np.array([
+                    [1, 0, 0, 0],
+                    [1 - pr_pp_0, pr_pp_0, 0, 0],
+                    [0, 1 - pr_rr_0, pr_rr_0, 0],
+                    [0, 1 - (pr_sr_0 + pr_ss_0), pr_sr_0, pr_ss_0]
+                ])
+                transitions[:, :, 1, a] = np.array([
+                    [1, 0, 0, 0],
+                    [1 - pr_pp_1, pr_pp_1, 0, 0],
+                    [0, 1 - pr_rr_1, pr_rr_1, 0],
+                    [0, 1 - (pr_sr_1 + pr_ss_1), pr_sr_1, pr_ss_1]
+                ])
+            elif transition_type == 13:
+                pr_ss_0 = prob_remain[0][a]
+                pr_sp_0 = prob_remain[1][a]
+                if pr_ss_0 + pr_sp_0 > 1:
+                    sumprobs = pr_ss_0 + pr_sp_0
+                    pr_ss_0 = self.ceil_to_decimals(pr_ss_0 / sumprobs, 3)
+                    pr_sp_0 = self.ceil_to_decimals(pr_sp_0 / sumprobs, 3)
+                pr_pp_0 = prob_remain[2][a]
+                pr_ss_1 = prob_remain[3][a]
+                pr_sp_1 = prob_remain[4][a]
+                if pr_ss_1 + pr_sp_1 > 1:
+                    sumprobs = pr_ss_1 + pr_sp_1
+                    pr_ss_1 = self.ceil_to_decimals(pr_ss_1 / sumprobs, 3)
+                    pr_sp_1 = self.ceil_to_decimals(pr_sp_1 / sumprobs, 3)
+                pr_pp_1 = prob_remain[5][a]
                 transitions[:, :, 0, a] = np.array([
                     [1, 0, 0],
-                    [pr01[a], 1-pr01[a], 0],
-                    [0, 1-pr02[a], pr02[a]]
+                    [1 - pr_pp_0, pr_pp_0, 0],
+                    [1 - (pr_sp_0 + pr_ss_0), pr_sp_0, pr_ss_0]
+                ])
+                transitions[:, :, 1, a] = np.array([
+                    [1, 0, 0],
+                    [1 - pr_pp_1, pr_pp_1, 0],
+                    [1 - (pr_sp_1 + pr_ss_1), pr_sp_1, pr_ss_1]
+                ])
+            elif transition_type == 14:
+                pr_ss_0 = prob_remain[0][a]
+                pr_pp_0 = prob_remain[1][a]
+                pr_ss_1 = prob_remain[2][a]
+                pr_pp_1 = prob_remain[3][a]
+                transitions[:, :, 0, a] = np.array([
+                    [1, 0, 0],
+                    [1-pr_pp_0, pr_pp_0, 0],
+                    [0, 1-pr_ss_0, pr_ss_0]
                     ])
                 transitions[:, :, 1, a] = np.array([
                     [1, 0, 0],
-                    [pr11[a], 1-pr11[a], 0],
-                    [0, 1-pr12[a], pr12[a]]
+                    [1-pr_pp_1, pr_pp_1, 0],
+                    [0, 1-pr_ss_1, pr_ss_1]
                     ])
 
         return transitions

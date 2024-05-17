@@ -12,10 +12,10 @@ if __name__ == '__main__':
 
     # Basic Parameters
     n_steps_set = [5, 4, 3]
-    n_states_set = [4, 3, 2]
-    armcoef_set = [4, 3]
+    n_states_set = [4]
+    armcoef_set = [5, 4, 3]
     f_type_set = ['hom']
-    t_type_set = [3]
+    t_type_set = [11]
     u_type_set = [1, 2]
     u_order_set = [4, 8, 16]
     threshold_set = [0.3, 0.4, 0.5]
@@ -191,6 +191,74 @@ if __name__ == '__main__':
                             prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
                         elif tt == 6:
                             prob_remain = np.round(np.linspace(0.2, 0.8, na), 2)
+                        elif tt == 11:
+                            pr_ss_0 = np.round(np.linspace(0.596, 0.690, na), 3)
+                            np.random.shuffle(pr_ss_0)
+                            pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
+                            np.random.shuffle(pr_sr_0)
+                            pr_sp_0 = np.round(np.linspace(0.201, 0.287, na), 3)
+                            np.random.shuffle(pr_sp_0)
+                            pr_rr_0 = np.round(np.linspace(0.759, 0.822, na), 3)
+                            np.random.shuffle(pr_rr_0)
+                            pr_rp_0 = np.round(np.linspace(0.130, 0.169, na), 3)
+                            np.random.shuffle(pr_rp_0)
+                            pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
+                            np.random.shuffle(pr_pp_0)
+                            pr_ss_1 = np.round(np.linspace(0.733, 0.801, na), 3)
+                            np.random.shuffle(pr_ss_1)
+                            pr_sr_1 = np.round(np.linspace(0.047, 0.078, na), 3)
+                            np.random.shuffle(pr_sr_1)
+                            pr_sp_1 = np.round(np.linspace(0.115, 0.171, na), 3)
+                            np.random.shuffle(pr_sp_1)
+                            pr_rr_1 = np.round(np.linspace(0.758, 0.847, na), 3)
+                            np.random.shuffle(pr_rr_1)
+                            pr_rp_1 = np.round(np.linspace(0.121, 0.193, na), 3)
+                            np.random.shuffle(pr_rp_1)
+                            pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
+                            np.random.shuffle(pr_pp_1)
+                            prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
+                        elif tt == 12:
+                            pr_ss_0 = np.round(np.linspace(0.668, 0.738, na), 3)
+                            np.random.shuffle(pr_ss_0)
+                            pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
+                            np.random.shuffle(pr_sr_0)
+                            pr_rr_0 = np.round(np.linspace(0.831, 0.870, na), 3)
+                            np.random.shuffle(pr_rr_0)
+                            pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
+                            np.random.shuffle(pr_pp_0)
+                            pr_ss_1 = np.round(np.linspace(0.782, 0.833, na), 3)
+                            np.random.shuffle(pr_ss_1)
+                            pr_sr_1 = np.round(np.linspace(0.047, 0.078, na), 3)
+                            np.random.shuffle(pr_sr_1)
+                            pr_rr_1 = np.round(np.linspace(0.807, 0.879, na), 3)
+                            np.random.shuffle(pr_rr_1)
+                            pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
+                            np.random.shuffle(pr_pp_1)
+                            prob_remain = [pr_ss_0, pr_sr_0, pr_rr_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_rr_1, pr_pp_1]
+                        elif tt == 13:
+                            pr_ss_0 = np.round(np.linspace(0.657, 0.762, na), 3)
+                            np.random.shuffle(pr_ss_0)
+                            pr_sp_0 = np.round(np.linspace(0.201, 0.287, na), 3)
+                            np.random.shuffle(pr_sp_0)
+                            pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
+                            np.random.shuffle(pr_pp_0)
+                            pr_ss_1 = np.round(np.linspace(0.806, 0.869, na), 3)
+                            np.random.shuffle(pr_ss_1)
+                            pr_sp_1 = np.round(np.linspace(0.115, 0.171, na), 3)
+                            np.random.shuffle(pr_sp_1)
+                            pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
+                            np.random.shuffle(pr_pp_1)
+                            prob_remain = [pr_ss_0, pr_sp_0, pr_pp_0, pr_ss_1, pr_sp_1, pr_pp_1]
+                        elif tt == 14:
+                            pr_ss_0 = np.round(np.linspace(0.713, 0.799, na), 3)
+                            np.random.shuffle(pr_ss_0)
+                            pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
+                            np.random.shuffle(pr_pp_0)
+                            pr_ss_1 = np.round(np.linspace(0.829, 0.885, na), 3)
+                            np.random.shuffle(pr_ss_1)
+                            pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
+                            np.random.shuffle(pr_pp_1)
+                            prob_remain = [pr_ss_0, pr_pp_0, pr_ss_1, pr_pp_1]
                         else:
                             prob_remain = np.round(np.linspace(0.1, 0.9, na), 2)
 

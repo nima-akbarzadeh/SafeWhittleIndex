@@ -25,6 +25,8 @@ def Process_Random(n_episodes, n_steps, n_states, n_bandits, n_choices, threshol
                 else:
                     objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
                 counts[_states[a], actions[a], a] += 1
+                # print(transitions[_states[a], :, actions[a], a])
+                # print(sum(transitions[_states[a], :, actions[a], a]))
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
 
     return totalrewards, objectives, counts

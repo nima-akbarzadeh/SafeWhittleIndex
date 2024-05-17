@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Basic Parameters
-
     n_steps_set = [4]
     n_states_set = [3, 2]
     n_arms_set = [4, 3]
