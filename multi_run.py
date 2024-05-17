@@ -27,6 +27,7 @@ if __name__ == '__main__':
 
     method = 3
     n_episodes = 100
+    np.random.seed(42)
 
     results1 = {}
     results2 = {}

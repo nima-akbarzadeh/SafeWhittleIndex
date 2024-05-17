@@ -9,19 +9,20 @@ if __name__ == '__main__':
     # Basic Parameters
     n_steps = 3
     n_coeff = 3
-    n_states = 3
+    n_states = 4
     u_type = 2
-    u_order = 16
+    u_order = 8
     n_arms = n_coeff * n_states
-    thresholds = 0.5 * np.ones(n_arms)
-    choice_fraction = 0.4
+    thresholds = 0.3 * np.ones(n_arms)
+    choice_fraction = 0.5
     n_episodes = 100
-    n_iterations = 1
+    n_iterations = 10
 
     function_type = np.ones(n_arms, dtype=np.int32)
     # function_type = 1 + np.arange(n_arms)
 
-    transition_type = 3
+    transition_type = 11
+    np.random.seed(42)
 
     na = n_arms
     ns = n_states
@@ -50,6 +51,7 @@ if __name__ == '__main__':
     elif tt == 11:
         pr_ss_0 = np.round(np.linspace(0.596, 0.690, na), 3)
         np.random.shuffle(pr_ss_0)
+        print(pr_ss_0)
         pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
         np.random.shuffle(pr_sr_0)
         pr_sp_0 = np.round(np.linspace(0.201, 0.287, na), 3)

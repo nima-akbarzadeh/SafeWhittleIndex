@@ -26,6 +26,7 @@ if __name__ == '__main__':
     method = 3
     n_episodes = 100
     n_iterations = 10
+    np.random.seed(42)
 
     count = 0
     total = len(n_steps_set) * len(n_arms_set) * len(n_states_set) * len(f_type_set) * len(t_type_set) * len(u_type_set) * len(u_type_set) * len(fraction_set) * len(threshold_set)
