@@ -106,6 +106,6 @@ if __name__ == '__main__':
                                         plt.title(f'Mean and Bounds over regret {key_value}')
                                         plt.legend()
                                         plt.grid(True)
-                                        plt.show()
+                                        # plt.show()
                                         plt.savefig(f'./output/regret_{nt}{ns}{na}{tt}{ut}{uo}{int(10 * nch)}{int(10 * th)}.png')
                                         plt.savefig(f'./output/regret_{nt}{ns}{na}{tt}{ut}{uo}{int(10 * nch)}{int(10 * th)}.jpg')
