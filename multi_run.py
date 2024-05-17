@@ -177,21 +177,30 @@ if __name__ == '__main__':
                         ft = np.ones(na, dtype=np.int32)
                     else:
                         ft = 1 + np.arange(na)
+                    np.random.shuffle(ft)
+
                     for tt in t_type_set:
                         if tt == 0:
                             prob_remain = np.round(np.linspace(0.1, 0.9, na), 2)
+                            np.random.shuffle(prob_remain)
                         elif tt == 1:
                             prob_remain = np.round(np.linspace(0.05, 0.45, na), 2)
+                            np.random.shuffle(prob_remain)
                         elif tt == 2:
                             prob_remain = np.round(np.linspace(0.05, 0.45, na), 2)
+                            np.random.shuffle(prob_remain)
                         elif tt == 3:
                             prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
+                            np.random.shuffle(prob_remain)
                         elif tt == 4:
                             prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
+                            np.random.shuffle(prob_remain)
                         elif tt == 5:
                             prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
+                            np.random.shuffle(prob_remain)
                         elif tt == 6:
                             prob_remain = np.round(np.linspace(0.2, 0.8, na), 2)
+                            np.random.shuffle(prob_remain)
                         elif tt == 11:
                             pr_ss_0 = np.round(np.linspace(0.596, 0.690, na), 3)
                             np.random.shuffle(pr_ss_0)
@@ -262,9 +271,8 @@ if __name__ == '__main__':
                             prob_remain = [pr_ss_0, pr_pp_0, pr_ss_1, pr_pp_1]
                         else:
                             prob_remain = np.round(np.linspace(0.1, 0.9, na), 2)
+                            np.random.shuffle(prob_remain)
 
-                        np.random.shuffle(ft)
-                        np.random.shuffle(prob_remain)
                         R = Values(nt, na, ns, ft, True)
                         M = MarkovDynamics(na, ns, prob_remain, tt, True)
                         max_wi = 1
