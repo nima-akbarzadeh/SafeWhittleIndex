@@ -26,7 +26,7 @@ if __name__ == '__main__':
     PATH3 = f'./output/'
 
     method = 3
-    n_episodes = 100
+    n_episodes = 500
     np.random.seed(42)
 
     results1 = {}
