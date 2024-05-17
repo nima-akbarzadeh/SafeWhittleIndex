@@ -18,11 +18,11 @@ if __name__ == '__main__':
     t_type_set = [11]
     u_type_set = [1, 2]
     u_order_set = [4, 8, 16]
-    threshold_set = [0.3, 0.4, 0.5]
+    threshold_set = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
     fraction_set = [0.2, 0.3, 0.4, 0.5]
 
-    PATH1 = f'./output/TestRes_t{n_steps_set}.xlsx'
-    PATH2 = f'./output/TestRes_t{n_steps_set}_avg.xlsx'
+    PATH1 = f'./output/TestRes_t{t_type_set}.xlsx'
+    PATH2 = f'./output/TestRes_t{t_type_set}_avg.xlsx'
     PATH3 = f'./output/'
 
     method = 3

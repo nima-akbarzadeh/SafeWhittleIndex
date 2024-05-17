@@ -7,21 +7,20 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 3
-    n_coeff = 3
-    n_states = 4
+    n_steps = 5
+    n_coeff = 5
+    n_states = 5
     u_type = 2
-    u_order = 8
+    u_order = 16
     n_arms = n_coeff * n_states
-    thresholds = 0.3 * np.ones(n_arms)
-    choice_fraction = 0.5
-    n_episodes = 100
-    n_iterations = 10
-
+    thresholds = 0.4 * np.ones(n_arms)
+    choice_fraction = 0.3
     function_type = np.ones(n_arms, dtype=np.int32)
     # function_type = 1 + np.arange(n_arms)
+    transition_type = 3
 
-    transition_type = 11
+    n_episodes = 100
+    n_iterations = 10
     np.random.seed(42)
 
     na = n_arms
