@@ -19,8 +19,8 @@ if __name__ == '__main__':
     threshold_set = [0.4, 0.5]
     fraction_set = [0.3, 0.4]
 
-    PATH1 = f'TestRes_t{n_steps_set[-1]}.xlsx'
-    PATH2 = f'TestRes_t{n_steps_set[-1]}_avg.xlsx'
+    PATH1 = f'./output/TestRes_t{n_steps_set[-1]}.xlsx'
+    PATH2 = f'./output/TestRes_t{n_steps_set[-1]}_avg.xlsx'
     PATH3 = f'./output/'
 
     method = 3
@@ -103,9 +103,9 @@ if __name__ == '__main__':
 
                                         plt.xlabel('Episodes')
                                         plt.ylabel('Regret')
-                                        plt.title(f'Mean and Bounds over regret {nt}{ns}{na}{tt}{ut}{int(10 * nch)}{int(10 * th)}')
+                                        plt.title(f'Mean and Bounds over regret {key_value}')
                                         plt.legend()
                                         plt.grid(True)
                                         plt.show()
-                                        plt.savefig(f'/content/drive/MyDrive/Restless_Bandits/HEC_RiskAware/regret_{nt}{ns}{na}{tt}{ut}{uo}{int(10 * nch)}{int(10 * th)}.png')
-                                        plt.savefig(f'/content/drive/MyDrive/Restless_Bandits/HEC_RiskAware/regret_{nt}{ns}{na}{tt}{ut}{uo}{int(10 * nch)}{int(10 * th)}.jpg')
+                                        plt.savefig(f'./output/regret_{nt}{ns}{na}{tt}{ut}{uo}{int(10 * nch)}{int(10 * th)}.png')
+                                        plt.savefig(f'./output/regret_{nt}{ns}{na}{tt}{ut}{uo}{int(10 * nch)}{int(10 * th)}.jpg')

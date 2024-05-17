@@ -21,8 +21,8 @@ if __name__ == '__main__':
     threshold_set = [0.3, 0.4, 0.5]
     fraction_set = [0.2, 0.3, 0.4, 0.5]
 
-    PATH1 = f'TestRes_t{n_steps_set}.xlsx'
-    PATH2 = f'TestRes_t{n_steps_set}_avg.xlsx'
+    PATH1 = f'./output/TestRes_t{n_steps_set}.xlsx'
+    PATH2 = f'./output/TestRes_t{n_steps_set}_avg.xlsx'
     PATH3 = f'./output/'
 
     method = 3
