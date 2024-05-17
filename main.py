@@ -7,16 +7,15 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 5
-    n_coeff = 5
-    n_states = 2
-    u_order = 2
-    u_type = 16
+    n_steps = 3
+    n_coeff = 3
+    n_states = 3
+    u_type = 2
+    u_order = 16
     n_arms = n_coeff * n_states
     thresholds = 0.5 * np.ones(n_arms)
-    choice_fraction = 0.3
-
-    n_episodes = 2
+    choice_fraction = 0.4
+    n_episodes = 100
     n_iterations = 1
 
     function_type = np.ones(n_arms, dtype=np.int32)

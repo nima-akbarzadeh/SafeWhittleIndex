@@ -86,10 +86,10 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
         print(end_time - start_time)
 
         if save_data:
-            joblib.dump(objectives, f'/content/drive/MyDrive/Restless_Bandits/HEC_RiskAware/obj_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
-            joblib.dump(totalrewards, f'/content/drive/MyDrive/Restless_Bandits/HEC_RiskAware/rew_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
-            joblib.dump(est_prob, f'/content/drive/MyDrive/Restless_Bandits/HEC_RiskAware/probs_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
-            joblib.dump(counts, f'/content/drive/MyDrive/Restless_Bandits/HEC_RiskAware/counts_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
-            joblib.dump(sum_wi, f'/content/drive/MyDrive/Restless_Bandits/HEC_RiskAware/sumwi_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+            joblib.dump(objectives, f'obj_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+            joblib.dump(totalrewards, f'rew_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+            joblib.dump(est_prob, f'probs_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+            joblib.dump(counts, f'counts_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+            joblib.dump(sum_wi, f'sumwi_safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
     return totalrewards, objectives, est_prob, counts, sum_wi
