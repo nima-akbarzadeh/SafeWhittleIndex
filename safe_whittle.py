@@ -41,7 +41,7 @@ class SafeWhittle:
             arm_valus = []
             for total_rewards in all_total_rewards:
                 if u_type == 1:
-                    arm_valus.append(np.round(1 - thresholds[a] ** (1 - 1 / u_order) * (np.maximum(0, thresholds[a] - total_rewards)) ** (1 / u_order), 3))
+                    arm_valus.append(np.round(1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - total_rewards)) ** (1 / u_order), 3))
                 else:
                     arm_valus.append(np.round((1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (total_rewards - thresholds[a]))), 3))
 
