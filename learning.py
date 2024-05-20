@@ -14,11 +14,12 @@ def Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_
     all_objectives = np.zeros((n_iterations, l_episodes, n_arms))
     all_sumwis = np.zeros((n_iterations, l_episodes, n_arms))
     all_probs = np.round((0.1 / n_states), 2) * np.ones((n_iterations, l_episodes, n_arms))
+    duration = 0
 
     for n in range(n_iterations):
 
-        print(f'Learning iteration {n + 1} out of {n_iterations}')
-
+        # print(f'Learning iteration {n + 1} out of {n_iterations}')
+        start_time = time.time()
         M = MarkovDynamics(n_arms, n_states, all_probs[n, :, 0], t_type, t_increasing)
         SafeW = SafeWhittle(n_states, n_arms, tru_rew, M.transitions, n_steps, u_type, u_order, thresholds)
         SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
@@ -27,12 +28,12 @@ def Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_
 
         for l in range(l_episodes):
 
+            print(f'Episode {l + 1} of {l_episodes} / Iteration {n_iterations} / last iteration was {duration} seconds')
             totalrewards = np.zeros((n_arms, n_episodes))
             objectives = np.zeros((n_arms, n_episodes))
 
             for k in range(n_episodes):
 
-                # print(f'Episode {k}')
                 states = initial_states.copy()
                 _lifted = np.zeros(n_arms, dtype=np.int32)
                 for t in range(n_steps):
@@ -89,8 +90,8 @@ def Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_
                 all_rewards[n, l, a] = np.mean(totalrewards[a, :])
                 all_objectives[n, l, a] = np.mean(objectives[a, :])
 
-            # end_time = time.time()
-            # print(end_time - start_time)
+        end_time = time.time()
+        duration = end_time - start_time
 
     if save_data:
         joblib.dump([all_probs, all_sumwis, all_rewards, all_objectives], f'./output/safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
@@ -108,11 +109,12 @@ def Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states
     all_objectives = np.zeros((n_iterations, l_episodes, n_arms))
     all_sumwis = np.zeros((n_iterations, l_episodes, n_arms))
     all_probs = np.round((0.1 / n_states), 2) * np.ones((n_iterations, l_episodes, n_arms))
+    duration = 0
 
     for n in range(n_iterations):
 
         # print(f'Iteration {n + 1} / {n_iterations}')
-
+        start_time = time.time()
         M = MarkovDynamics(n_arms, n_states, all_probs[n, :, 0], t_type, t_increasing)
         SafeW = SafeWhittle(n_states, n_arms, tru_rew, M.transitions, n_steps, u_type, u_order, thresholds)
         SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
@@ -121,12 +123,12 @@ def Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states
 
         for l in range(l_episodes):
 
+            print(f'Episode {l + 1} of {l_episodes} / Iteration {n_iterations} / last iteration was {duration} seconds')
             totalrewards = np.zeros((n_arms, n_episodes))
             objectives = np.zeros((n_arms, n_episodes))
 
             for k in range(n_episodes):
 
-                print(f'Episode {k+1} / {n_episodes}')
                 states = initial_states.copy()
                 _lifted = np.zeros(n_arms, dtype=np.int32)
                 for t in range(n_steps):
@@ -183,8 +185,8 @@ def Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states
                 all_rewards[n, l, a] = np.mean(totalrewards[a, :])
                 all_objectives[n, l, a] = np.mean(objectives[a, :])
 
-            # end_time = time.time()
-            # print(end_time - start_time)
+        end_time = time.time()
+        print(end_time - start_time)
 
     if save_data:
         joblib.dump([all_probs, all_sumwis, all_rewards, all_objectives], f'./output/safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
