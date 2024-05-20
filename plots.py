@@ -46,12 +46,9 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()
 
-
     # Plot the function
     plt.figure(figsize=(10, 6))
     plt.plot(J_values, h_values, linewidth=8)
-    # plt.plot(0.5, 0, marker='o', markersize=10, fillstyle='none')
-    # plt.plot(0.5, 1, marker='o', markersize=10)
     plt.xlabel('Total Reward', fontsize=20, fontweight='bold')
     plt.ylabel('Utility Value', fontsize=20, fontweight='bold')
     plt.xticks(fontsize=16, fontweight='bold')
