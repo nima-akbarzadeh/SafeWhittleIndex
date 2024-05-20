@@ -40,15 +40,17 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
                         totalrewards[i, a, k] += tru_rew[_states[a], actions[a], a]
                     else:
                         totalrewards[i, a, k] += tru_rew[_states[a], a]
-                    if u_type == 1:
-                        objectives[i, a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[i, a, k])) ** (1 / u_order)
-                    else:
-                        objectives[i, a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[i, a, k] - thresholds[a])))
-
                     states[a] = np.random.choice(n_states, p=tru_dyn[_states[a], :, actions[a], a])
                     counts[i, _states[a], states[a], actions[a], a] += 1
-            # print('Update...')
+            for a in range(n_arms):
+                if u_type == 1:
+                    objectives[i, a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[i, a, k])) ** (1 / u_order)
+                elif u_type == 2:
+                    objectives[i, a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[i, a, k] - thresholds[a])))
+                else:
+                    objectives[i, a, k] = 1 if totalrewards[i, a, k] >= thresholds[a] else 0
 
+            # print('Update...')
             est_transitions = np.zeros((n_states, n_states, 2, n_arms))
             for a in range(n_arms):
                 for s1 in range(n_states):
@@ -73,10 +75,8 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
                     est_prob[i, a, k] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
 
             Mest = MarkovDynamics(n_arms, n_states, est_prob[i, :, k], t_type, t_increasing)
-            dynamics = Mest.transitions
-
-            SafeW = SafeWhittle(n_states, n_arms, tru_rew, dynamics, n_steps, u_type, u_order, thresholds)
-            SafeW.get_whittle_indices(computation_type=method, params=[0, 1], n_trials=n_trials_safety)
+            SafeW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
+            SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
             sw_indices = SafeW.w_indices
 
             for a in range(n_arms):
