@@ -12,14 +12,14 @@ if __name__ == '__main__':
 
     # Basic Parameters
     n_steps_set = [5, 4, 3]
-    n_states_set = [4]
+    n_states_set = [5, 4, 3, 2]
     armcoef_set = [5, 4, 3]
     f_type_set = ['hom']
-    t_type_set = [11]
-    u_type_set = [1, 2]
-    u_order_set = [4, 8, 16]
-    threshold_set = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
-    fraction_set = [0.2, 0.3, 0.4, 0.5]
+    t_type_set = [3]
+    u_type_set = [1, 2, 3]
+    u_order_set = [1, 2, 4, 8, 16]
+    threshold_set = [0.3, 0.4, 0.5, 0.6, 0.7]
+    fraction_set = [0.1, 0.2, 0.3, 0.4, 0.5]
 
     PATH1 = f'./output/TestRes_t{t_type_set}.xlsx'
     PATH2 = f'./output/TestRes_t{t_type_set}_avg.xlsx'
