@@ -8,8 +8,8 @@ import joblib
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 5
-    n_coeff = 5
+    n_steps = 3
+    n_coeff = 3
     n_states = 2
     u_type = 3
     u_order = 1
@@ -21,8 +21,8 @@ if __name__ == '__main__':
     function_type = np.ones(n_arms, dtype=np.int32)
     # function_type = 1 + np.arange(n_arms)
 
-    n_episodes = 1000
-    n_iterations = 1
+    n_episodes = 100
+    l_episodes = 100
     np.random.seed(42)
 
     na = n_arms
@@ -217,7 +217,7 @@ if __name__ == '__main__':
     # plt.grid()
     # plt.show()
 
-    rew_l, obj_l, est_probs, sum_wi = Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+    rew_l, obj_l, est_probs, sum_wi = Process_SafeTSRB(l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
                                                        transition_type, transition_increasing, method, reward_bandits, transition_bandits,
                                                        initial_states, u_type, u_order, True, max_wi)
     # learn_list = joblib.load(f'./output/safetsrb_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.joblib')
@@ -225,8 +225,17 @@ if __name__ == '__main__':
     # sum_wi = learn_list[1]
     # rew_l = learn_list[2]
     # obj_l = learn_list[3]
+    # print(rew_l.shape)
+    # print(obj_l.shape)
+    # print(est_probs.shape)
+    # print(sum_wi.shape)
 
-    prb_err = np.mean(prob_remain) - np.mean(est_probs, axis=(0, 1))
+    for _ in range(l_episodes):
+        print('-----------------')
+        print(np.mean(obj_s))
+        print(np.mean(obj_l, axis=(1, 2)))
+
+    prb_err = np.mean(prob_remain) - np.mean(est_probs, axis=1)
     print(prb_err.shape)
     plt.figure(figsize=(8, 6))
     plt.plot(prb_err, label='Mean')
@@ -236,22 +245,32 @@ if __name__ == '__main__':
     plt.legend()
     plt.grid(True)
     plt.show()
-    # obj_l = joblib.load(f"obj_safetsrb_{n_steps}{n_states}{n_arms}{transition_type}{u_type}{u_order}{n_choices}{thresholds[0]}.joblib")
 
-    reg = np.cumsum(np.mean(rew_w, axis=0) - np.mean(rew_l, axis=1), axis=1)
+    prb_err = np.mean([np.sum(sw_bandits[a]) for a in range(n_arms)]) - np.mean(sum_wi, axis=1)
+    print(prb_err.shape)
+    plt.figure(figsize=(8, 6))
+    plt.plot(prb_err, label='Mean')
+    plt.xlabel('Episodes')
+    plt.ylabel('Regret')
+    plt.title('Mean and Bounds over regret')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
-    mean_reg = np.mean(reg, axis=0)
+    reg = np.cumsum(np.mean(obj_s) - np.mean(obj_l, axis=(1, 2)))
 
-    # Calculate upper and lower bounds
-    upper_bound = np.max(reg, axis=0)
-    lower_bound = np.min(reg, axis=0)
+    # mean_reg = np.mean(reg, axis=0)
+    #
+    # # Calculate upper and lower bounds
+    # upper_bound = np.max(reg, axis=0)
+    # lower_bound = np.min(reg, axis=0)
 
     # Plotting
     plt.figure(figsize=(8, 6))
-    plt.plot(mean_reg, label='Mean')
+    plt.plot(reg, label='Mean')
 
-    # Fill between lower bound and upper bound
-    plt.fill_between(range(len(mean_reg)), lower_bound, upper_bound, color='skyblue', alpha=0.4, label='Bounds')
+    # # Fill between lower bound and upper bound
+    # plt.fill_between(range(len(mean_reg)), lower_bound, upper_bound, color='skyblue', alpha=0.4, label='Bounds')
 
     plt.xlabel('Episodes')
     plt.ylabel('Regret')
