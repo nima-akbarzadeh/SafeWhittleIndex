@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 3
-    n_coeff = 1
-    n_states = 2
+    n_steps = 5
+    n_coeff = 5
+    n_states = 5
     u_type = 3
     u_order = 1
     n_arms = n_coeff * n_states
@@ -153,19 +153,20 @@ if __name__ == '__main__':
     rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, sw_bandits, initial_states, u_type, u_order)
     print('Process Ends ...')
 
-    # bins = np.linspace(0, 1, 20)
-    # plt.hist(np.mean(rew_w, axis=0), bins=bins, alpha=0.5, label='Risk-Neutral', width=0.05, align='left')
-    # plt.hist(np.mean(rew_s, axis=0), bins=bins, alpha=0.5, label='Risk-Aware', width=0.05, align='mid')
-    # plt.xticks(fontsize=12, fontweight='bold')
-    # plt.yticks(fontsize=12, fontweight='bold')
-    # plt.axvline(x=thresholds[-1], color='r', linestyle='-')
-    # plt.xlim(0.2, 0.8)
-    # plt.xlabel('Total Rewards', fontsize=14, fontweight='bold')
-    # plt.ylabel('Frequency', fontsize=14, fontweight='bold')
-    # plt.title('Distribution of Rewards', fontsize=14, fontweight='bold')
-    # plt.legend()
-    # plt.grid()
-    # plt.show()
+    bins = np.linspace(0, 1, 20)
+    print(len(rew_w[0, :]))
+    plt.hist(rew_w[0, :], bins=bins, alpha=0.5, label='Risk-Neutral', width=0.05, align='left')
+    plt.hist(rew_s[0, :], bins=bins, alpha=0.5, label='Risk-Aware', width=0.05, align='mid')
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
+    plt.axvline(x=thresholds[-1], color='r', linestyle='-')
+    plt.xlim(0.2, 0.8)
+    plt.xlabel('Total Rewards', fontsize=14, fontweight='bold')
+    plt.ylabel('Frequency', fontsize=14, fontweight='bold')
+    plt.title('Distribution of Rewards', fontsize=14, fontweight='bold')
+    plt.legend()
+    plt.grid()
+    plt.show()
 
     print("====================== REWARDS =========================")
     print(f'Myopic: {np.mean(rew_m)}')
@@ -182,8 +183,8 @@ if __name__ == '__main__':
     print(f'Safety-Myopic: {100 * (np.mean(obj_s) - np.mean(obj_m)) / np.mean(obj_m)}')
 
     print("===================== HIT THRESHOLD ======================")
-    print(f'Safety: {100 * (sum(1 for x in np.mean(rew_s, axis=0) if x > thresholds[-1]) / n_episodes)}')
-    print(f'Whittl: {100 * (sum(1 for x in np.mean(rew_w, axis=0) if x > thresholds[-1]) / n_episodes)}')
+    print(f'Safety: {100 * (sum(1 for x in rew_s[0, :] if x >= thresholds[-1]) / n_episodes)}')
+    print(f'Whittl: {100 * (sum(1 for x in rew_w[0, :] if x >= thresholds[-1]) / n_episodes)}')
 
     # rew_l, obj_l, est_probs, sum_wi = Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
     #                                                    transition_type, transition_increasing, method, reward_bandits, transition_bandits,

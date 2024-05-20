@@ -130,7 +130,13 @@ def Process_WhtlRB(W, n_episodes, n_steps, n_states, n_bandits, n_choices, thres
                 objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
             else:
                 objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
-
+        # print('-------')
+        # print(k)
+        # for a in range(n_bandits):
+        #     if totalrewards[a, k] < thresholds[a]:
+        #         print(totalrewards[a, k])
+        #         print(thresholds[a])
+        #         print(objectives[a, k])
     return totalrewards, objectives, counts
 
 
@@ -162,5 +168,12 @@ def Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, t
                 objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
             else:
                 objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        # print('-------')
+        # print(k)
+        # for a in range(n_bandits):
+        #     if totalrewards[a, k] < thresholds[a]:
+        #         print(totalrewards[a, k])
+        #         print(thresholds[a])
+        #         print(objectives[a, k])
 
     return totalrewards, objectives, counts
