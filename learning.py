@@ -41,7 +41,7 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
                     else:
                         totalrewards[i, a, k] += tru_rew[_states[a], a]
                     if u_type == 1:
-                        objectives[i, a, k] = 1 - thresholds[a] ** (1 - 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[i, a, k])) ** (1 / u_order)
+                        objectives[i, a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[i, a, k])) ** (1 / u_order)
                     else:
                         objectives[i, a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[i, a, k] - thresholds[a])))
 
