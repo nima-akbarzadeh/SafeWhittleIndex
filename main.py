@@ -185,9 +185,9 @@ if __name__ == '__main__':
     print(f'Safety: {100 * (sum(1 for x in np.mean(rew_s, axis=0) if x > thresholds[-1]) / n_episodes)}')
     print(f'Whittl: {100 * (sum(1 for x in np.mean(rew_w, axis=0) if x > thresholds[-1]) / n_episodes)}')
 
-    # rew_l, obj_l, est_probs, counts, sum_wi = Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
-    #                                                            transition_type, transition_increasing, method, reward_bandits, transition_bandits,
-    #                                                            initial_states, u_type, u_order, True)
+    # rew_l, obj_l, est_probs, sum_wi = Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+    #                                                    transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+    #                                                    initial_states, u_type, u_order, True)
     #
     # # prb_err = np.mean(prob_remain.mean()*np.ones(n_episodes) - est_probs.mean(axis=[0, 1]))
     # # plt.figure(figsize=(8, 6))

@@ -87,8 +87,8 @@ if __name__ == '__main__':
                                         # rew_w, obj_w, _ = Process_WhtlRB(WhtlW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, ww_indices, initial_states, ut)
                                         # rew_n, obj_n, _ = Process_NeutRB(NeutW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, nw_indices, initial_states, ut)
                                         rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, sw_indices, initial_states, ut, uo)
-                                        rew_l, obj_l, _, _, _ = Process_SafeTSRB(n_iterations, n_episodes, nt, ns, na, nch, thresh, tt, True, method, R.vals, M.transitions,
-                                                                                 initial_states, ut, uo, False)
+                                        rew_l, obj_l, _, _ = Process_SafeTSRB(n_iterations, n_episodes, nt, ns, na, nch, thresh, tt, True, method, R.vals, M.transitions,
+                                                                              initial_states, ut, uo, False)
 
                                         key_value = f'nt{nt}_nc{nc}_ns{ns}_{ft_type}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}'
                                         joblib.dump([rew_l, obj_l], PATH3 + key_value + "_Learning.joblib")
