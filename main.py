@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 5
-    n_coeff = 5
-    n_states = 5
+    n_steps = 3
+    n_coeff = 3
+    n_states = 3
     u_type = 3
     u_order = 1
     n_arms = n_coeff * n_states
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     # function_type = 1 + np.arange(n_arms)
     transition_type = 3
 
-    n_episodes = 500
+    n_episodes = 100
     n_iterations = 10
     np.random.seed(42)
 
@@ -177,14 +177,19 @@ if __name__ == '__main__':
     print(f'Myopic: {np.mean(obj_m)}')
     print(f'Whittl: {np.mean(obj_w)}')
     print(f'Safety: {np.mean(obj_s)}')
+    for a in range(n_arms):
+        print(f'------ Arm {a}')
+        print(f'Whittl: {np.mean(obj_w[a, :])}')
+        print(f'Safety: {np.mean(obj_s[a, :])}')
+        print(f'Safety-Whittl: {100 * (np.mean(obj_s[a, :]) - np.mean(obj_w[a, :])) / np.mean(obj_w[a, :])}')
 
     print("===================== IMPROVEMENT ========================")
     print(f'Safety-Whittl: {100 * (np.mean(obj_s) - np.mean(obj_w)) / np.mean(obj_w)}')
     print(f'Safety-Myopic: {100 * (np.mean(obj_s) - np.mean(obj_m)) / np.mean(obj_m)}')
 
     print("===================== HIT THRESHOLD ======================")
-    print(f'Safety: {100 * (sum(1 for x in rew_s[0, :] if x >= thresholds[-1]) / n_episodes)}')
-    print(f'Whittl: {100 * (sum(1 for x in rew_w[0, :] if x >= thresholds[-1]) / n_episodes)}')
+    print(f'Safety: {100 * (sum([1 if x >= thresholds[-1] else 0 for x in rew_s[5, :]]) / n_episodes)}')
+    print(f'Whittl: {100 * (sum([1 if x >= thresholds[-1] else 0 for x in rew_w[5, :]]) / n_episodes)}')
 
     # rew_l, obj_l, est_probs, sum_wi = Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
     #                                                    transition_type, transition_increasing, method, reward_bandits, transition_bandits,
