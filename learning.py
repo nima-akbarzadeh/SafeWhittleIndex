@@ -86,6 +86,6 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
         print(end_time - start_time)
 
         if save_data:
-            joblib.dump([counts, totalrewards, objectives], f'./output/safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+            joblib.dump([est_prob, sum_wi, totalrewards, objectives], f'./output/safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
-    return totalrewards, objectives, est_prob, counts, sum_wi
+    return totalrewards, objectives, est_prob, sum_wi
