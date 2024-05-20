@@ -9,11 +9,11 @@ if __name__ == '__main__':
     # Basic Parameters
     n_steps = 4
     n_coeff = 3
-    n_states = 4
+    n_states = 3
     u_type = 1
     u_order = 1
     n_arms = n_coeff * n_states
-    thresholds = 0.5 * np.ones(n_arms)
+    thresholds = 0.6 * np.ones(n_arms)
     choice_fraction = 0.3
     function_type = np.ones(n_arms, dtype=np.int32)
     # function_type = 1 + np.arange(n_arms)
