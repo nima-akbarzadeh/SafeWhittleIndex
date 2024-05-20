@@ -2,6 +2,7 @@ from whittle import *
 from processes import *
 from learning import *
 import matplotlib.pyplot as plt
+import joblib
 
 
 if __name__ == '__main__':
@@ -9,7 +10,7 @@ if __name__ == '__main__':
     # Basic Parameters
     n_steps = 5
     n_coeff = 5
-    n_states = 5
+    n_states = 2
     u_type = 3
     u_order = 1
     n_arms = n_coeff * n_states
@@ -20,8 +21,8 @@ if __name__ == '__main__':
     function_type = np.ones(n_arms, dtype=np.int32)
     # function_type = 1 + np.arange(n_arms)
 
-    n_episodes = 100
-    n_iterations = 10
+    n_episodes = 1000
+    n_iterations = 1
     np.random.seed(42)
 
     na = n_arms
@@ -149,80 +150,114 @@ if __name__ == '__main__':
     sw_bandits = SafeW.w_indices
 
     print('Process Begins ...')
+    rew_r, obj_r, _ = Process_Random(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
     rew_m, obj_m, _ = Process_Greedy(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
     rew_w, obj_w, _ = Process_WhtlRB(W, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, w_bandits, initial_states, u_type, u_order)
     rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, sw_bandits, initial_states, u_type, u_order)
     print('Process Ends ...')
 
+    print("=============== REWARD/OBJECTIVE PER-ARM =====================")
+    for a in range(n_arms):
+        print(f'------ Arm {a}')
+        print(f'REW - Whittl: {np.mean(rew_w[a, :])}')
+        print(f'REW - Safety: {np.mean(rew_s[a, :])}')
+        print(f'REW - Safety-Whittl: {100 * (np.mean(rew_s[a, :]) - np.mean(rew_w[a, :])) / np.mean(rew_w[a, :])}')
+        print(f'OBJ - Whittl: {np.mean(obj_w[a, :])}')
+        print(f'OBJ - Safety: {np.mean(obj_s[a, :])}')
+        print(f'OBJ - Safety-Whittl: {100 * (np.mean(obj_s[a, :]) - np.mean(obj_w[a, :])) / np.mean(obj_w[a, :])}')
+
     print("====================== REWARDS =========================")
+    print(f'Random: {np.mean(rew_r)}')
     print(f'Myopic: {np.mean(rew_m)}')
     print(f'Whittl: {np.mean(rew_w)}')
     print(f'Safety: {np.mean(rew_s)}')
 
+    print("====================== LOSS ========================")
+    print(f'Safety-Whittl: {100 * (np.mean(rew_s) - np.mean(rew_w)) / np.mean(rew_w)}')
+    print(f'Safety-Myopic: {100 * (np.mean(rew_s) - np.mean(rew_m)) / np.mean(rew_m)}')
+    print(f'Safety-Random: {100 * (np.mean(rew_s) - np.mean(rew_r)) / np.mean(rew_r)}')
+
     print("===================== OBJECTIVE ========================")
+    print(f'Random: {np.mean(obj_r)}')
     print(f'Myopic: {np.mean(obj_m)}')
     print(f'Whittl: {np.mean(obj_w)}')
     print(f'Safety: {np.mean(obj_s)}')
-    for a in range(n_arms):
-        print(f'------ Arm {a}')
-        print(f'Whittl: {np.mean(obj_w[a, :])}')
-        print(f'Safety: {np.mean(obj_s[a, :])}')
-        print(f'Safety-Whittl: {100 * (np.mean(obj_s[a, :]) - np.mean(obj_w[a, :])) / np.mean(obj_w[a, :])}')
 
     print("===================== IMPROVEMENT ========================")
     print(f'Safety-Whittl: {100 * (np.mean(obj_s) - np.mean(obj_w)) / np.mean(obj_w)}')
     print(f'Safety-Myopic: {100 * (np.mean(obj_s) - np.mean(obj_m)) / np.mean(obj_m)}')
+    print(f'Safety-Random: {100 * (np.mean(obj_s) - np.mean(obj_r)) / np.mean(obj_r)}')
 
-    arm_index = int(input('Which arm: '))
-    bins = np.linspace(0, 1, 20)
-    plt.hist(rew_w[arm_index, :], bins=bins, alpha=0.5, label='Risk-Neutral', width=0.05, align='left')
-    plt.hist(rew_s[arm_index, :], bins=bins, alpha=0.5, label='Risk-Aware', width=0.05, align='mid')
-    plt.xticks(fontsize=12, fontweight='bold')
-    plt.yticks(fontsize=12, fontweight='bold')
-    plt.axvline(x=thresholds[-1], color='r', linestyle='-')
-    plt.xlim(0.2, 0.8)
-    plt.xlabel('Total Rewards', fontsize=14, fontweight='bold')
-    plt.ylabel('Frequency', fontsize=14, fontweight='bold')
-    plt.title('Distribution of Rewards', fontsize=14, fontweight='bold')
-    plt.legend()
-    plt.grid()
-    plt.show()
-
-    # rew_l, obj_l, est_probs, sum_wi = Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
-    #                                                    transition_type, transition_increasing, method, reward_bandits, transition_bandits,
-    #                                                    initial_states, u_type, u_order, True)
-    #
-    # # prb_err = np.mean(prob_remain.mean()*np.ones(n_episodes) - est_probs.mean(axis=[0, 1]))
-    # # plt.figure(figsize=(8, 6))
-    # # plt.plot(prb_err, label='Mean')
-    # # plt.xlabel('Episodes')
-    # # plt.ylabel('Regret')
-    # # plt.title('Mean and Bounds over regret')
-    # # plt.legend()
-    # # plt.grid(True)
-    # # plt.show()
-    # # obj_l = joblib.load(f"obj_safetsrb_{n_steps}{n_states}{n_arms}{transition_type}{u_type}{u_order}{n_choices}{thresholds[0]}.joblib")
-    #
-    # reg = np.cumsum(np.mean(obj_s, axis=0) - np.mean(obj_l, axis=1), axis=1)
-    #
-    # mean_reg = np.mean(reg, axis=0)
-    #
-    # # Calculate upper and lower bounds
-    # upper_bound = np.max(reg, axis=0)
-    # lower_bound = np.min(reg, axis=0)
-    #
-    # # Plotting
-    # plt.figure(figsize=(8, 6))
-    # plt.plot(mean_reg, label='Mean')
-    #
-    # # Fill between lower bound and upper bound
-    # plt.fill_between(range(len(mean_reg)), lower_bound, upper_bound, color='skyblue', alpha=0.4, label='Bounds')
-    #
-    # plt.xlabel('Episodes')
-    # plt.ylabel('Regret')
-    # plt.title('Mean and Bounds over regret')
+    # arm_index = int(input('Which arm: '))
+    # bins = np.linspace(0.2, 1, 400)
+    # plt.hist(rew_w[arm_index, :], bins=bins, alpha=0.5, label='Risk-Neutral', width=0.05, align='left')
+    # plt.hist(rew_s[arm_index, :], bins=bins, alpha=0.5, label='Risk-Aware', width=0.05, align='mid')
+    # plt.xticks(fontsize=12, fontweight='bold')
+    # plt.yticks(fontsize=12, fontweight='bold')
+    # plt.axvline(x=thresholds[-1], color='r', linestyle='-')
+    # plt.xlim(0, 1)
+    # plt.xlabel('Total Rewards', fontsize=14, fontweight='bold')
+    # plt.ylabel('Frequency', fontsize=14, fontweight='bold')
+    # plt.title('Distribution of Rewards', fontsize=14, fontweight='bold')
     # plt.legend()
-    # plt.grid(True)
+    # plt.grid()
     # plt.show()
+    #
+    # bins = np.linspace(0, 1, 20)
+    # plt.hist(np.mean(rew_w, axis=0), bins=bins, alpha=0.5, label='Risk-Neutral', width=0.05, align='left')
+    # plt.hist(np.mean(rew_s, axis=0), bins=bins, alpha=0.5, label='Risk-Aware', width=0.05, align='mid')
+    # plt.xticks(fontsize=12, fontweight='bold')
+    # plt.yticks(fontsize=12, fontweight='bold')
+    # plt.axvline(x=thresholds[-1], color='r', linestyle='-')
+    # plt.xlim(0.2, 0.8)
+    # plt.xlabel('Total Rewards', fontsize=14, fontweight='bold')
+    # plt.ylabel('Frequency', fontsize=14, fontweight='bold')
+    # plt.title('Distribution of Rewards', fontsize=14, fontweight='bold')
+    # plt.legend()
+    # plt.grid()
+    # plt.show()
+
+    rew_l, obj_l, est_probs, sum_wi = Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                                       transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+                                                       initial_states, u_type, u_order, True, max_wi)
+    # learn_list = joblib.load(f'./output/safetsrb_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.joblib')
+    # est_probs = learn_list[0]
+    # sum_wi = learn_list[1]
+    # rew_l = learn_list[2]
+    # obj_l = learn_list[3]
+
+    prb_err = np.mean(prob_remain) - np.mean(est_probs, axis=(0, 1))
+    print(prb_err.shape)
+    plt.figure(figsize=(8, 6))
+    plt.plot(prb_err, label='Mean')
+    plt.xlabel('Episodes')
+    plt.ylabel('Regret')
+    plt.title('Mean and Bounds over regret')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    # obj_l = joblib.load(f"obj_safetsrb_{n_steps}{n_states}{n_arms}{transition_type}{u_type}{u_order}{n_choices}{thresholds[0]}.joblib")
+
+    reg = np.cumsum(np.mean(rew_w, axis=0) - np.mean(rew_l, axis=1), axis=1)
+
+    mean_reg = np.mean(reg, axis=0)
+
+    # Calculate upper and lower bounds
+    upper_bound = np.max(reg, axis=0)
+    lower_bound = np.min(reg, axis=0)
+
+    # Plotting
+    plt.figure(figsize=(8, 6))
+    plt.plot(mean_reg, label='Mean')
+
+    # Fill between lower bound and upper bound
+    plt.fill_between(range(len(mean_reg)), lower_bound, upper_bound, color='skyblue', alpha=0.4, label='Bounds')
+
+    plt.xlabel('Episodes')
+    plt.ylabel('Regret')
+    plt.title('Mean and Bounds over regret')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
     # plt.savefig(f'./output/regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{u_order}{n_choices}{thresholds[0]}.png')
     # plt.savefig(f'./output/regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{u_order}{n_choices}{thresholds[0]}.jpg')

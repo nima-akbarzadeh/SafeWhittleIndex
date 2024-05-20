@@ -6,7 +6,7 @@ import time
 
 
 def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
-                     method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data):
+                     method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
     n_trials_safety = n_arms * n_states * n_steps
 
     ##################################################### Process
@@ -23,7 +23,7 @@ def Process_SafeTSRB(n_iterations, n_episodes, n_steps, n_states, n_arms, n_choi
 
         M = MarkovDynamics(n_arms, n_states, est_prob[i, :, 0], t_type, t_increasing)
         SafeW = SafeWhittle(n_states, n_arms, tru_rew, M.transitions, n_steps, u_type, u_order, thresholds)
-        SafeW.get_whittle_indices(computation_type=method, params=[0, 1], n_trials=n_trials_safety)
+        SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
         sw_indices = SafeW.w_indices
 
         for k in range(n_episodes):
