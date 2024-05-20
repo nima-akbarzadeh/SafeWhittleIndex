@@ -278,8 +278,13 @@ class SafeWhittle:
         action = np.zeros(num_a, dtype=np.int32)
 
         current_indices = np.zeros(num_a)
+        count_positive = 0
         for arm in range(num_a):
-            current_indices[arm] = whittle_indices[arm][current_l[arm], current_x[arm], current_t]
+            w_idx = whittle_indices[arm][current_l[arm], current_x[arm], current_t]
+            current_indices[arm] = w_idx
+            if w_idx >= 0:
+                count_positive += 1
+        n_selection = np.minimum(n_selection, count_positive)
 
         softmax_probs = softmax(current_indices)
         sampled_indices = np.random.choice(range(num_a), n_selection, replace=False, p=softmax_probs)

@@ -162,12 +162,37 @@ def Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, t
                 objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
             else:
                 objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
-        # print('-------')
-        # print(k)
-        # for a in range(n_bandits):
-        #     if totalrewards[a, k] < thresholds[a]:
-        #         print(totalrewards[a, k])
-        #         print(thresholds[a])
-        #         print(objectives[a, k])
+
+    return totalrewards, objectives, counts
+
+
+def Process_SoftSafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, thresholds, rewards, transitions, whittle_indices, initial_states, u_type, u_order):
+
+    ##################################################### Process
+    totalrewards = np.zeros((n_bandits, n_episodes))
+    objectives = np.zeros((n_bandits, n_episodes))
+    counts = np.zeros((n_states, 2, n_bandits))
+    for k in range(n_episodes):
+        states = initial_states.copy()
+        _lifted = np.zeros(n_bandits, dtype=np.int32)
+        for t in range(n_steps):
+            _states = np.copy(states)
+            for a2 in range(n_bandits):
+                _lifted[a2] = max(0, min(SafeW.n_augment[a2]-1, _lifted[a2] + _states[a2]))
+            actions = SafeW.Whittle_softpolicy(whittle_indices, n_choices, _states, _lifted, t)
+            for a in range(n_bandits):
+                if len(rewards.shape) == 3:
+                    totalrewards[a, k] += rewards[_states[a], actions[a], a]
+                else:
+                    totalrewards[a, k] += rewards[_states[a], a]
+                counts[_states[a], actions[a], a] += 1
+                states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
+        for a in range(n_bandits):
+            if u_type == 1:
+                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
+            elif u_type == 2:
+                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
+            else:
+                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
 
     return totalrewards, objectives, counts

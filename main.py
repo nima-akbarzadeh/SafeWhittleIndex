@@ -8,11 +8,11 @@ import joblib
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 3
+    n_steps = 5
     n_coeff = 3
-    n_states = 2
+    n_states = 3
     u_type = 3
-    u_order = 1
+    u_order = 16
     n_arms = n_coeff * n_states
     thresholds = 0.5 * np.ones(n_arms)
     choice_fraction = 0.3
@@ -22,7 +22,6 @@ if __name__ == '__main__':
     # function_type = 1 + np.arange(n_arms)
 
     n_episodes = 100
-    l_episodes = 100
     np.random.seed(42)
 
     na = n_arms
@@ -153,6 +152,7 @@ if __name__ == '__main__':
     rew_r, obj_r, _ = Process_Random(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
     rew_m, obj_m, _ = Process_Greedy(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
     rew_w, obj_w, _ = Process_WhtlRB(W, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, w_bandits, initial_states, u_type, u_order)
+    rew_ss, obj_ss, _ = Process_SoftSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, sw_bandits, initial_states, u_type, u_order)
     rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, sw_bandits, initial_states, u_type, u_order)
     print('Process Ends ...')
 
@@ -170,6 +170,7 @@ if __name__ == '__main__':
     print(f'Random: {np.mean(rew_r)}')
     print(f'Myopic: {np.mean(rew_m)}')
     print(f'Whittl: {np.mean(rew_w)}')
+    print(f'SoSafe: {np.mean(rew_ss)}')
     print(f'Safety: {np.mean(rew_s)}')
 
     print("====================== LOSS ========================")
@@ -181,9 +182,11 @@ if __name__ == '__main__':
     print(f'Random: {np.mean(obj_r)}')
     print(f'Myopic: {np.mean(obj_m)}')
     print(f'Whittl: {np.mean(obj_w)}')
+    print(f'SoSafe: {np.mean(obj_ss)}')
     print(f'Safety: {np.mean(obj_s)}')
 
     print("===================== IMPROVEMENT ========================")
+    print(f'Safety-SoSafe: {100 * (np.mean(obj_s) - np.mean(obj_ss)) / np.mean(obj_ss)}')
     print(f'Safety-Whittl: {100 * (np.mean(obj_s) - np.mean(obj_w)) / np.mean(obj_w)}')
     print(f'Safety-Myopic: {100 * (np.mean(obj_s) - np.mean(obj_m)) / np.mean(obj_m)}')
     print(f'Safety-Random: {100 * (np.mean(obj_s) - np.mean(obj_r)) / np.mean(obj_r)}')
@@ -217,26 +220,23 @@ if __name__ == '__main__':
     # plt.grid()
     # plt.show()
 
-    rew_l, obj_l, est_probs, sum_wi = Process_SafeTSRB(l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
-                                                       transition_type, transition_increasing, method, reward_bandits, transition_bandits,
-                                                       initial_states, u_type, u_order, True, max_wi)
+    rew_ss, obj_ss, _ = Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
+                                           sw_bandits, initial_states, u_type, u_order)
+
+    n_iterations = 1
+    l_episodes = 100
+    n_episodes = 100
+    probs_l, sumwis_l, rew_l, obj_l = Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                                           transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+                                                           initial_states, u_type, u_order, True, max_wi)
+
     # learn_list = joblib.load(f'./output/safetsrb_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.joblib')
-    # est_probs = learn_list[0]
-    # sum_wi = learn_list[1]
+    # probs_l = learn_list[0]
+    # sumwis_l = learn_list[1]
     # rew_l = learn_list[2]
     # obj_l = learn_list[3]
-    # print(rew_l.shape)
-    # print(obj_l.shape)
-    # print(est_probs.shape)
-    # print(sum_wi.shape)
 
-    for _ in range(l_episodes):
-        print('-----------------')
-        print(np.mean(obj_s))
-        print(np.mean(obj_l, axis=(1, 2)))
-
-    prb_err = np.mean(prob_remain) - np.mean(est_probs, axis=1)
-    print(prb_err.shape)
+    prb_err = np.mean(prob_remain) - np.mean(probs_l, axis=(0, 2))
     plt.figure(figsize=(8, 6))
     plt.plot(prb_err, label='Mean')
     plt.xlabel('Episodes')
@@ -246,8 +246,7 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()
 
-    prb_err = np.mean([np.sum(sw_bandits[a]) for a in range(n_arms)]) - np.mean(sum_wi, axis=1)
-    print(prb_err.shape)
+    prb_err = np.mean([np.sum(sw_bandits[a]) for a in range(n_arms)]) - np.mean(sumwis_l, axis=(0, 2))
     plt.figure(figsize=(8, 6))
     plt.plot(prb_err, label='Mean')
     plt.xlabel('Episodes')
@@ -257,7 +256,16 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()
 
-    reg = np.cumsum(np.mean(obj_s) - np.mean(obj_l, axis=(1, 2)))
+    reg = np.cumsum(np.mean(obj_ss) - np.mean(obj_l, axis=(0, 2)))
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(reg, label='Mean')
+    plt.xlabel('Episodes')
+    plt.ylabel('Regret')
+    plt.title('Mean and Bounds over regret')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
     # mean_reg = np.mean(reg, axis=0)
     #
@@ -267,7 +275,7 @@ if __name__ == '__main__':
 
     # Plotting
     plt.figure(figsize=(8, 6))
-    plt.plot(reg, label='Mean')
+    plt.plot([reg[t]/(t+1) for t in range(len(reg))], label='Mean')
 
     # # Fill between lower bound and upper bound
     # plt.fill_between(range(len(mean_reg)), lower_bound, upper_bound, color='skyblue', alpha=0.4, label='Bounds')
