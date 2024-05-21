@@ -8,13 +8,13 @@ import joblib
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 5
-    n_coeff = 1
-    n_states = 2
-    u_type = 1
+    n_steps = 10
+    n_states = 3
+    n_coeff = 2
+    u_type = 3
     u_order = 8
     n_arms = n_coeff * n_states
-    thresholds = 0.5 * np.ones(n_arms)
+    thresholds = 0.7 * np.ones(n_arms)
     choice_fraction = 0.2
 
     transition_type = 3
@@ -37,8 +37,8 @@ if __name__ == '__main__':
         prob_remain = np.round(np.linspace(0.05, 0.45, na), 2)
         np.random.shuffle(prob_remain)
     elif tt == 3:
-        # prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
-        prob_remain = np.round(np.linspace(0.5 / ns, 0.5 / ns, na), 2)
+        prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
+        # prob_remain = np.round(np.linspace(0.5 / ns, 0.5 / ns, na), 2)
         np.random.shuffle(prob_remain)
     elif tt == 4:
         prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
@@ -222,7 +222,7 @@ if __name__ == '__main__':
     # plt.show()
 
     rb_type = 'soft'  # 'hard' or 'soft'
-    n_iterations = 5
+    n_iterations = 1
     l_episodes = 50
     if rb_type == 'hard':
         probs_l, sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
