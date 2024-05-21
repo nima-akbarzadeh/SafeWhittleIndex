@@ -9,13 +9,13 @@ if __name__ == '__main__':
 
     # Basic Parameters
     n_steps = 5
-    n_coeff = 5
+    n_coeff = 1
     n_states = 2
     u_type = 1
     u_order = 8
     n_arms = n_coeff * n_states
     thresholds = 0.5 * np.ones(n_arms)
-    choice_fraction = 0.5
+    choice_fraction = 0.2
 
     transition_type = 3
     function_type = np.ones(n_arms, dtype=np.int32)
@@ -151,9 +151,9 @@ if __name__ == '__main__':
     print('Process Begins ...')
     rew_r, obj_r, _ = Process_Random(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
     rew_m, obj_m, _ = Process_Greedy(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
-    rew_w, obj_w, _ = Process_WhtlRB(W, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, w_bandits, initial_states, u_type, u_order)
-    rew_ss, obj_ss, _ = Process_SoftSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, sw_bandits, initial_states, u_type, u_order)
-    rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, sw_bandits, initial_states, u_type, u_order)
+    rew_w, obj_w, _ = Process_WhtlRB(W, w_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
+    rew_ss, obj_ss, _, _, _ = Process_LearnSoftSafeRB(SafeW, sw_bandits, SafeW, sw_bandits.copy(), n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
+    rew_s, obj_s, _ = Process_SafeRB(SafeW, sw_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
     print('Process Ends ...')
 
     print("=============== REWARD/OBJECTIVE PER-ARM =====================")
@@ -223,7 +223,7 @@ if __name__ == '__main__':
     rb_type = 'soft'  # 'hard' or 'soft'
     initial_states = np.random.randint(0, n_states, n_arms)
     n_iterations = 1
-    l_episodes = 5000
+    l_episodes = 250
     if rb_type == 'hard':
         rew_ss, obj_ss, _ = Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
                                                sw_bandits, initial_states, u_type, u_order)
@@ -237,12 +237,14 @@ if __name__ == '__main__':
         # rew_l = learn_list[2]
         # obj_l = learn_list[3]
     else:
-        rew_ss, obj_ss, _ = Process_SoftSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
-                                               sw_bandits, initial_states, u_type, u_order)
-        n_episodes = 100
-        probs_l, sumwis_l, rew_l, obj_l = Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
-                                                               transition_type, transition_increasing, method, reward_bandits, transition_bandits,
-                                                               initial_states, u_type, u_order, True, max_wi)
+        probs_l, sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                                                                            transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+                                                                                            initial_states, u_type, u_order, True, max_wi)
+        # rew_ss, obj_ss, _ = Process_SoftSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
+        #                                        sw_bandits, initial_states, u_type, u_order)
+        # probs_l, sumwis_l, rew_l, obj_l = Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+        #                                                        transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+        #                                                        initial_states, u_type, u_order, True, max_wi)
         # learn_list = joblib.load(f'./output/safesofttsrb_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.joblib')
         # probs_l = learn_list[0]
         # sumwis_l = learn_list[1]
@@ -265,7 +267,7 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()
 
-    swi_err = np.transpose(np.array([np.sum(sw_bandits[a]) - np.mean(sumwis_l[:, :, a], axis=0) for a in range(n_arms)]))
+    swi_err = np.transpose(np.array([swi_ss[a] - np.mean(sumwis_l[:, :, a], axis=0) for a in range(n_arms)]))
     # for a in range(n_arms):
     #     swi_err[:, a] = moving_average(swi_err[:, a], int(ma_coef*l_episodes))
     plt.figure(figsize=(8, 6))

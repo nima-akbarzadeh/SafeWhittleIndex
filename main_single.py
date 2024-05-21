@@ -10,8 +10,8 @@ import joblib
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 5
-    n_states = 2
+    n_steps = 10
+    n_states = 3
     u_type = 1
     u_order = 8
     n_arms = 1
@@ -41,9 +41,9 @@ if __name__ == '__main__':
     n_trials_safety = n_arms * n_states * n_steps
     method = 3
 
-    fixed_wi = 0.01
+    # fixed_wi = 0.01
     # fixed_wi = 0.5
-    # fixed_wi = 1
+    fixed_wi = 1
 
     W = Whittle(n_states, n_arms, reward_bandits, transition_bandits, n_steps)
     W.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_neutrl)
@@ -104,41 +104,53 @@ if __name__ == '__main__':
     print(f'Safety-Myopic: {100 * (np.mean(obj_s) - np.mean(obj_m)) / np.mean(obj_m)}')
     print(f'Safety-Random: {100 * (np.mean(obj_s) - np.mean(obj_r)) / np.mean(obj_r)}')
 
+    print('=============================================================================')
+    print(f'true_pr = {prob_remain[0]}')
+    print(f'true_sw = {np.round(np.sum(sw_bandits[0]), 2)}')
+    print(f'true_re = {np.round(np.mean(rew_ss), 2)}')
+    print(f'true_ob = {np.round(np.mean(obj_ss), 2)}')
 
     rb_type = 'soft'  # 'hard' or 'soft'
-    initial_states = np.random.randint(0, n_states, n_arms)
-    n_iterations = 10
-    l_episodes = 500
+    # initial_states = np.random.randint(0, n_states, n_arms)
+    n_iterations = 1
+    l_episodes = 50
     if rb_type == 'hard':
-        rew_ss, obj_ss, _ = Process_SingleSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
-                                                 sw_bandits, initial_states, u_type, u_order)
         n_episodes = 100
         probs_l, sumwis_l, rew_l, obj_l = Process_SingleSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices, thresholds,
                                                                  transition_type, transition_increasing, method, reward_bandits, transition_bandits,
                                                                  initial_states, u_type, u_order, True, max_wi)
-        # learn_list = joblib.load(f'./output/safetsrb_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.joblib')
-        # probs_l = learn_list[0]
-        # sumwis_l = learn_list[1]
-        # rew_l = learn_list[2]
-        # obj_l = learn_list[3]
+        # rew_ss, obj_ss, _ = Process_SingleSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
+        #                                          sw_bandits, initial_states, u_type, u_order)
+        # n_episodes = 1000
+        # probs_l, sumwis_l, rew_l, obj_l = Process_SingleSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices, thresholds,
+        #                                                          transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+        #                                                          initial_states, u_type, u_order, True, max_wi)
+        # # learn_list = joblib.load(f'./output/safetsrb_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.joblib')
+        # # probs_l = learn_list[0]
+        # # sumwis_l = learn_list[1]
+        # # rew_l = learn_list[2]
+        # # obj_l = learn_list[3]
     else:
-        rew_ss, obj_ss, _ = Process_SingleSoftSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
-                                                     sw_bandits, initial_states, u_type, u_order)
-        n_episodes = 100
-        probs_l, sumwis_l, rew_l, obj_l = Process_SingleSafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices, thresholds,
-                                                                     transition_type, transition_increasing, method, reward_bandits, transition_bandits,
-                                                                     initial_states, u_type, u_order, True, max_wi)
-        # learn_list = joblib.load(f'./output/safesofttsrb_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.joblib')
-        # probs_l = learn_list[0]
-        # sumwis_l = learn_list[1]
-        # rew_l = learn_list[2]
-        # obj_l = learn_list[3]
+        probs_l, sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_SingleSafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices, thresholds,
+                                                                                             transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+                                                                                             initial_states, u_type, u_order, True, max_wi)
+        # rew_ss, obj_ss, _ = Process_SingleSoftSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
+        #                                              sw_bandits, initial_states, u_type, u_order)
+        # n_episodes = 1000
+        # probs_l, sumwis_l, rew_l, obj_l = Process_SingleSafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices, thresholds,
+        #                                                              transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+        #                                                              initial_states, u_type, u_order, True, max_wi)
+        # # learn_list = joblib.load(f'./output/safesofttsrb_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.joblib')
+        # # probs_l = learn_list[0]
+        # # sumwis_l = learn_list[1]
+        # # rew_l = learn_list[2]
+        # # obj_l = learn_list[3]
 
     ma_coef = 0.1
     def moving_average(x, w):
         return np.convolve(x, np.ones(w), 'same') / w
 
-    prb_err = np.array(prob_remain[0] - np.mean(probs_l, axis=0))
+    prb_err = prob_remain[0]*np.ones(l_episodes) - np.round(np.mean(probs_l, axis=0), 2)
     # for a in range(n_arms):
     #     prb_err[:, a] = moving_average(prb_err[:, a], int(ma_coef*l_episodes))
     plt.figure(figsize=(8, 6))
@@ -150,7 +162,7 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()
 
-    swi_err = np.array(np.sum(sw_bandits[0]) - np.mean(sumwis_l, axis=0))
+    swi_err = swi_ss*np.ones(l_episodes) - np.round(np.mean(sumwis_l, axis=0), 2)
     # for a in range(n_arms):
     #     swi_err[:, a] = moving_average(swi_err[:, a], int(ma_coef*l_episodes))
     plt.figure(figsize=(8, 6))
@@ -162,7 +174,7 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()
 
-    reg = np.cumsum(np.mean(obj_ss) - np.mean(obj_l, axis=(0, 2)))
+    reg = np.cumsum(np.round(np.mean(obj_ss)*np.ones(l_episodes), 2) - np.round(np.mean(obj_l, axis=(0, 2)), 2))
     # reg = moving_average(reg, int(ma_coef*l_episodes))
     plt.figure(figsize=(8, 6))
     plt.plot(reg, label='Mean')
