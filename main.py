@@ -222,8 +222,8 @@ if __name__ == '__main__':
 
     rb_type = 'soft'  # 'hard' or 'soft'
     initial_states = np.random.randint(0, n_states, n_arms)
-    n_iterations = 1
-    l_episodes = 250
+    n_iterations = 100
+    l_episodes = 50
     if rb_type == 'hard':
         rew_ss, obj_ss, _ = Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
                                                sw_bandits, initial_states, u_type, u_order)
@@ -255,7 +255,7 @@ if __name__ == '__main__':
     def moving_average(x, w):
         return np.convolve(x, np.ones(w), 'same') / w
 
-    prb_err = np.transpose(np.array([prob_remain[a] - np.mean(probs_l[:, :, a], axis=0) for a in range(n_arms)]))
+    prb_err = np.abs(np.transpose(np.array([prob_remain[a] - np.mean(probs_l[:, :, a], axis=0) for a in range(n_arms)])))
     # for a in range(n_arms):
     #     prb_err[:, a] = moving_average(prb_err[:, a], int(ma_coef*l_episodes))
     plt.figure(figsize=(8, 6))
@@ -267,7 +267,7 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.show()
 
-    swi_err = np.transpose(np.array([swi_ss[a] - np.mean(sumwis_l[:, :, a], axis=0) for a in range(n_arms)]))
+    swi_err = np.abs(np.transpose(np.array([swi_ss[a] - np.mean(sumwis_l[:, :, a], axis=0) for a in range(n_arms)])))
     # for a in range(n_arms):
     #     swi_err[:, a] = moving_average(swi_err[:, a], int(ma_coef*l_episodes))
     plt.figure(figsize=(8, 6))

@@ -246,7 +246,7 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
                         cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
                         for s2 in range(1, s1):
                             cnt.append(est_transitions[s1, s2, 0, a])
-                    all_learn_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+                    all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
                 if t_type == 3:
                     cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
                     for s1 in range(1, n_states - 1):
@@ -256,7 +256,7 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
                             cnt.append(est_transitions[s1, s2, 0, a])
                     for s2 in range(1, n_states):
                         cnt.append(est_transitions[n_states - 1, s2, 0, a])
-                    all_learn_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+                    all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
 
             Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, l, :], t_type, t_increasing)
             SafeW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
@@ -270,13 +270,13 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
                 all_learn_rewards[n, l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)
                 all_learn_objectives[n, l, a] = np.round(np.mean(learn_objectives[a, :]), 2)
 
-            print(f'pr = {np.round(np.mean(all_learn_probs[n, l, :]), 2)}')
-            print(f'true-sw = {np.round(np.mean(plan_sumwis), 2)}')
-            print(f'true-re = {np.round(np.mean(all_plan_rewards[n, l, :]), 2)}')
-            print(f'true-ob = {np.round(np.mean(all_plan_objectives[n, l, :]), 2)}')
-            print(f'sw = {np.round(np.mean(all_learn_sumwis[n, l, :]), 2)}')
-            print(f're = {np.round(np.mean(all_learn_rewards[n, l, :]), 2)}')
-            print(f'ob = {np.round(np.mean(all_learn_objectives[n, l, :]), 2)}')
+            # print(f'pr = {np.round(np.mean(all_learn_probs[n, l, :]), 2)}')
+            # print(f'true-sw = {np.round(np.mean(plan_sumwis), 2)}')
+            # print(f'true-re = {np.round(np.mean(all_plan_rewards[n, l, :]), 2)}')
+            # print(f'true-ob = {np.round(np.mean(all_plan_objectives[n, l, :]), 2)}')
+            # print(f'sw = {np.round(np.mean(all_learn_sumwis[n, l, :]), 2)}')
+            # print(f're = {np.round(np.mean(all_learn_rewards[n, l, :]), 2)}')
+            # print(f'ob = {np.round(np.mean(all_learn_objectives[n, l, :]), 2)}')
 
         end_time = time.time()
         duration = end_time - start_time
