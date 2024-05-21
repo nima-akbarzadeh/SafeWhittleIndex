@@ -64,9 +64,9 @@ if __name__ == '__main__':
     print('Process Begins ...')
     rew_r, obj_r, _ = Process_Random(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
     rew_m, obj_m, _ = Process_Greedy(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
-    rew_w, obj_w, _ = Process_WhtlRB(W, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, w_bandits, initial_states, u_type, u_order)
-    rew_ss, obj_ss, _ = Process_SingleSoftSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, sw_bandits, initial_states, u_type, u_order)
-    rew_s, obj_s, _ = Process_SingleSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, sw_bandits, initial_states, u_type, u_order)
+    rew_w, obj_w, _ = Process_WhtlRB(W, w_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
+    rew_ss, obj_ss, _ = Process_SingleSoftSafeRB(SafeW, sw_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
+    rew_s, obj_s, _ = Process_SingleSafeRB(SafeW, sw_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
     print('Process Ends ...')
 
     print("=============== REWARD/OBJECTIVE PER-ARM =====================")

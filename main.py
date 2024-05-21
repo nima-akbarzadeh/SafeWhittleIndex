@@ -37,7 +37,8 @@ if __name__ == '__main__':
         prob_remain = np.round(np.linspace(0.05, 0.45, na), 2)
         np.random.shuffle(prob_remain)
     elif tt == 3:
-        prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
+        # prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
+        prob_remain = np.round(np.linspace(0.5 / ns, 0.5 / ns, na), 2)
         np.random.shuffle(prob_remain)
     elif tt == 4:
         prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
@@ -221,16 +222,12 @@ if __name__ == '__main__':
     # plt.show()
 
     rb_type = 'soft'  # 'hard' or 'soft'
-    initial_states = np.random.randint(0, n_states, n_arms)
-    n_iterations = 100
+    n_iterations = 5
     l_episodes = 50
     if rb_type == 'hard':
-        rew_ss, obj_ss, _ = Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
-                                               sw_bandits, initial_states, u_type, u_order)
-        n_episodes = 100
-        probs_l, sumwis_l, rew_l, obj_l = Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
-                                                           transition_type, transition_increasing, method, reward_bandits, transition_bandits,
-                                                           initial_states, u_type, u_order, True, max_wi)
+        probs_l, sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                                                                        transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+                                                                                        initial_states, u_type, u_order, True, max_wi)
         # learn_list = joblib.load(f'./output/safetsrb_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.joblib')
         # probs_l = learn_list[0]
         # sumwis_l = learn_list[1]
