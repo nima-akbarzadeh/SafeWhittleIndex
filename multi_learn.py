@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     # Basic Parameters
     n_steps_set = [5]
-    n_states_set = [2]
+    n_states_set = [3, 2]
     n_armscoef_set = [2, 1]
     f_type_set = ['hom']
     t_type_set = [3]
