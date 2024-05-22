@@ -213,7 +213,7 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
     PlanW = SafeWhittle(n_states, n_arms, tru_rew, tru_dyn, n_steps, u_type, u_order, thresholds)
     PlanW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
     plan_indices = PlanW.w_indices
-    plan_sumwis = np.round([np.sum(plan_indices[a]) for a in range(n_arms)], 2)
+    plan_sumwis = [np.sum(plan_indices[a]) for a in range(n_arms)]
 
     for n in range(n_iterations):
 
@@ -259,15 +259,15 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
                             cnt.append(est_transitions[s1, s2, 0, a])
                     for s2 in range(1, n_states):
                         cnt.append(est_transitions[n_states - 1, s2, 0, a])
-                    all_learn_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+                    all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
             # print(all_learn_probs[n, l, :])
-            Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, l, :], t_type, t_increasing)
+            Mest = MarkovDynamics(n_arms, n_states, np.round(all_learn_probs[n, l, :], 2), t_type, t_increasing)
             SafeW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
             SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
             sw_indices = SafeW.w_indices
 
             for a in range(n_arms):
-                all_learn_sumwis[n, l, a] = np.round(np.sum(sw_indices[a]), 2)
+                all_learn_sumwis[n, l, a] = np.sum(sw_indices[a])
                 all_plan_rewards[n, l, a] = np.round(np.mean(plan_totalrewards[a, :]), 2)
                 all_plan_objectives[n, l, a] = np.round(np.mean(plan_objectives[a, :]), 2)
                 all_learn_rewards[n, l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)

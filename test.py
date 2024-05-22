@@ -9,13 +9,13 @@ if __name__ == '__main__':
 
     # Basic Parameters
     n_steps = 5
-    n_states = 3
+    n_states = 2
     n_arms = 2
     n_coeff = 1
     u_type = 1
     u_order = 16
-    thresholds = 0.5 * np.ones(n_arms)
-    choice_fraction = 0.5
+    thresholds = 0.6 * np.ones(n_arms)
+    choice_fraction = 0.4
 
     transition_type = 3
     function_type = np.ones(n_arms, dtype=np.int32)
@@ -41,7 +41,8 @@ if __name__ == '__main__':
     res_dict = {}
     for i in range(100):
         print(i)
-        prob_remain = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+        rand_val = np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+        prob_remain = np.array([rand_val for _ in range(n_arms)])
         M = MarkovDynamics(n_arms, n_states, prob_remain, transition_type, transition_increasing)
         transition_bandits = M.transitions
         SafeW = SafeWhittle(n_states, n_arms, reward_bandits, transition_bandits, n_steps, u_type, u_order, thresholds)

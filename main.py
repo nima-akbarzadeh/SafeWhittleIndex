@@ -9,13 +9,13 @@ if __name__ == '__main__':
 
     # Basic Parameters
     n_steps = 5
-    n_states = 3
-    n_arms = 2
+    n_states = 2
+    n_arms = 4
     n_coeff = 1
     u_type = 1
     u_order = 16
     thresholds = 0.5 * np.ones(n_arms)
-    choice_fraction = 0.5
+    choice_fraction = 0.4
 
     transition_type = 3
     function_type = np.ones(n_arms, dtype=np.int32)
@@ -130,8 +130,9 @@ if __name__ == '__main__':
     # plt.show()
 
     rb_type = 'hard'  # 'hard' or 'soft'
-    n_iterations = 1
-    l_episodes = 100
+    n_episodes = 10
+    n_iterations = 100
+    l_episodes = 200
     if rb_type == 'hard':
         probs_l, sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
                                                                                         transition_type, transition_increasing, method, reward_bandits, transition_bandits,
@@ -164,10 +165,11 @@ if __name__ == '__main__':
     # for a in range(n_arms):
     #     prb_err[:, a] = moving_average(prb_err[:, a], int(ma_coef*l_episodes))
     plt.figure(figsize=(8, 6))
-    plt.plot(prb_err, label='Mean')
-    plt.xlabel('Episodes')
-    plt.ylabel('Regret')
-    plt.title('Mean and Bounds over regret')
+    plt.plot(prb_err, linewidth=4)
+    plt.xlabel('Episodes', fontsize=14, fontweight='bold')
+    plt.ylabel('Parameter Estimation Error', fontsize=14, fontweight='bold')
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -176,21 +178,23 @@ if __name__ == '__main__':
     # for a in range(n_arms):
     #     swi_err[:, a] = moving_average(swi_err[:, a], int(ma_coef*l_episodes))
     plt.figure(figsize=(8, 6))
-    plt.plot(swi_err, label='Mean')
-    plt.xlabel('Episodes')
-    plt.ylabel('Regret')
-    plt.title('Mean and Bounds over regret')
+    plt.plot(swi_err, linewidth=4)
+    plt.xlabel('Episodes', fontsize=14, fontweight='bold')
+    plt.ylabel('WI Estimation Error', fontsize=14, fontweight='bold')
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
     plt.legend()
     plt.grid(True)
     plt.show()
 
-    reg = np.cumsum(np.mean(obj_ss) - np.mean(obj_l, axis=(0, 2)))
+    reg = np.cumsum(np.mean(obj_ss, axis=(0, 2)) - np.mean(obj_l, axis=(0, 2)))
     # reg = moving_average(reg, int(ma_coef*l_episodes))
     plt.figure(figsize=(8, 6))
-    plt.plot(reg, label='Mean')
-    plt.xlabel('Episodes')
-    plt.ylabel('Regret')
-    plt.title('Mean and Bounds over regret')
+    plt.plot(reg, linewidth=8)
+    plt.xlabel('Episodes', fontsize=14, fontweight='bold')
+    plt.ylabel('Regret', fontsize=14, fontweight='bold')
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -203,28 +207,41 @@ if __name__ == '__main__':
 
     # Plotting
     plt.figure(figsize=(8, 6))
-    plt.plot([reg[t]/(t+1) for t in range(len(reg))], label='Mean')
-
-    # # Fill between lower bound and upper bound
-    # plt.fill_between(range(len(mean_reg)), lower_bound, upper_bound, color='skyblue', alpha=0.4, label='Bounds')
-
-    plt.xlabel('Episodes')
-    plt.ylabel('Regret')
-    plt.title('Mean and Bounds over regret')
+    plt.plot([reg[t]/(t+1) for t in range(len(reg))], linewidth=8)
+    plt.xlabel('Episodes', fontsize=14, fontweight='bold')
+    plt.ylabel('Regret/T', fontsize=14, fontweight='bold')
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
     plt.legend()
     plt.grid(True)
     plt.show()
     # plt.savefig(f'./output/regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{u_order}{n_choices}{thresholds[0]}.png')
     # plt.savefig(f'./output/regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{u_order}{n_choices}{thresholds[0]}.jpg')
 
-    wip_obj = np.mean(np.sum(obj_ss, axis=2))
+    wip_obj = np.mean(np.sum(obj_ss, axis=2), axis=0)
     lrp_obj = np.mean(np.sum(obj_l, axis=2), axis=0)
+    wip_out = [sum(wip_obj[:t]) / t for t in range(1, 1 + len(wip_obj))]
     lrp_out = [sum(lrp_obj[:t]) / t for t in range(1, 1 + len(lrp_obj))]
     plt.figure(figsize=(8, 6))
-    plt.plot(lrp_out, label='Learning Policy', color='blue')
-    plt.axhline(y=wip_obj, label='Risk Aware Whittle Index Policy', color='black', linestyle='--')
-    plt.xlabel('Learning Episodes')
-    plt.ylabel('Average Performance')
-    plt.legend()
+    plt.plot(lrp_out, label='Learner', color='blue', linewidth=4)
+    plt.plot(wip_out, label='Oracle', color='black', linestyle='--', linewidth=4)
+    # plt.axhline(y=wip_obj, label='Oracle', color='black', linestyle='--', linewidth=4)
+    plt.xlabel('Episodes', fontsize=14, fontweight='bold')
+    plt.ylabel('Objective', fontsize=14, fontweight='bold')
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
+    plt.legend(prop={'weight':'bold', 'size':12})
+    plt.grid(True)
+    plt.show()
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(lrp_out, label='Learner', color='blue', linewidth=4)
+    plt.plot(np.mean(wip_obj)*np.ones(len(lrp_out)), label='Oracle', color='black', linestyle='--', linewidth=4)
+    # plt.axhline(y=wip_obj, label='Oracle', color='black', linestyle='--', linewidth=4)
+    plt.xlabel('Episodes', fontsize=14, fontweight='bold')
+    plt.ylabel('Objective', fontsize=14, fontweight='bold')
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
+    plt.legend(prop={'weight': 'bold', 'size': 12})
     plt.grid(True)
     plt.show()

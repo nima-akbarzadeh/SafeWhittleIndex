@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps_set = [5, 10]
+    n_steps_set = [5]
     n_states_set = [2, 3]
     n_armscoef_set = [1, 2]
     f_type_set = ['hom']
@@ -17,12 +17,12 @@ if __name__ == '__main__':
     u_type_set = [1, 2]
     u_order_set = [1, 16]
     threshold_set = [0.5]
-    fraction_set = [0.1]
+    fraction_set = [0.1, 0.3, 0.5]
 
     method = 3
     l_episodes = 25
     n_episodes = 100
-    n_iterations = 25
+    n_iterations = 20
     # np.random.seed(42)
 
     count = 0
@@ -48,7 +48,7 @@ if __name__ == '__main__':
                             prob_remain = np.round(np.linspace(0.05, 0.45, na), 2)
                             np.random.shuffle(prob_remain)
                         elif tt == 3:
-                            prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
+                            prob_remain = np.round(np.linspace(0.1 / ns, 0.1 / ns, na), 2)
                             # np.random.shuffle(prob_remain)
                         elif tt == 4:
                             prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
