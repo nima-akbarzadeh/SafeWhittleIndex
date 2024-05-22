@@ -320,7 +320,7 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
 
         for l in range(l_episodes):
 
-            print(f'Episode {l + 1} of {l_episodes} / Iteration {n+1} / Last iteration was {np.round(duration, 1)} seconds')
+            # print(f'Episode {l + 1} of {l_episodes} / Iteration {n+1} / Last iteration was {np.round(duration, 1)} seconds')
             # totalrewards, objectives, cnts = Process_SingleSoftSafeRB(SafeW, n_episodes, n_steps, n_states, 2, n_choices, thresholds, tru_rew,
             #                                                           tru_dyn, sw_indices, initial_states, u_type, u_order)
             plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = Process_LearnSoftSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, n_arms,

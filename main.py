@@ -8,21 +8,22 @@ import joblib
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 10
-    n_states = 3
-    n_coeff = 2
-    u_type = 3
-    u_order = 8
+    n_steps = 5
+    n_states = 2
+    n_coeff = 1
+    u_type = 2
+    u_order = 4
     n_arms = n_coeff * n_states
-    thresholds = 0.7 * np.ones(n_arms)
-    choice_fraction = 0.2
+    thresholds = 0.3 * np.ones(n_arms)
+    choice_fraction = 0.5
 
     transition_type = 3
     function_type = np.ones(n_arms, dtype=np.int32)
     # function_type = 1 + np.arange(n_arms)
+    # np.random.shuffle(function_type)
 
     n_episodes = 100
-    np.random.seed(42)
+    # np.random.seed(42)
 
     na = n_arms
     ns = n_states
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     elif tt == 3:
         prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
         # prob_remain = np.round(np.linspace(0.5 / ns, 0.5 / ns, na), 2)
-        np.random.shuffle(prob_remain)
+        # np.random.shuffle(prob_remain)
     elif tt == 4:
         prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
         np.random.shuffle(prob_remain)
@@ -124,8 +125,6 @@ if __name__ == '__main__':
     reward_increasing = True
     transition_increasing = True
     max_wi = 1
-
-    np.random.shuffle(function_type)
 
     # Simulation Parameters
     n_choices = np.maximum(1, int(choice_fraction * n_arms))
@@ -222,8 +221,8 @@ if __name__ == '__main__':
     # plt.show()
 
     rb_type = 'soft'  # 'hard' or 'soft'
-    n_iterations = 1
-    l_episodes = 50
+    n_iterations = 10
+    l_episodes = 100
     if rb_type == 'hard':
         probs_l, sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
                                                                                         transition_type, transition_increasing, method, reward_bandits, transition_bandits,
