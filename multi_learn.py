@@ -9,20 +9,20 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps_set = [5]
-    n_states_set = [3]
-    n_armscoef_set = [1]
+    n_steps_set = [5, 10]
+    n_states_set = [2, 3]
+    n_armscoef_set = [1, 2]
     f_type_set = ['hom']
     t_type_set = [3]
-    u_type_set = [1, 2, 3]
-    u_order_set = [1, 2, 4, 8, 16]
-    threshold_set = [0.3, 0.4, 0.5, 0.6, 0.7]
-    fraction_set = [0.1, 0.7]
+    u_type_set = [1, 2]
+    u_order_set = [1, 16]
+    threshold_set = [0.5]
+    fraction_set = [0.1]
 
     method = 3
     l_episodes = 25
     n_episodes = 100
-    n_iterations = 10
+    n_iterations = 25
     # np.random.seed(42)
 
     count = 0
@@ -86,8 +86,8 @@ if __name__ == '__main__':
                                         # rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, sw_indices, initial_states, ut, uo)
                                         # rew_l, obj_l, _, _ = Process_SafeTSRB(n_iterations, n_episodes, nt, ns, na, nch, thresh, tt, True, method, R.vals, M.transitions,
                                         #                                       initial_states, ut, uo, False)
-                                        probs_l, sumwis_l, rew_l, obj_l, swi_s, rew_s, obj_s = Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, nt, ns, na, nch, thresh, tt,
-                                                                                                                         True, method, R.vals, M.transitions, initial_states, ut, uo, False, max_wi)
+                                        probs_l, sumwis_l, rew_l, obj_l, swi_s, rew_s, obj_s = Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, nt, ns, na, nch, thresh, tt,
+                                                                                                                     True, method, R.vals, M.transitions, initial_states, ut, uo, False, max_wi)
 
                                         key_value = f'nt{nt}_ns{ns}_nc{nc}_{ft_type}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}'
                                         # joblib.dump([rew_l, obj_l], './output/' + key_value + "_Learning.joblib")
@@ -96,19 +96,57 @@ if __name__ == '__main__':
                                         count += 1
                                         print(f"{count} / {total}: {key_value}")
 
-                                        reg = np.cumsum(np.mean(obj_s) - np.mean(obj_l, axis=(0, 2)))
-                                        # Plotting
+                                        # reg = np.cumsum(np.mean(obj_s) - np.mean(obj_l, axis=(0, 2)))
+                                        # # Plotting
+                                        # plt.figure(figsize=(8, 6))
+                                        # plt.plot(reg, label='Mean')
+                                        # # Fill between lower bound and upper bound
+                                        # # upper_bound = np.max(reg, axis=0)
+                                        # # lower_bound = np.min(reg, axis=0)
+                                        # # plt.fill_between(range(len(mean_reg)), lower_bound, upper_bound, color='skyblue', alpha=0.4, label='Bounds')
+                                        # plt.xlabel('Episodes')
+                                        # plt.ylabel('Regret')
+                                        # plt.title(f'Mean and Bounds over regret {key_value}')
+                                        # plt.legend()
+                                        # plt.grid(True)
+                                        # plt.savefig(f'./output/regret_{nt}{ns}{na}{tt}{ut}{uo}{nch}{int(10 * th)}.png')
+                                        # # plt.savefig(f'./output/regret_{nt}{ns}{na}{tt}{ut}{uo}{nch}{int(10 * th)}.jpg')
+                                        # # plt.show()
+
+                                        wip_obj = np.mean(np.sum(obj_s, axis=2))
+                                        lrp_obj = np.mean(np.sum(obj_l, axis=2), axis=0)
+                                        lrp_out = [sum(lrp_obj[:t]) / t for t in range(1, 1 + len(lrp_obj))]
                                         plt.figure(figsize=(8, 6))
-                                        plt.plot(reg, label='Mean')
-                                        # Fill between lower bound and upper bound
-                                        # upper_bound = np.max(reg, axis=0)
-                                        # lower_bound = np.min(reg, axis=0)
-                                        # plt.fill_between(range(len(mean_reg)), lower_bound, upper_bound, color='skyblue', alpha=0.4, label='Bounds')
-                                        plt.xlabel('Episodes')
-                                        plt.ylabel('Regret')
-                                        plt.title(f'Mean and Bounds over regret {key_value}')
+                                        plt.plot(lrp_out, label='Learning Policy', color='blue')
+                                        plt.axhline(y=wip_obj, label='Risk Aware Whittle Index Policy', color='black', linestyle='--')
+                                        plt.xlabel('Learning Episodes')
+                                        plt.ylabel('Average Performance')
+                                        plt.title(f'{key_value}')
                                         plt.legend()
                                         plt.grid(True)
-                                        plt.savefig(f'./output/regret_{nt}{ns}{na}{tt}{ut}{uo}{nch}{int(10 * th)}.png')
-                                        # plt.savefig(f'./output/regret_{nt}{ns}{na}{tt}{ut}{uo}{nch}{int(10 * th)}.jpg')
-                                        # plt.show()
+                                        plt.savefig(f'./output/performance/{nt}{ns}{na}{tt}{ut}{uo}{nch}{int(10 * th)}_performance.png')
+
+                                        prb_err = np.abs(np.transpose(np.array([prob_remain[a] - np.mean(probs_l[:, :, a], axis=0) for a in range(na)])))
+                                        plt.figure(figsize=(8, 6))
+                                        plt.plot(prb_err)
+                                        plt.xlabel('Learning Episodes')
+                                        plt.ylabel('Parameter Error')
+                                        plt.title(f'{key_value}')
+                                        plt.legend()
+                                        plt.grid(True)
+                                        plt.savefig(f'./output/proberrors/{nt}{ns}{na}{tt}{ut}{uo}{nch}{int(10 * th)}_proberrors.png')
+
+                                        wip_arms = np.mean(obj_s, axis=(0, 1))
+                                        lrp_arms = np.mean(obj_l, axis=0)
+                                        lrp_arm1 = [sum(lrp_arms[:t, 0]) / t for t in range(1, 1 + lrp_obj.shape[0])]
+                                        lrp_arm2 = [sum(lrp_arms[:t, 1]) / t for t in range(1, 1 + lrp_obj.shape[0])]
+                                        plt.figure(figsize=(8, 6))
+                                        plt.plot(lrp_arm1, label='Learning Policy of Arm 1', color='blue')
+                                        plt.plot(lrp_arm2, label='Learning Policy of Arm 2', color='black')
+                                        plt.axhline(y=wip_arms[0], label='Risk Aware Whittle Index Policy of Arm 1', color='blue', linestyle='--')
+                                        plt.axhline(y=wip_arms[1], label='Risk Aware Whittle Index Policy of Arm 2', color='black', linestyle='--')
+                                        plt.xlabel('Learning Episodes')
+                                        plt.ylabel('Parameter Error')
+                                        plt.title(f'{key_value}')
+                                        plt.grid(True)
+                                        plt.savefig(f'./output/armperformances/{nt}{ns}{na}{tt}{ut}{uo}{nch}{int(10 * th)}_armperformances.png')

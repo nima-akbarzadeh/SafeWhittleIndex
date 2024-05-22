@@ -1,3 +1,5 @@
+import random
+
 from scipy.stats import dirichlet
 import joblib
 from Markov import *
@@ -205,7 +207,7 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
     all_learn_rewards = np.zeros((n_iterations, l_episodes, n_arms))
     all_learn_objectives = np.zeros((n_iterations, l_episodes, n_arms))
     all_learn_sumwis = np.zeros((n_iterations, l_episodes, n_arms))
-    all_learn_probs = np.round((0.1 / n_states), n_arms) * np.ones((n_iterations, l_episodes, n_arms))
+    all_learn_probs = np.ones((n_iterations, l_episodes, n_arms))
     duration = 0
 
     PlanW = SafeWhittle(n_states, n_arms, tru_rew, tru_dyn, n_steps, u_type, u_order, thresholds)
@@ -215,7 +217,8 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
 
     for n in range(n_iterations):
 
-        # print(f'Learning iteration {n + 1} out of {n_iterations}')
+        all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.5/n_states, 0.5/n_states), 2) for _ in range(n_arms)])
+        print(f'Learning iteration {n + 1} out of {n_iterations}')
         start_time = time.time()
 
         Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, 0, :], t_type, t_increasing)
@@ -227,7 +230,7 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
 
         for l in range(l_episodes):
 
-            print(f'Episode {l + 1} of {l_episodes} / Iteration {n+1} / Last iteration was {np.round(duration, 1)} seconds')
+            # print(f'Episode {l + 1} of {l_episodes} / Iteration {n+1} / Last iteration was {np.round(duration, 1)} seconds')
             # totalrewards, objectives, cnts = Process_SingleSoftSafeRB(SafeW, n_episodes, n_steps, n_states, 2, n_choices, thresholds, tru_rew,
             #                                                           tru_dyn, sw_indices, initial_states, u_type, u_order)
             plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = Process_LearnSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, n_arms,
@@ -246,7 +249,7 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
                         cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
                         for s2 in range(1, s1):
                             cnt.append(est_transitions[s1, s2, 0, a])
-                    all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+                    all_learn_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
                 if t_type == 3:
                     cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
                     for s1 in range(1, n_states - 1):
@@ -256,8 +259,8 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
                             cnt.append(est_transitions[s1, s2, 0, a])
                     for s2 in range(1, n_states):
                         cnt.append(est_transitions[n_states - 1, s2, 0, a])
-                    all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
-
+                    all_learn_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+            # print(all_learn_probs[n, l, :])
             Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, l, :], t_type, t_increasing)
             SafeW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
             SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
@@ -298,7 +301,7 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
     all_learn_rewards = np.zeros((n_iterations, l_episodes, n_arms))
     all_learn_objectives = np.zeros((n_iterations, l_episodes, n_arms))
     all_learn_sumwis = np.zeros((n_iterations, l_episodes, n_arms))
-    all_learn_probs = np.round((0.1 / n_states), n_arms) * np.ones((n_iterations, l_episodes, n_arms))
+    all_learn_probs = np.ones((n_iterations, l_episodes, n_arms))
     duration = 0
 
     PlanW = SafeWhittle(n_states, n_arms, tru_rew, tru_dyn, n_steps, u_type, u_order, thresholds)
@@ -308,9 +311,10 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
 
     for n in range(n_iterations):
 
-        # print(f'Learning iteration {n + 1} out of {n_iterations}')
+        print(f'Learning iteration {n + 1} out of {n_iterations}')
         start_time = time.time()
 
+        all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.5/n_states, 0.5/n_states), 2) for _ in range(n_arms)])
         Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, 0, :], t_type, t_increasing)
         LearnW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
         LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
@@ -339,7 +343,7 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
                         cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
                         for s2 in range(1, s1):
                             cnt.append(est_transitions[s1, s2, 0, a])
-                    all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+                    all_learn_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
                 if t_type == 3:
                     cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
                     for s1 in range(1, n_states - 1):
@@ -349,8 +353,8 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
                             cnt.append(est_transitions[s1, s2, 0, a])
                     for s2 in range(1, n_states):
                         cnt.append(est_transitions[n_states - 1, s2, 0, a])
-                    all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
-
+                    all_learn_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+            # print(all_learn_probs[n, l, :])
             Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, l, :], t_type, t_increasing)
             SafeW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
             SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)

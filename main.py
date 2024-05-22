@@ -9,12 +9,12 @@ if __name__ == '__main__':
 
     # Basic Parameters
     n_steps = 5
-    n_states = 2
+    n_states = 3
+    n_arms = 2
     n_coeff = 1
-    u_type = 2
-    u_order = 4
-    n_arms = n_coeff * n_states
-    thresholds = 0.3 * np.ones(n_arms)
+    u_type = 1
+    u_order = 16
+    thresholds = 0.5 * np.ones(n_arms)
     choice_fraction = 0.5
 
     transition_type = 3
@@ -28,99 +28,8 @@ if __name__ == '__main__':
     na = n_arms
     ns = n_states
     tt = transition_type
-    if tt == 0:
-        prob_remain = np.round(np.linspace(0.1, 0.9, na), 2)
-        np.random.shuffle(prob_remain)
-    elif tt == 1:
-        prob_remain = np.round(np.linspace(0.05, 0.45, na), 2)
-        np.random.shuffle(prob_remain)
-    elif tt == 2:
-        prob_remain = np.round(np.linspace(0.05, 0.45, na), 2)
-        np.random.shuffle(prob_remain)
-    elif tt == 3:
-        prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
-        # prob_remain = np.round(np.linspace(0.5 / ns, 0.5 / ns, na), 2)
-        # np.random.shuffle(prob_remain)
-    elif tt == 4:
-        prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
-        np.random.shuffle(prob_remain)
-    elif tt == 5:
-        prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
-        np.random.shuffle(prob_remain)
-    elif tt == 6:
-        prob_remain = np.round(np.linspace(0.2, 0.8, na), 2)
-        np.random.shuffle(prob_remain)
-    elif tt == 11:
-        pr_ss_0 = np.round(np.linspace(0.596, 0.690, na), 3)
-        np.random.shuffle(pr_ss_0)
-        print(pr_ss_0)
-        pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
-        np.random.shuffle(pr_sr_0)
-        pr_sp_0 = np.round(np.linspace(0.201, 0.287, na), 3)
-        np.random.shuffle(pr_sp_0)
-        pr_rr_0 = np.round(np.linspace(0.759, 0.822, na), 3)
-        np.random.shuffle(pr_rr_0)
-        pr_rp_0 = np.round(np.linspace(0.130, 0.169, na), 3)
-        np.random.shuffle(pr_rp_0)
-        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
-        np.random.shuffle(pr_pp_0)
-        pr_ss_1 = np.round(np.linspace(0.733, 0.801, na), 3)
-        np.random.shuffle(pr_ss_1)
-        pr_sr_1 = np.round(np.linspace(0.047, 0.078, na), 3)
-        np.random.shuffle(pr_sr_1)
-        pr_sp_1 = np.round(np.linspace(0.115, 0.171, na), 3)
-        np.random.shuffle(pr_sp_1)
-        pr_rr_1 = np.round(np.linspace(0.758, 0.847, na), 3)
-        np.random.shuffle(pr_rr_1)
-        pr_rp_1 = np.round(np.linspace(0.121, 0.193, na), 3)
-        np.random.shuffle(pr_rp_1)
-        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
-        np.random.shuffle(pr_pp_1)
-        prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
-    elif tt == 12:
-        pr_ss_0 = np.round(np.linspace(0.668, 0.738, na), 3)
-        np.random.shuffle(pr_ss_0)
-        pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
-        np.random.shuffle(pr_sr_0)
-        pr_rr_0 = np.round(np.linspace(0.831, 0.870, na), 3)
-        np.random.shuffle(pr_rr_0)
-        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
-        np.random.shuffle(pr_pp_0)
-        pr_ss_1 = np.round(np.linspace(0.782, 0.833, na), 3)
-        np.random.shuffle(pr_ss_1)
-        pr_sr_1 = np.round(np.linspace(0.047, 0.078, na), 3)
-        np.random.shuffle(pr_sr_1)
-        pr_rr_1 = np.round(np.linspace(0.807, 0.879, na), 3)
-        np.random.shuffle(pr_rr_1)
-        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
-        np.random.shuffle(pr_pp_1)
-        prob_remain = [pr_ss_0, pr_sr_0, pr_rr_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_rr_1, pr_pp_1]
-    elif tt == 13:
-        pr_ss_0 = np.round(np.linspace(0.657, 0.762, na), 3)
-        np.random.shuffle(pr_ss_0)
-        pr_sp_0 = np.round(np.linspace(0.201, 0.287, na), 3)
-        np.random.shuffle(pr_sp_0)
-        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
-        np.random.shuffle(pr_pp_0)
-        pr_ss_1 = np.round(np.linspace(0.806, 0.869, na), 3)
-        np.random.shuffle(pr_ss_1)
-        pr_sp_1 = np.round(np.linspace(0.115, 0.171, na), 3)
-        np.random.shuffle(pr_sp_1)
-        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
-        np.random.shuffle(pr_pp_1)
-        prob_remain = [pr_ss_0, pr_sp_0, pr_pp_0, pr_ss_1, pr_sp_1, pr_pp_1]
-    elif tt == 14:
-        pr_ss_0 = np.round(np.linspace(0.713, 0.799, na), 3)
-        np.random.shuffle(pr_ss_0)
-        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
-        np.random.shuffle(pr_pp_0)
-        pr_ss_1 = np.round(np.linspace(0.829, 0.885, na), 3)
-        np.random.shuffle(pr_ss_1)
-        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
-        np.random.shuffle(pr_pp_1)
-        prob_remain = [pr_ss_0, pr_pp_0, pr_ss_1, pr_pp_1]
-    else:
-        prob_remain = np.round(np.linspace(0.1, 0.9, na), 2)
+    prob_remain = np.round(np.linspace(0.1 / ns, 0.1 / ns, na), 2)
+    print(prob_remain)
 
     reward_increasing = True
     transition_increasing = True
@@ -220,8 +129,8 @@ if __name__ == '__main__':
     # plt.grid()
     # plt.show()
 
-    rb_type = 'soft'  # 'hard' or 'soft'
-    n_iterations = 10
+    rb_type = 'hard'  # 'hard' or 'soft'
+    n_iterations = 1
     l_episodes = 100
     if rb_type == 'hard':
         probs_l, sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
@@ -307,3 +216,15 @@ if __name__ == '__main__':
     plt.show()
     # plt.savefig(f'./output/regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{u_order}{n_choices}{thresholds[0]}.png')
     # plt.savefig(f'./output/regret_{n_steps}{n_states}{n_arms}{tt}{u_type}{u_order}{n_choices}{thresholds[0]}.jpg')
+
+    wip_obj = np.mean(np.sum(obj_ss, axis=2))
+    lrp_obj = np.mean(np.sum(obj_l, axis=2), axis=0)
+    lrp_out = [sum(lrp_obj[:t]) / t for t in range(1, 1 + len(lrp_obj))]
+    plt.figure(figsize=(8, 6))
+    plt.plot(lrp_out, label='Learning Policy', color='blue')
+    plt.axhline(y=wip_obj, label='Risk Aware Whittle Index Policy', color='black', linestyle='--')
+    plt.xlabel('Learning Episodes')
+    plt.ylabel('Average Performance')
+    plt.legend()
+    plt.grid(True)
+    plt.show()

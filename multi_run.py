@@ -11,23 +11,23 @@ warnings.filterwarnings("ignore")
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps_set = [5, 4, 3]
-    n_states_set = [5, 4, 3, 2]
-    armcoef_set = [5, 4, 3]
+    n_steps_set = [3, 4, 5]
+    n_states_set = [2]
+    armcoef_set = [1]
     f_type_set = ['hom']
     t_type_set = [3]
-    u_type_set = [1, 2, 3]
+    u_type_set = [1, 2]
     u_order_set = [1, 2, 4, 8, 16]
     threshold_set = [0.3, 0.4, 0.5, 0.6, 0.7]
-    fraction_set = [0.1, 0.2, 0.3, 0.4, 0.5]
+    fraction_set = [0.5]
 
-    PATH1 = f'./output/TestRes_t{t_type_set}.xlsx'
-    PATH2 = f'./output/TestRes_t{t_type_set}_avg.xlsx'
+    PATH1 = f'./output/Res_{t_type_set}{n_states_set}{armcoef_set}.xlsx'
+    PATH2 = f'./output/ResAvg_{t_type_set}{n_states_set}{armcoef_set}.xlsx'
     PATH3 = f'./output/'
 
     method = 3
     n_episodes = 100
-    np.random.seed(42)
+    # np.random.seed(42)
 
     results1 = {}
     results2 = {}
@@ -35,6 +35,9 @@ if __name__ == '__main__':
     results4 = {}
     results5 = {}
     results6 = {}
+    results7 = {}
+    results8 = {}
+    results9 = {}
     res1 = {}
     res2 = {}
     res3 = {}
@@ -177,7 +180,7 @@ if __name__ == '__main__':
                         ft = np.ones(na, dtype=np.int32)
                     else:
                         ft = 1 + np.arange(na)
-                    np.random.shuffle(ft)
+                    # np.random.shuffle(ft)
 
                     for tt in t_type_set:
                         if tt == 0:
@@ -191,7 +194,7 @@ if __name__ == '__main__':
                             np.random.shuffle(prob_remain)
                         elif tt == 3:
                             prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
-                            np.random.shuffle(prob_remain)
+                            # np.random.shuffle(prob_remain)
                         elif tt == 4:
                             prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
                             np.random.shuffle(prob_remain)
@@ -301,44 +304,56 @@ if __name__ == '__main__':
 
                                         rew_r, obj_r, _ = Process_Random(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut, uo)
                                         rew_m, obj_m, _ = Process_Greedy(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut, uo)
-                                        rew_w, obj_w, _ = Process_WhtlRB(WhtlW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, ww_indices, initial_states, ut, uo)
-                                        # rew_n, obj_n, _ = Process_NeutRB(NeutW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, nw_indices, initial_states, ut, uo)
-                                        rew_s, obj_s, _ = Process_SafeRB(SafeW, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, sw_indices, initial_states, ut, uo)
+                                        rew_w, obj_w, _ = Process_WhtlRB(WhtlW, ww_indices, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut, uo)
+                                        rew_n, obj_n, _ = Process_SoftSafeRB(SafeW, sw_indices, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut, uo)
+                                        rew_s, obj_s, _ = Process_SafeRB(SafeW, sw_indices, n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut, uo)
 
                                         key_value = f'nt{nt}_nc{nc}_ns{ns}_{ft_type}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}'
                                         joblib.dump([rew_r, obj_r], PATH3 + key_value + "_Random.joblib")
                                         joblib.dump([rew_m, obj_m], PATH3 + key_value + "_Myopic.joblib")
                                         joblib.dump([rew_w, obj_w], PATH3 + key_value + "_Whittl.joblib")
+                                        joblib.dump([rew_n, obj_n], PATH3 + key_value + "_SoSafe.joblib")
                                         joblib.dump([rew_s, obj_s], PATH3 + key_value + "_Safaty.joblib")
 
                                         ravg_vec = obj_r.mean(axis=0)
                                         mavg_vec = obj_m.mean(axis=0)
                                         wavg_vec = obj_w.mean(axis=0)
+                                        navg_vec = obj_n.mean(axis=0)
                                         savg_vec = obj_s.mean(axis=0)
                                         ravg = np.round(np.mean(obj_r), 3)
                                         mavg = np.round(np.mean(obj_m), 3)
                                         wavg = np.round(np.mean(obj_w), 3)
+                                        navg = np.round(np.mean(obj_n), 3)
                                         savg = np.round(np.mean(obj_s), 3)
                                         impr_val = np.round(savg - wavg, 2)
-                                        impr_prcw = np.round(100 * (savg - wavg) / wavg, 2)
-                                        impr_prcr = np.round(100 * (savg - ravg) / ravg, 2)
-                                        impr_prcm = np.round(100 * (savg - mavg) / mavg, 2)
+                                        impr_sw = np.round(100 * (savg - wavg) / wavg, 2)
+                                        impr_sr = np.round(100 * (savg - ravg) / ravg, 2)
+                                        impr_sm = np.round(100 * (savg - mavg) / mavg, 2)
+                                        impr_nw = np.round(100 * (navg - wavg) / wavg, 2)
+                                        impr_nr = np.round(100 * (navg - ravg) / ravg, 2)
+                                        impr_nm = np.round(100 * (navg - mavg) / mavg, 2)
                                         count += 1
 
-                                        print(f"{count} / {total}: {key_value} ---> MEAN-Rel-W: {impr_prcw}, MEAN-Rel-M: {impr_prcm}, MEAN-Rel-R: {impr_prcr}")
+                                        print(f"{count} / {total}: {key_value} ---> MEAN-Rel-W: {impr_sw}, MEAN-Rel-M: {impr_sm}, MEAN-Rel-R: {impr_sr}, MEAN-Rel-R: {impr_nr}")
                                         results1[key_value] = wavg
                                         results2[key_value] = savg
                                         results3[key_value] = impr_val
-                                        results4[key_value] = impr_prcw
-                                        results5[key_value] = impr_prcm
-                                        results6[key_value] = impr_prcr
+                                        results4[key_value] = impr_sw
+                                        results5[key_value] = impr_sm
+                                        results6[key_value] = impr_sr
+                                        results7[key_value] = impr_nw
+                                        results8[key_value] = impr_nm
+                                        results9[key_value] = impr_nr
                                         df1_1 = pd.DataFrame(list(results1.items()), columns=['Key', 'MEAN-Neut'])
                                         df1_2 = pd.DataFrame(results2.values(), columns=['MEAN-Safe'])
                                         df1_3 = pd.DataFrame(results3.values(), columns=['MEAN-Impr'])
                                         df1_4 = pd.DataFrame(results4.values(), columns=['MEAN-RelW'])
                                         df1_5 = pd.DataFrame(results5.values(), columns=['MEAN-RelM'])
                                         df1_6 = pd.DataFrame(results6.values(), columns=['MEAN-RelR'])
-                                        df1 = pd.concat([df1_1, df1_2, df1_3, df1_4, df1_5, df1_6], axis=1)
+                                        df1_7 = pd.DataFrame(results7.values(), columns=['MEAN-RelSoftW'])
+                                        df1_8 = pd.DataFrame(results8.values(), columns=['MEAN-RelSoftM'])
+                                        df1_9 = pd.DataFrame(results9.values(), columns=['MEAN-RelSoftR'])
+                                        df1 = pd.concat([df1_1, df1_2, df1_3, df1_4, df1_5, df1_6, df1_7, df1_8, df1_9], axis=1)
                                         df1.to_excel(PATH1, index=False)
 
                                         res1[f'n_steps_set_{nt}'].append(results1[key_value])
