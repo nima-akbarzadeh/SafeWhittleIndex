@@ -217,12 +217,21 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
 
     for n in range(n_iterations):
 
-        all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.5/n_states, 0.5/n_states), 2) for _ in range(n_arms)])
         print(f'Learning iteration {n + 1} out of {n_iterations}')
         start_time = time.time()
 
-        Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, 0, :], t_type, t_increasing)
-        LearnW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
+        if t_type < 10:
+            all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.1/n_states, 1/n_states), 2) for _ in range(n_arms)])
+            Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, 0, :], t_type, t_increasing)
+            LearnW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
+        else:
+            est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+            for a in range(n_arms):
+                for s1 in range(n_states):
+                    for act in range(2):
+                        est_transitions[s1, :, act, a] = dirichlet.rvs(np.ones(n_states))
+            LearnW = SafeWhittle(n_states, n_arms, tru_rew, est_transitions, n_steps, u_type, u_order, thresholds)
+
         LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
         learn_indices = LearnW.w_indices
 
@@ -260,11 +269,16 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
                     for s2 in range(1, n_states):
                         cnt.append(est_transitions[n_states - 1, s2, 0, a])
                     all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
-            # print(all_learn_probs[n, l, :])
-            Mest = MarkovDynamics(n_arms, n_states, np.round(all_learn_probs[n, l, :], 2), t_type, t_increasing)
-            SafeW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
-            SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
-            sw_indices = SafeW.w_indices
+
+            if t_type < 10:
+                Mest = MarkovDynamics(n_arms, n_states, np.round(all_learn_probs[n, l, :], 2), t_type, t_increasing)
+                SafeW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
+                SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+                sw_indices = SafeW.w_indices
+            else:
+                SafeW = SafeWhittle(n_states, n_arms, tru_rew, est_transitions, n_steps, u_type, u_order, thresholds)
+                SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+                sw_indices = SafeW.w_indices
 
             for a in range(n_arms):
                 all_learn_sumwis[n, l, a] = np.sum(sw_indices[a])

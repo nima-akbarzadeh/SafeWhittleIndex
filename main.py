@@ -9,15 +9,16 @@ if __name__ == '__main__':
 
     # Basic Parameters
     n_steps = 5
-    n_states = 2
-    n_arms = 4
+    n_states = 4
+    n_arms = 2
     n_coeff = 1
-    u_type = 1
+    u_type = 3
     u_order = 16
     thresholds = 0.5 * np.ones(n_arms)
-    choice_fraction = 0.4
+    choice_fraction = 0.3
 
-    transition_type = 3
+    transition_type = 11
+
     function_type = np.ones(n_arms, dtype=np.int32)
     # function_type = 1 + np.arange(n_arms)
     # np.random.shuffle(function_type)
@@ -28,7 +29,75 @@ if __name__ == '__main__':
     na = n_arms
     ns = n_states
     tt = transition_type
-    prob_remain = np.round(np.linspace(0.1 / ns, 0.1 / ns, na), 2)
+    prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
+    if tt == 11:
+        pr_ss_0 = np.round(np.linspace(0.596, 0.690, na), 3)
+        np.random.shuffle(pr_ss_0)
+        pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
+        np.random.shuffle(pr_sr_0)
+        pr_sp_0 = np.round(np.linspace(0.201, 0.287, na), 3)
+        np.random.shuffle(pr_sp_0)
+        pr_rr_0 = np.round(np.linspace(0.759, 0.822, na), 3)
+        np.random.shuffle(pr_rr_0)
+        pr_rp_0 = np.round(np.linspace(0.130, 0.169, na), 3)
+        np.random.shuffle(pr_rp_0)
+        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
+        np.random.shuffle(pr_pp_0)
+        pr_ss_1 = np.round(np.linspace(0.733, 0.801, na), 3)
+        np.random.shuffle(pr_ss_1)
+        pr_sr_1 = np.round(np.linspace(0.047, 0.078, na), 3)
+        np.random.shuffle(pr_sr_1)
+        pr_sp_1 = np.round(np.linspace(0.115, 0.171, na), 3)
+        np.random.shuffle(pr_sp_1)
+        pr_rr_1 = np.round(np.linspace(0.758, 0.847, na), 3)
+        np.random.shuffle(pr_rr_1)
+        pr_rp_1 = np.round(np.linspace(0.121, 0.193, na), 3)
+        np.random.shuffle(pr_rp_1)
+        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
+        np.random.shuffle(pr_pp_1)
+        prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
+    elif tt == 12:
+        pr_ss_0 = np.round(np.linspace(0.668, 0.738, na), 3)
+        np.random.shuffle(pr_ss_0)
+        pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
+        np.random.shuffle(pr_sr_0)
+        pr_rr_0 = np.round(np.linspace(0.831, 0.870, na), 3)
+        np.random.shuffle(pr_rr_0)
+        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
+        np.random.shuffle(pr_pp_0)
+        pr_ss_1 = np.round(np.linspace(0.782, 0.833, na), 3)
+        np.random.shuffle(pr_ss_1)
+        pr_sr_1 = np.round(np.linspace(0.047, 0.078, na), 3)
+        np.random.shuffle(pr_sr_1)
+        pr_rr_1 = np.round(np.linspace(0.807, 0.879, na), 3)
+        np.random.shuffle(pr_rr_1)
+        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
+        np.random.shuffle(pr_pp_1)
+        prob_remain = [pr_ss_0, pr_sr_0, pr_rr_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_rr_1, pr_pp_1]
+    elif tt == 13:
+        pr_ss_0 = np.round(np.linspace(0.657, 0.762, na), 3)
+        np.random.shuffle(pr_ss_0)
+        pr_sp_0 = np.round(np.linspace(0.201, 0.287, na), 3)
+        np.random.shuffle(pr_sp_0)
+        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
+        np.random.shuffle(pr_pp_0)
+        pr_ss_1 = np.round(np.linspace(0.806, 0.869, na), 3)
+        np.random.shuffle(pr_ss_1)
+        pr_sp_1 = np.round(np.linspace(0.115, 0.171, na), 3)
+        np.random.shuffle(pr_sp_1)
+        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
+        np.random.shuffle(pr_pp_1)
+        prob_remain = [pr_ss_0, pr_sp_0, pr_pp_0, pr_ss_1, pr_sp_1, pr_pp_1]
+    elif tt == 14:
+        pr_ss_0 = np.round(np.linspace(0.713, 0.799, na), 3)
+        np.random.shuffle(pr_ss_0)
+        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
+        np.random.shuffle(pr_pp_0)
+        pr_ss_1 = np.round(np.linspace(0.829, 0.885, na), 3)
+        np.random.shuffle(pr_ss_1)
+        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
+        np.random.shuffle(pr_pp_1)
+        prob_remain = [pr_ss_0, pr_pp_0, pr_ss_1, pr_pp_1]
     print(prob_remain)
 
     reward_increasing = True
@@ -101,9 +170,9 @@ if __name__ == '__main__':
     print(f'Safety-Random: {100 * (np.mean(obj_s) - np.mean(obj_r)) / np.mean(obj_r)}')
 
     # arm_index = int(input('Which arm: '))
-    # bins = np.linspace(0.2, 1, 400)
-    # plt.hist(rew_w[arm_index, :], bins=bins, alpha=0.5, label='Risk-Neutral', width=0.05, align='left')
-    # plt.hist(rew_s[arm_index, :], bins=bins, alpha=0.5, label='Risk-Aware', width=0.05, align='mid')
+    # bins = np.linspace(0.2, 0.8, 400)
+    # plt.hist(rew_w[arm_index, :], bins=bins, alpha=0.5, label='Risk-Neutral', width=0.05, align='left', color='gray', edgecolor='black', hatch='/')
+    # plt.hist(rew_s[arm_index, :], bins=bins, alpha=0.5, label='Risk-Aware', width=0.05, align='mid', color='white', edgecolor='black', hatch='\\')
     # plt.xticks(fontsize=12, fontweight='bold')
     # plt.yticks(fontsize=12, fontweight='bold')
     # plt.axvline(x=thresholds[-1], color='r', linestyle='-')
@@ -114,7 +183,7 @@ if __name__ == '__main__':
     # plt.legend()
     # plt.grid()
     # plt.show()
-    #
+
     # bins = np.linspace(0, 1, 20)
     # plt.hist(np.mean(rew_w, axis=0), bins=bins, alpha=0.5, label='Risk-Neutral', width=0.05, align='left')
     # plt.hist(np.mean(rew_s, axis=0), bins=bins, alpha=0.5, label='Risk-Aware', width=0.05, align='mid')
