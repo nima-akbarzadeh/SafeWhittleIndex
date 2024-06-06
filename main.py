@@ -29,8 +29,9 @@ if __name__ == '__main__':
     na = n_arms
     ns = n_states
     tt = transition_type
-    prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
+    prob_remain = np.round(np.linspace(1 / ns, 1 / ns, na), 2)
     if tt == 11:
+        n_states = 4
         pr_ss_0 = np.round(np.linspace(0.596, 0.690, na), 3)
         np.random.shuffle(pr_ss_0)
         pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
@@ -57,6 +58,7 @@ if __name__ == '__main__':
         np.random.shuffle(pr_pp_1)
         prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
     elif tt == 12:
+        n_states = 4
         pr_ss_0 = np.round(np.linspace(0.668, 0.738, na), 3)
         np.random.shuffle(pr_ss_0)
         pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
@@ -75,6 +77,7 @@ if __name__ == '__main__':
         np.random.shuffle(pr_pp_1)
         prob_remain = [pr_ss_0, pr_sr_0, pr_rr_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_rr_1, pr_pp_1]
     elif tt == 13:
+        n_states = 3
         pr_ss_0 = np.round(np.linspace(0.657, 0.762, na), 3)
         np.random.shuffle(pr_ss_0)
         pr_sp_0 = np.round(np.linspace(0.201, 0.287, na), 3)
@@ -89,6 +92,7 @@ if __name__ == '__main__':
         np.random.shuffle(pr_pp_1)
         prob_remain = [pr_ss_0, pr_sp_0, pr_pp_0, pr_ss_1, pr_sp_1, pr_pp_1]
     elif tt == 14:
+        n_states = 3
         pr_ss_0 = np.round(np.linspace(0.713, 0.799, na), 3)
         np.random.shuffle(pr_ss_0)
         pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
@@ -198,23 +202,29 @@ if __name__ == '__main__':
     # plt.grid()
     # plt.show()
 
-    rb_type = 'hard'  # 'hard' or 'soft'
+    rb_type = 'soft'  # 'hard' or 'soft'
+    exp_type = 'det'  # 'det' or 'rand'
     n_episodes = 10
     n_iterations = 100
     l_episodes = 200
     if rb_type == 'hard':
-        probs_l, sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
-                                                                                        transition_type, transition_increasing, method, reward_bandits, transition_bandits,
-                                                                                        initial_states, u_type, u_order, True, max_wi)
-        # learn_list = joblib.load(f'./output/safetsrb_{n_steps}{n_states}{n_arms}{tt}{u_type}{n_choices}{thresholds[0]}.joblib')
-        # probs_l = learn_list[0]
-        # sumwis_l = learn_list[1]
-        # rew_l = learn_list[2]
-        # obj_l = learn_list[3]
+        if exp_type == 'det':
+            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                                                                   transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+                                                                                   initial_states, u_type, u_order, True, max_wi)
+        else:
+            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                                                                         transition_type, transition_increasing, method, reward_bandits,
+                                                                                         initial_states, u_type, u_order, True, max_wi)
     else:
-        probs_l, sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
-                                                                                            transition_type, transition_increasing, method, reward_bandits, transition_bandits,
-                                                                                            initial_states, u_type, u_order, True, max_wi)
+        if exp_type == 'det':
+            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                                                                       transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+                                                                                       initial_states, u_type, u_order, True, max_wi)
+        else:
+            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSoftSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                                                                             transition_type, transition_increasing, method, reward_bandits,
+                                                                                             initial_states, u_type, u_order, True, max_wi)
         # rew_ss, obj_ss, _ = Process_SoftSafeRB(SafeW, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits,
         #                                        sw_bandits, initial_states, u_type, u_order)
         # probs_l, sumwis_l, rew_l, obj_l = Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
@@ -226,26 +236,10 @@ if __name__ == '__main__':
         # rew_l = learn_list[2]
         # obj_l = learn_list[3]
 
-    ma_coef = 0.1
-    def moving_average(x, w):
-        return np.convolve(x, np.ones(w), 'same') / w
-
-    prb_err = np.abs(np.transpose(np.array([prob_remain[a] - np.mean(probs_l[:, :, a], axis=0) for a in range(n_arms)])))
-    # for a in range(n_arms):
-    #     prb_err[:, a] = moving_average(prb_err[:, a], int(ma_coef*l_episodes))
-    plt.figure(figsize=(8, 6))
-    plt.plot(prb_err, linewidth=4)
-    plt.xlabel('Episodes', fontsize=14, fontweight='bold')
-    plt.ylabel('Parameter Estimation Error', fontsize=14, fontweight='bold')
-    plt.xticks(fontsize=12, fontweight='bold')
-    plt.yticks(fontsize=12, fontweight='bold')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-    swi_err = np.abs(np.transpose(np.array([swi_ss[a] - np.mean(sumwis_l[:, :, a], axis=0) for a in range(n_arms)])))
-    # for a in range(n_arms):
-    #     swi_err[:, a] = moving_average(swi_err[:, a], int(ma_coef*l_episodes))
+    if exp_type == 'det':
+        swi_err = np.abs(np.transpose(np.array([swi_ss[a] - np.mean(sumwis_l[:, :, a], axis=0) for a in range(n_arms)])))
+    else:
+        swi_err = np.abs(np.transpose(np.array([np.mean(swi_ss[:, :, a] - sumwis_l[:, :, a], axis=0) for a in range(n_arms)])))
     plt.figure(figsize=(8, 6))
     plt.plot(swi_err, linewidth=4)
     plt.xlabel('Episodes', fontsize=14, fontweight='bold')
@@ -257,7 +251,6 @@ if __name__ == '__main__':
     plt.show()
 
     reg = np.cumsum(np.mean(obj_ss, axis=(0, 2)) - np.mean(obj_l, axis=(0, 2)))
-    # reg = moving_average(reg, int(ma_coef*l_episodes))
     plt.figure(figsize=(8, 6))
     plt.plot(reg, linewidth=8)
     plt.xlabel('Episodes', fontsize=14, fontweight='bold')

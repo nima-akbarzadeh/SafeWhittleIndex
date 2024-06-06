@@ -188,13 +188,13 @@ class SafeWhittle:
                     for act in range(2):
 
                         # Convert the next state of the second dimension into an index ranged from 1 to L
-                        if len(self.rewards.shape) == 3:
-                            reward_added = self.rewards[x, act, arm]
-                        else:
-                            reward_added = self.rewards[x, arm]
-                        total_reward = self.all_rews[arm][l]
-                        next_total_r = total_reward + reward_added
-                        nxt_l = next((i for i, x in enumerate(self.all_rews[arm]) if x == next_total_r), -1)
+                        # if len(self.rewards.shape) == 3:
+                        #     reward_added = self.rewards[x, act, arm]
+                        # else:
+                        #     reward_added = self.rewards[x, arm]
+                        # total_reward = self.all_rews[arm][l]
+                        # next_total_r = total_reward + reward_added
+                        # nxt_l = next((i for i, x in enumerate(self.all_rews[arm]) if x == next_total_r), -1)
                         nxt_l = max(0, min(self.n_augment[arm] - 1, l + x))
 
                         Q[l, x, t, act] = np.round(- penalty * act + np.dot(V[nxt_l, :, t + 1], self.transition[x, :, act, arm]), self.digits + 1)
