@@ -205,8 +205,8 @@ if __name__ == '__main__':
     rb_type = 'hard'  # 'hard' or 'soft'
     exp_type = 'det'  # 'det' or 'rand'
     n_episodes = 10
-    n_iterations = 1000
-    l_episodes = 10000
+    n_iterations = 10
+    l_episodes = 10
     if rb_type == 'hard':
         if exp_type == 'det':
             sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = MultiProcess_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
