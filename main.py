@@ -205,13 +205,13 @@ if __name__ == '__main__':
     rb_type = 'hard'  # 'hard' or 'soft'
     exp_type = 'det'  # 'det' or 'rand'
     n_episodes = 10
-    n_iterations = 1000
-    l_episodes = 10000
+    n_iterations = 100
+    l_episodes = 100
     if rb_type == 'hard':
         if exp_type == 'det':
-            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
-                                                                                   transition_type, transition_increasing, method, reward_bandits, transition_bandits,
-                                                                                   initial_states, u_type, u_order, True, max_wi)
+            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = MultiProcess_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                                                                        transition_type, transition_increasing, method, reward_bandits, transition_bandits,
+                                                                                        initial_states, u_type, u_order, True, max_wi)
         else:
             sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
                                                                                          transition_type, transition_increasing, method, reward_bandits,
