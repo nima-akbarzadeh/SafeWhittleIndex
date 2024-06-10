@@ -280,7 +280,14 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
                 SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
                 sw_indices = SafeW.w_indices
 
+            print(f"==================================== Episode {l}")
             for a in range(n_arms):
+                # if l > l_episodes - 5:
+                #     print(f"------------- Arm {a}")
+                #     print("True Indices:")
+                #     print(plan_indices[a][:, :, :])
+                #     print("Learned Indices:")
+                #     print(sw_indices[a][:, :, :])
                 all_learn_sumwis[n, l, a] = np.sum(sw_indices[a])
                 all_plan_rewards[n, l, a] = np.round(np.mean(plan_totalrewards[a, :]), 2)
                 all_plan_objectives[n, l, a] = np.round(np.mean(plan_objectives[a, :]), 2)
