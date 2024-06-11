@@ -206,13 +206,14 @@ if __name__ == '__main__':
     exp_type = 'rand'  # 'det' or 'rand'
     n_episodes = 10
     n_iterations = 50
+    n_priors = 50
     l_episodes = 100
     if rb_type == 'hard':
         if exp_type == 'det':
-            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, transition_type,
-                                                                                   transition_increasing, method, reward_bandits, transition_bandits, initial_states, u_type, u_order, True, max_wi)
+            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = MultiProcess_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, transition_type,
+                                                                                        transition_increasing, method, reward_bandits, transition_bandits, initial_states, u_type, u_order, True, max_wi)
         else:
-            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = MultiProcess_LearnSafeRandomTSRB(50, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = MultiProcess_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
                                                                                               transition_type, transition_increasing, method, reward_bandits, initial_states, u_type, u_order, True,
                                                                                               max_wi)
     else:
