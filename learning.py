@@ -544,7 +544,7 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
     return all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, all_plan_objectives
 
 
-def Process_LearnSafeTSRBRandom(n_priors, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
+def Process_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
                                 method, tru_rew, initial_states, u_type, u_order, save_data, max_wi):
     n_trials_safety = n_states * n_steps
     ##################################################### Process
@@ -559,7 +559,81 @@ def Process_LearnSafeTSRBRandom(n_priors, n_iterations, l_episodes, n_episodes, 
 
     for m in range(n_priors):
 
-        prob_remain = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+        if t_type < 10:
+            prob_remain = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+        elif t_type == 11:
+            n_states = 4
+            pr_ss_0 = np.round(np.linspace(0.596, 0.690, n_arms), 3)
+            np.random.shuffle(pr_ss_0)
+            pr_sr_0 = np.round(np.linspace(0.045, 0.061, n_arms), 3)
+            np.random.shuffle(pr_sr_0)
+            pr_sp_0 = np.round(np.linspace(0.201, 0.287, n_arms), 3)
+            np.random.shuffle(pr_sp_0)
+            pr_rr_0 = np.round(np.linspace(0.759, 0.822, n_arms), 3)
+            np.random.shuffle(pr_rr_0)
+            pr_rp_0 = np.round(np.linspace(0.130, 0.169, n_arms), 3)
+            np.random.shuffle(pr_rp_0)
+            pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+            np.random.shuffle(pr_pp_0)
+            pr_ss_1 = np.round(np.linspace(0.733, 0.801, n_arms), 3)
+            np.random.shuffle(pr_ss_1)
+            pr_sr_1 = np.round(np.linspace(0.047, 0.078, n_arms), 3)
+            np.random.shuffle(pr_sr_1)
+            pr_sp_1 = np.round(np.linspace(0.115, 0.171, n_arms), 3)
+            np.random.shuffle(pr_sp_1)
+            pr_rr_1 = np.round(np.linspace(0.758, 0.847, n_arms), 3)
+            np.random.shuffle(pr_rr_1)
+            pr_rp_1 = np.round(np.linspace(0.121, 0.193, n_arms), 3)
+            np.random.shuffle(pr_rp_1)
+            pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+            np.random.shuffle(pr_pp_1)
+            prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
+        elif t_type == 12:
+            n_states = 4
+            pr_ss_0 = np.round(np.linspace(0.668, 0.738, n_arms), 3)
+            np.random.shuffle(pr_ss_0)
+            pr_sr_0 = np.round(np.linspace(0.045, 0.061, n_arms), 3)
+            np.random.shuffle(pr_sr_0)
+            pr_rr_0 = np.round(np.linspace(0.831, 0.870, n_arms), 3)
+            np.random.shuffle(pr_rr_0)
+            pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+            np.random.shuffle(pr_pp_0)
+            pr_ss_1 = np.round(np.linspace(0.782, 0.833, n_arms), 3)
+            np.random.shuffle(pr_ss_1)
+            pr_sr_1 = np.round(np.linspace(0.047, 0.078, n_arms), 3)
+            np.random.shuffle(pr_sr_1)
+            pr_rr_1 = np.round(np.linspace(0.807, 0.879, n_arms), 3)
+            np.random.shuffle(pr_rr_1)
+            pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+            np.random.shuffle(pr_pp_1)
+            prob_remain = [pr_ss_0, pr_sr_0, pr_rr_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_rr_1, pr_pp_1]
+        elif t_type == 13:
+            n_states = 3
+            pr_ss_0 = np.round(np.linspace(0.657, 0.762, n_arms), 3)
+            np.random.shuffle(pr_ss_0)
+            pr_sp_0 = np.round(np.linspace(0.201, 0.287, n_arms), 3)
+            np.random.shuffle(pr_sp_0)
+            pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+            np.random.shuffle(pr_pp_0)
+            pr_ss_1 = np.round(np.linspace(0.806, 0.869, n_arms), 3)
+            np.random.shuffle(pr_ss_1)
+            pr_sp_1 = np.round(np.linspace(0.115, 0.171, n_arms), 3)
+            np.random.shuffle(pr_sp_1)
+            pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+            np.random.shuffle(pr_pp_1)
+            prob_remain = [pr_ss_0, pr_sp_0, pr_pp_0, pr_ss_1, pr_sp_1, pr_pp_1]
+        elif t_type == 14:
+            n_states = 3
+            pr_ss_0 = np.round(np.linspace(0.713, 0.799, n_arms), 3)
+            np.random.shuffle(pr_ss_0)
+            pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+            np.random.shuffle(pr_pp_0)
+            pr_ss_1 = np.round(np.linspace(0.829, 0.885, n_arms), 3)
+            np.random.shuffle(pr_ss_1)
+            pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+            np.random.shuffle(pr_pp_1)
+            prob_remain = [pr_ss_0, pr_pp_0, pr_ss_1, pr_pp_1]
+
         M = MarkovDynamics(n_arms, n_states, prob_remain, t_type, t_increasing)
         tru_dyn = M.transitions
         PlanW = SafeWhittle(n_states, n_arms, tru_rew, tru_dyn, n_steps, u_type, u_order, thresholds)
@@ -679,17 +753,92 @@ def MultiProcess_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episo
         futures = []
         for m in range(n_priors):
 
-            prob_remain = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+            if t_type < 10:
+                prob_remain = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+            elif t_type == 11:
+                n_states = 4
+                pr_ss_0 = np.round(np.linspace(0.596, 0.690, n_arms), 3)
+                np.random.shuffle(pr_ss_0)
+                pr_sr_0 = np.round(np.linspace(0.045, 0.061, n_arms), 3)
+                np.random.shuffle(pr_sr_0)
+                pr_sp_0 = np.round(np.linspace(0.201, 0.287, n_arms), 3)
+                np.random.shuffle(pr_sp_0)
+                pr_rr_0 = np.round(np.linspace(0.759, 0.822, n_arms), 3)
+                np.random.shuffle(pr_rr_0)
+                pr_rp_0 = np.round(np.linspace(0.130, 0.169, n_arms), 3)
+                np.random.shuffle(pr_rp_0)
+                pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+                np.random.shuffle(pr_pp_0)
+                pr_ss_1 = np.round(np.linspace(0.733, 0.801, n_arms), 3)
+                np.random.shuffle(pr_ss_1)
+                pr_sr_1 = np.round(np.linspace(0.047, 0.078, n_arms), 3)
+                np.random.shuffle(pr_sr_1)
+                pr_sp_1 = np.round(np.linspace(0.115, 0.171, n_arms), 3)
+                np.random.shuffle(pr_sp_1)
+                pr_rr_1 = np.round(np.linspace(0.758, 0.847, n_arms), 3)
+                np.random.shuffle(pr_rr_1)
+                pr_rp_1 = np.round(np.linspace(0.121, 0.193, n_arms), 3)
+                np.random.shuffle(pr_rp_1)
+                pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+                np.random.shuffle(pr_pp_1)
+                prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
+            elif t_type == 12:
+                n_states = 4
+                pr_ss_0 = np.round(np.linspace(0.668, 0.738, n_arms), 3)
+                np.random.shuffle(pr_ss_0)
+                pr_sr_0 = np.round(np.linspace(0.045, 0.061, n_arms), 3)
+                np.random.shuffle(pr_sr_0)
+                pr_rr_0 = np.round(np.linspace(0.831, 0.870, n_arms), 3)
+                np.random.shuffle(pr_rr_0)
+                pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+                np.random.shuffle(pr_pp_0)
+                pr_ss_1 = np.round(np.linspace(0.782, 0.833, n_arms), 3)
+                np.random.shuffle(pr_ss_1)
+                pr_sr_1 = np.round(np.linspace(0.047, 0.078, n_arms), 3)
+                np.random.shuffle(pr_sr_1)
+                pr_rr_1 = np.round(np.linspace(0.807, 0.879, n_arms), 3)
+                np.random.shuffle(pr_rr_1)
+                pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+                np.random.shuffle(pr_pp_1)
+                prob_remain = [pr_ss_0, pr_sr_0, pr_rr_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_rr_1, pr_pp_1]
+            elif t_type == 13:
+                n_states = 3
+                pr_ss_0 = np.round(np.linspace(0.657, 0.762, n_arms), 3)
+                np.random.shuffle(pr_ss_0)
+                pr_sp_0 = np.round(np.linspace(0.201, 0.287, n_arms), 3)
+                np.random.shuffle(pr_sp_0)
+                pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+                np.random.shuffle(pr_pp_0)
+                pr_ss_1 = np.round(np.linspace(0.806, 0.869, n_arms), 3)
+                np.random.shuffle(pr_ss_1)
+                pr_sp_1 = np.round(np.linspace(0.115, 0.171, n_arms), 3)
+                np.random.shuffle(pr_sp_1)
+                pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+                np.random.shuffle(pr_pp_1)
+                prob_remain = [pr_ss_0, pr_sp_0, pr_pp_0, pr_ss_1, pr_sp_1, pr_pp_1]
+            elif t_type == 14:
+                n_states = 3
+                pr_ss_0 = np.round(np.linspace(0.713, 0.799, n_arms), 3)
+                np.random.shuffle(pr_ss_0)
+                pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+                np.random.shuffle(pr_pp_0)
+                pr_ss_1 = np.round(np.linspace(0.829, 0.885, n_arms), 3)
+                np.random.shuffle(pr_ss_1)
+                pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+                np.random.shuffle(pr_pp_1)
+                prob_remain = [pr_ss_0, pr_pp_0, pr_ss_1, pr_pp_1]
+
             M = MarkovDynamics(n_arms, n_states, prob_remain, t_type, t_increasing)
             tru_dyn = M.transitions
             PlanW = SafeWhittle(n_states, n_arms, tru_rew, tru_dyn, n_steps, u_type, u_order, thresholds)
             PlanW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
             plan_indices = PlanW.w_indices
-            plan_sumwis = [np.sum(plan_indices[a]) for a in range(n_arms)]
 
             for n in range(n_iterations):
 
                 indx = m * n_iterations + n
+
+                all_plan_sumwis[indx] = [np.sum(plan_indices[a]) for a in range(n_arms)]
 
                 futures.append(executor.submit(SingleProcess_LearnSafeTSRB, indx, PlanW, plan_indices, n_trials_safety, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
                                                t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order, max_wi))
@@ -704,10 +853,10 @@ def MultiProcess_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episo
             all_learn_probs[indx] = result['all_learn_probs']
 
     if save_data:
-        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, all_plan_objectives],
+        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, all_plan_objectives],
                     f'./output/learnsafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
-    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, all_plan_objectives
+    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, all_plan_objectives
 
 
 def Process_LearnSoftSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
