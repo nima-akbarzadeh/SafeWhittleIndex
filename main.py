@@ -203,15 +203,16 @@ if __name__ == '__main__':
     # plt.show()
 
     rb_type = 'hard'  # 'hard' or 'soft'
-    exp_type = 'rand'  # 'det' or 'rand'
+    exp_type = 'det'  # 'det' or 'rand'
     n_episodes = 10
-    n_iterations = 50
-    n_priors = 50
+    n_iterations = 1
+    n_priors = 10
     l_episodes = 100
     if rb_type == 'hard':
         if exp_type == 'det':
-            sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = MultiProcess_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, transition_type,
-                                                                                        transition_increasing, method, reward_bandits, transition_bandits, initial_states, u_type, u_order, True, max_wi)
+            transerror_l, wierrors_l, rew_l, obj_l, rew_ss, obj_ss = MultiProcess_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                                                                                transition_type, transition_increasing, method, reward_bandits, transition_bandits, initial_states,
+                                                                                                u_type, u_order, True, max_wi)
         else:
             sumwis_l, rew_l, obj_l, swi_ss, rew_ss, obj_ss = MultiProcess_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
                                                                                               transition_type, transition_increasing, method, reward_bandits, initial_states, u_type, u_order, True,
@@ -236,11 +237,22 @@ if __name__ == '__main__':
         # rew_l = learn_list[2]
         # obj_l = learn_list[3]
 
-    swi_err = np.abs(np.transpose(np.array([swi_ss[a] - np.mean(sumwis_l[:, :, a], axis=0) for a in range(n_arms)])))
+    trn_err = np.mean(transerror_l, axis=(0, 2))
     plt.figure(figsize=(8, 6))
-    plt.plot(swi_err, linewidth=4)
+    plt.plot(trn_err, linewidth=4)
     plt.xlabel('Episodes', fontsize=14, fontweight='bold')
-    plt.ylabel('WI Estimation Error', fontsize=14, fontweight='bold')
+    plt.ylabel('Max Transition Error', fontsize=14, fontweight='bold')
+    plt.xticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+    wis_err = np.mean(wierrors_l, axis=(0, 2))
+    plt.figure(figsize=(8, 6))
+    plt.plot(wis_err, linewidth=4)
+    plt.xlabel('Episodes', fontsize=14, fontweight='bold')
+    plt.ylabel('Max WI Error', fontsize=14, fontweight='bold')
     plt.xticks(fontsize=12, fontweight='bold')
     plt.yticks(fontsize=12, fontweight='bold')
     plt.legend()
