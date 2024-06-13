@@ -262,17 +262,18 @@ def SingleProcess_LearnSafeTSRB(n, PlanW, plan_indices, n_trials_safety, l_episo
         if t_type < 10:
             Mest = MarkovDynamics(n_arms, n_states, np.round(results['all_learn_probs'][l, :], 2), t_type, t_increasing)
             est_transitions = Mest.transitions
-            SafeW = SafeWhittle(n_states, n_arms, tru_rew, est_transitions, n_steps, u_type, u_order, thresholds)
-            SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
-            sw_indices = SafeW.w_indices
+            LearnW = SafeWhittle(n_states, n_arms, tru_rew, est_transitions, n_steps, u_type, u_order, thresholds)
+            LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+            learn_indices = LearnW.w_indices
         else:
-            SafeW = SafeWhittle(n_states, n_arms, tru_rew, est_transitions, n_steps, u_type, u_order, thresholds)
-            SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
-            sw_indices = SafeW.w_indices
+            LearnW = SafeWhittle(n_states, n_arms, tru_rew, est_transitions, n_steps, u_type, u_order, thresholds)
+            LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+            learn_indices = LearnW.w_indices
 
         for a in range(n_arms):
             results['all_learn_transitionerrors'][l, a] = np.max(np.abs(est_transitions[:, :, :, a] - tru_dyn[:, :, :, a]))
-            results['all_learn_wierrors'][l, a] = np.max(np.abs(sw_indices[a] - plan_indices[a]))
+            # print(np.max(np.abs(learn_indices[a] - plan_indices[a])))
+            results['all_learn_wierrors'][l, a] = np.max(np.abs(learn_indices[a] - plan_indices[a]))
             results['all_plan_rewards'][l, a] = np.round(np.mean(plan_totalrewards[a, :]), 2)
             results['all_plan_objectives'][l, a] = np.round(np.mean(plan_objectives[a, :]), 2)
             results['all_learn_rewards'][l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)

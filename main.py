@@ -17,13 +17,13 @@ if __name__ == '__main__':
     thresholds = 0.5 * np.ones(n_arms)
     choice_fraction = 0.3
 
-    transition_type = 3
+    transition_type = 11
 
     function_type = np.ones(n_arms, dtype=np.int32)
     # function_type = 1 + np.arange(n_arms)
     # np.random.shuffle(function_type)
 
-    n_episodes = 100
+    n_episodes = 500
     # np.random.seed(42)
 
     na = n_arms
@@ -204,8 +204,8 @@ if __name__ == '__main__':
 
     rb_type = 'hard'  # 'hard' or 'soft'
     exp_type = 'det'  # 'det' or 'rand'
-    n_episodes = 10
-    n_iterations = 1
+    n_episodes = 100
+    n_iterations = 10
     n_priors = 10
     l_episodes = 100
     if rb_type == 'hard':
@@ -307,14 +307,14 @@ if __name__ == '__main__':
     # plt.grid(True)
     # plt.show()
 
-    plt.figure(figsize=(8, 6))
-    plt.plot(lrp_out, label='Learner', color='blue', linewidth=4)
-    plt.plot(np.mean(wip_obj)*np.ones(len(lrp_out)), label='Oracle', color='black', linestyle='--', linewidth=4)
-    # plt.axhline(y=wip_obj, label='Oracle', color='black', linestyle='--', linewidth=4)
-    plt.xlabel('Episodes', fontsize=14, fontweight='bold')
-    plt.ylabel('Objective', fontsize=14, fontweight='bold')
-    plt.xticks(fontsize=12, fontweight='bold')
-    plt.yticks(fontsize=12, fontweight='bold')
-    plt.legend(prop={'weight': 'bold', 'size': 12})
-    plt.grid(True)
-    plt.show()
+    # plt.figure(figsize=(8, 6))
+    # plt.plot(lrp_out, label='Learner', color='blue', linewidth=4)
+    # plt.plot(np.mean(wip_obj)*np.ones(len(lrp_out)), label='Oracle', color='black', linestyle='--', linewidth=4)
+    # # plt.axhline(y=wip_obj, label='Oracle', color='black', linestyle='--', linewidth=4)
+    # plt.xlabel('Episodes', fontsize=14, fontweight='bold')
+    # plt.ylabel('Objective', fontsize=14, fontweight='bold')
+    # plt.xticks(fontsize=12, fontweight='bold')
+    # plt.yticks(fontsize=12, fontweight='bold')
+    # plt.legend(prop={'weight': 'bold', 'size': 12})
+    # plt.grid(True)
+    # plt.show()

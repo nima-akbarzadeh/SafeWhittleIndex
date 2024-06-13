@@ -201,6 +201,41 @@ def Process_SoftSafeRB(SafeW, whittle_indices, n_episodes, n_steps, n_states, n_
 def Process_LearnSafeRB(SafeW, whittle_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, n_bandits, n_choices, thresholds, rewards, transitions, initial_states, u_type, u_order):
 
     ##################################################### Process
+    # max_diff = np.zeros(n_bandits)
+    # for a in range(n_bandits):
+    #     max_diff[a] = np.max(np.abs(whittle_indices[a] - learn_indices[a]))
+    # print(np.max(max_diff))
+    # if np.max(max_diff) < 0.001:
+    #     learn_totalrewards = np.zeros((n_bandits, n_episodes))
+    #     learn_objectives = np.zeros((n_bandits, n_episodes))
+    #     counts = np.zeros((n_states, n_states, 2, n_bandits))
+    #     for k in range(n_episodes):
+    #         learn_states = initial_states.copy()
+    #         _learn_lifted = np.zeros(n_bandits, dtype=np.int32)
+    #         for t in range(n_steps):
+    #             _learn_states = np.copy(learn_states)
+    #             for a in range(n_bandits):
+    #                 _learn_lifted[a] = max(0, min(LearnW.n_augment[a] - 1, _learn_lifted[a] + _learn_states[a]))
+    #             learn_actions = LearnW.Whittle_policy(learn_indices, n_choices, _learn_states, _learn_lifted, t)
+    #             for a in range(n_bandits):
+    #                 if len(rewards.shape) == 3:
+    #                     learn_totalrewards[a, k] += rewards[_learn_states[a], learn_actions[a], a]
+    #                 else:
+    #                     learn_totalrewards[a, k] += rewards[_learn_states[a], a]
+    #                 learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a])
+    #                 counts[_learn_states[a], learn_states[a], learn_actions[a], a] += 1
+    #         for a in range(n_bandits):
+    #             if u_type == 1:
+    #                 learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
+    #             elif u_type == 2:
+    #                 learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
+    #             else:
+    #                 learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+    #
+    #     totalrewards = learn_totalrewards
+    #     objectives = learn_objectives
+    #
+    # else:
     totalrewards = np.zeros((n_bandits, n_episodes))
     objectives = np.zeros((n_bandits, n_episodes))
     learn_totalrewards = np.zeros((n_bandits, n_episodes))
