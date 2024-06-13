@@ -203,7 +203,7 @@ def SingleProcess_LearnSafeTSRB(n, PlanW, plan_indices, n_trials_safety, l_episo
     start_time = time.time()
 
     if t_type < 10:
-        all_learn_probs = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+        all_learn_probs = np.array([np.round(random.uniform(0.5 / n_states, 0.5 / n_states), 2) for _ in range(n_arms)])
         Mest = MarkovDynamics(n_arms, n_states, all_learn_probs, t_type, t_increasing)
         LearnW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
     else:
@@ -247,7 +247,7 @@ def SingleProcess_LearnSafeTSRB(n, PlanW, plan_indices, n_trials_safety, l_episo
                     cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
                     for s2 in range(1, s1):
                         cnt.append(est_transitions[s1, s2, 0, a])
-                results['all_learn_probs'][l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+                results['all_learn_probs'][l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
             if t_type == 3:
                 cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
                 for s1 in range(1, n_states - 1):

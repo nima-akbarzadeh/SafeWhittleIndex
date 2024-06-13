@@ -232,7 +232,6 @@ def Process_LearnSafeRB(SafeW, whittle_indices, LearnW, learn_indices, n_episode
                 else:
                     learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a])
                 counts[_learn_states[a], learn_states[a], learn_actions[a], a] += 1
-                counts[_states[a], states[a], actions[a], a] += 1
         for a in range(n_bandits):
             if u_type == 1:
                 objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
@@ -281,7 +280,6 @@ def Process_LearnSoftSafeRB(SafeW, whittle_indices, LearnW, learn_indices, n_epi
                 else:
                     learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a])
                 counts[_learn_states[a], learn_states[a], learn_actions[a], a] += 1
-                counts[_states[a], states[a], actions[a], a] += 1
         for a in range(n_bandits):
             if u_type == 1:
                 objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
