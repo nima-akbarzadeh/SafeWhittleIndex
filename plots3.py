@@ -5,9 +5,9 @@ import numpy as np
 
 if __name__ == '__main__':
 
-    # transerror_l, wierrors_l, rew_l, obj_l, rew_ss, obj_ss = joblib.load('./ComputeCanada/learnsafetsrb_5411310.5_last.joblib')
-    # transerror_l, wierrors_l, rew_l, obj_l, rew_ss, obj_ss = joblib.load('./ComputeCanada/learnsafetsrb_523310.5.joblib')
-    transerror_l, wierrors_l, rew_l, obj_l, rew_ss, obj_ss = joblib.load('./output/learnsafetsrb_523310.5_last.joblib')
+    transerror_l, wierrors_l, rew_l, obj_l, rew_ss, obj_ss = joblib.load('./20June24_Results/learnsafetsrb_543310.5.joblib')
+    # transerror_l, wierrors_l, rew_l, obj_l, rew_ss, obj_ss = joblib.load('./20June24_Results/learnsafetsrb_553310.5.joblib')
+    # transerror_l, wierrors_l, rew_l, obj_l, rew_ss, obj_ss = joblib.load('./20June24_Results/learnsafetsrb_5411310.5.joblib')
 
     # print(obj_ss)
     # rew_ss = np.round(rew_ss, 2)
@@ -19,11 +19,10 @@ if __name__ == '__main__':
 
     trn_err = np.mean(np.max(transerror_l, axis=2), axis=0)
     wis_err = np.mean(np.max(wierrors_l, axis=2), axis=0)
-    print(wis_err[-100:])
     reg_obj = np.mean(obj_ss - obj_l, axis=(0, 2))
     # print(reg_obj[-100:])
     reg = np.cumsum(reg_obj)
-    cumreg = [reg[t] / (t + 1) for t in range(len(reg))]
+    regT = [reg[t] / (t + 1) for t in range(len(reg))]
 
     plt.figure(figsize=(8, 6))
     plt.plot(trn_err, linewidth=4)
@@ -51,14 +50,15 @@ if __name__ == '__main__':
     plt.ylabel('Regret', fontsize=14, fontweight='bold')
     plt.xticks(fontsize=12, fontweight='bold')
     plt.yticks(fontsize=12, fontweight='bold')
+    plt.ylim([0, 1])
     plt.legend()
     plt.grid(True)
     plt.show()
 
     plt.figure(figsize=(8, 6))
-    plt.plot(cumreg, linewidth=8)
+    plt.plot(regT, linewidth=8)
     plt.xlabel('Episodes', fontsize=14, fontweight='bold')
-    plt.ylabel('Regret/T', fontsize=14, fontweight='bold')
+    plt.ylabel('Regret/K', fontsize=14, fontweight='bold')
     plt.xticks(fontsize=12, fontweight='bold')
     plt.yticks(fontsize=12, fontweight='bold')
     plt.legend()
