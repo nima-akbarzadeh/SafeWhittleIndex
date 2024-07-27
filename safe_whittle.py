@@ -341,3 +341,237 @@ def possible_reward_sums(rewards, num_steps):
     for combination in reward_combinations:
         sums.add(np.round(sum(combination), 3))
     return sorted(sums)
+
+
+class SafeWhittleAvg:
+    def __init__(self, num_states, num_arms, rewards, transition, u_type, u_order, thresholds):
+        self.num_x = num_states[0]
+        self.num_s = num_states[1]
+        self.num_a = num_arms
+        self.rewards = rewards
+        self.transition = transition
+        self.u_type = u_type
+        self.thresholds = thresholds
+
+        self.digits = 3
+        self.n_augment = [0] * num_arms
+        self.all_rews = []
+        self.all_valus = []
+
+        for a in range(num_arms):
+            all_total_rewards = self.num_s
+
+            self.n_augment[a] = len(all_total_rewards)
+            self.all_rews.append(all_total_rewards)
+
+            arm_valus = []
+            for total_rewards in all_total_rewards:
+                if u_type == 1:
+                    arm_valus.append(np.round(1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - total_rewards)) ** (1 / u_order), 3))
+                elif u_type == 2:
+                    arm_valus.append(np.round((1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (total_rewards - thresholds[a]))), 3))
+                else:
+                    arm_valus.append(1 if total_rewards >= thresholds[a] else 0)
+
+            self.all_valus.append(arm_valus)
+
+        self.w_indices = []
+
+    def get_whittle_indices(self, computation_type, params, n_trials):
+        if computation_type == 1:
+            l_steps = params[1] / n_trials
+            self.whittle_binary_search(params[0], params[1], l_steps)
+        else:
+            self.whittle_brute_force(params[0], params[1], n_trials)
+
+    def indexability_check(self, arm, arm_indices, nxt_pol, ref_pol, penalty, nxt_Q, ref_Q):
+        if np.any((ref_pol == 0) & (nxt_pol == 1)):
+            print("Not indexable!")
+            elements = np.argwhere((ref_pol == 0) & (nxt_pol == 1))
+            for e in elements:
+                print(f'element: {[e[0], e[1]]}')
+                print(f'penalty: {penalty}')
+                print(f'ref policy: {ref_pol[:, e[1]]}')
+                print(f'nxt policy: {nxt_pol[:, e[1]]}')
+                print(f'ref Q0: {ref_Q[e[0], e[1], 0]}')
+                print(f'ref Q1: {ref_Q[e[0], e[1], 1]}')
+                print(f'nxt Q0: {nxt_Q[e[0], e[1], 0]}')
+                print(f'nxt Q1: {nxt_Q[e[0], e[1], 1]}')
+            return False, np.zeros((self.n_augment[arm], self.num_x))
+        else:
+            elements = np.argwhere((ref_pol == 1) & (nxt_pol == 0))
+            for e in elements:
+                arm_indices[e[0], e[1]] = penalty
+        return True, arm_indices
+
+    def whittle_brute_force(self, lower_bound, upper_bound, num_trials):
+        for arm in range(self.num_a):
+            arm_indices = np.zeros((self.n_augment[arm], self.num_x))
+            penalty_ref = lower_bound
+            ref_pol, _, ref_Q = self.bellman_equation(arm, penalty_ref)
+            upb_pol, _, _ = self.bellman_equation(arm, upper_bound)
+            for penalty in np.linspace(lower_bound, upper_bound, num_trials):
+                penalty = np.round(penalty, self.digits)
+                nxt_pol, _, nxt_Q = self.bellman_equation(arm, penalty)
+                if np.array_equal(nxt_pol, upb_pol):
+                    flag, arm_indices = self.indexability_check(arm, arm_indices, nxt_pol, ref_pol, penalty, nxt_Q, ref_Q)
+                    break
+                else:
+                    if not np.array_equal(nxt_pol, ref_pol):
+                        flag, arm_indices = self.indexability_check(arm, arm_indices, nxt_pol, ref_pol, penalty, nxt_Q, ref_Q)
+                        if flag:
+                            ref_pol = np.copy(nxt_pol)
+                            ref_Q = np.copy(nxt_Q)
+                        else:
+                            break
+            self.w_indices.append(arm_indices)
+
+    def whittle_binary_search(self, lower_bound, upper_bound, l_steps):
+        for arm in range(self.num_a):
+            arm_indices = np.zeros((self.n_augment[arm], self.num_x))
+            penalty_ref = lower_bound
+            ref_pol, _, ref_Q = self.bellman_equation(arm, penalty_ref)
+            ubp_pol, _, _ = self.bellman_equation(arm, upper_bound)
+            while not np.array_equal(ref_pol, ubp_pol):
+                LB_temp = penalty_ref
+                UB_temp = upper_bound
+                penalty = np.round(0.5 * (LB_temp + UB_temp), self.digits)
+                diff = np.abs(UB_temp - LB_temp)
+                while l_steps < diff:
+                    som_pol, _, _ = self.bellman_equation(arm, penalty)
+                    if np.array_equal(som_pol, ref_pol):
+                        LB_temp = penalty
+                    else:
+                        UB_temp = penalty
+                    penalty = np.round(0.5 * (LB_temp + UB_temp), self.digits)
+                    diff = np.abs(UB_temp - LB_temp)
+                penalty_ref = penalty + l_steps
+                nxt_pol, _, nxt_Q = self.bellman_equation(arm, penalty_ref)
+                indexability_flag, arm_indices = self.indexability_check(arm, arm_indices, nxt_pol, ref_pol, penalty, nxt_Q, ref_Q)
+                if indexability_flag:
+                    ref_pol = np.copy(nxt_pol)
+                    ref_Q = np.copy(nxt_Q)
+                else:
+                    break
+            self.w_indices.append(arm_indices)
+
+    def bellman_equation(self, arm, penalty):
+        # Initialize value function
+        V = np.zeros((self.n_augment[arm], self.num_x), dtype=np.float32)
+        Q = np.zeros((self.n_augment[arm], self.num_x, 2), dtype=np.float32)
+        pi = np.zeros((self.n_augment[arm], self.num_x), dtype=np.int32)
+
+        # Value iteration
+        diff = np.inf
+        iteration = 0
+        while diff > 1e-6 and iteration < 1000:
+            V_prev = np.copy(V)
+            for x in range(self.num_x):
+                for l in range(self.n_augment[arm]):
+                    for act in range(2):
+                        nxt_l = max(0, min(self.n_augment[arm] - 1, l + x))
+                        Q[l, x, act] = -penalty * act + np.dot(V[nxt_l, :], self.transition[x, :, act, arm])
+                    V[l, x] = np.max(Q[l, x, :])
+                    pi[l, x] = np.argmax(Q[l, x, :])
+            diff = np.max(np.abs(V - V_prev))
+            iteration += 1
+
+        return pi, V, Q
+
+    @staticmethod
+    def Whittle_policy(whittle_indices, n_selection, current_x, current_l):
+        num_a = len(whittle_indices)
+
+        current_indices = np.zeros(num_a)
+        count_positive = 0
+        for arm in range(num_a):
+            w_idx = whittle_indices[arm][current_l[arm], current_x[arm]]
+            current_indices[arm] = w_idx
+            if w_idx >= 0:
+                count_positive += 1
+        n_selection = np.minimum(n_selection, count_positive)
+
+        # Sort indices based on values and shuffle indices with same values
+        sorted_indices = np.argsort(current_indices)[::-1]
+        unique_indices, counts = np.unique(current_indices[sorted_indices], return_counts=True)
+        top_indices = []
+        top_len = 0
+        for idx in range(len(unique_indices)):
+            indices = np.where(current_indices == unique_indices[len(unique_indices) - idx - 1])[0]
+            shuffled_indices = np.random.permutation(indices)
+            if top_len + len(shuffled_indices) < n_selection:
+                top_indices.extend(list(shuffled_indices))
+                top_len += len(shuffled_indices)
+            elif top_len + len(shuffled_indices) == n_selection:
+                top_indices.extend(list(shuffled_indices))
+                top_len += len(shuffled_indices)
+                break
+            else:
+                top_indices.extend(list(shuffled_indices[:n_selection - top_len]))
+                top_len += len(shuffled_indices[:n_selection - top_len])
+                break
+
+        # Create action vector
+        action_vector = np.zeros_like(current_indices, dtype=np.int32)
+        action_vector[top_indices] = 1
+
+        return action_vector
+
+    @staticmethod
+    def Whittle_softpolicy(whittle_indices, n_selection, current_x, current_l):
+        num_a = len(whittle_indices)
+        action = np.zeros(num_a, dtype=np.int32)
+
+        current_indices = np.zeros(num_a)
+        count_positive = 0
+        for arm in range(num_a):
+            w_idx = whittle_indices[arm][current_l[arm], current_x[arm]]
+            current_indices[arm] = w_idx
+            if w_idx >= 0:
+                count_positive += 1
+        n_selection = np.minimum(n_selection, count_positive)
+
+        softmax_probs = softmax(current_indices)
+        sampled_indices = np.random.choice(range(num_a), n_selection, replace=False, p=softmax_probs)
+        action[sampled_indices] = 1
+
+        return action
+
+
+def WhittleAvg_regularpolicy(whittle_indices, n_selection, current_x):
+    num_a = len(whittle_indices)
+
+    current_indices = np.zeros(num_a)
+    count_positive = 0
+    for arm in range(num_a):
+        w_idx = whittle_indices[arm][current_x[arm]]
+        current_indices[arm] = w_idx
+        if w_idx >= 0:
+            count_positive += 1
+    n_selection = np.minimum(n_selection, count_positive)
+
+    # Sort indices based on values and shuffle indices with same values
+    sorted_indices = np.argsort(current_indices)[::-1]
+    unique_indices, counts = np.unique(current_indices[sorted_indices], return_counts=True)
+    top_indices = []
+    top_len = 0
+    for idx in range(len(unique_indices)):
+        indices = np.where(current_indices == unique_indices[len(unique_indices) - idx - 1])[0]
+        shuffled_indices = np.random.permutation(indices)
+        if top_len + len(shuffled_indices) < n_selection:
+            top_indices.extend(list(shuffled_indices))
+            top_len += len(shuffled_indices)
+        elif top_len + len(shuffled_indices) == n_selection:
+            top_indices.extend(list(shuffled_indices))
+            top_len += len(shuffled_indices)
+            break
+        else:
+            top_indices.extend(list(shuffled_indices[:n_selection - top_len]))
+            top_len += len(shuffled_indices[:n_selection - top_len])
+            break
+
+    # Create action vector
+    action_vector = np.zeros_like(current_indices, dtype=np.int32)
+    action_vector[top_indices] = 1
+
+    return action_vector
