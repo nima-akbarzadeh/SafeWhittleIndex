@@ -8,8 +8,8 @@ from processes import *
 import time
 
 
-def Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
-                     method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
+def Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type,
+                     t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
     n_trials_safety = n_arms * n_states * n_steps
 
     ##################################################### Process
@@ -21,7 +21,6 @@ def Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_
 
     for n in range(n_iterations):
 
-        # print(f'Learning iteration {n + 1} out of {n_iterations}')
         start_time = time.time()
         M = MarkovDynamics(n_arms, n_states, all_probs[n, :, 0], t_type, t_increasing)
         SafeW = SafeWhittle(n_states, n_arms, tru_rew, M.transitions, n_steps, u_type, u_order, thresholds)
@@ -31,7 +30,7 @@ def Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_
 
         for l in range(l_episodes):
 
-            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iteration was {np.round(duration, 1)} seconds')
+            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iter was {np.round(duration, 1)} seconds')
             totalrewards = np.zeros((n_arms, n_episodes))
             objectives = np.zeros((n_arms, n_episodes))
 
@@ -53,9 +52,11 @@ def Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_
                         counts[_states[a], states[a], actions[a], a] += 1
                 for a in range(n_arms):
                     if u_type == 1:
-                        objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
+                        objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) \
+                                           * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
                     elif u_type == 2:
-                        objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
+                        objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) \
+                                           / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
                     else:
                         objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
 
@@ -97,13 +98,14 @@ def Process_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_
         duration = end_time - start_time
 
     if save_data:
-        joblib.dump([all_probs, all_sumwis, all_rewards, all_objectives], f'./output/safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        joblib.dump([all_probs, all_sumwis, all_rewards, all_objectives],
+                    f'./output/safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
     return all_probs, all_sumwis, all_rewards, all_objectives
 
 
-def Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
-                         method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
+def Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type,
+                         t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
     n_trials_safety = n_arms * n_states * n_steps
 
     ##################################################### Process
@@ -125,7 +127,7 @@ def Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states
 
         for l in range(l_episodes):
 
-            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iteration was {np.round(duration, 1)} seconds')
+            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iter was {np.round(duration, 1)} seconds')
             totalrewards = np.zeros((n_arms, n_episodes))
             objectives = np.zeros((n_arms, n_episodes))
 
@@ -147,9 +149,11 @@ def Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states
                         counts[_states[a], states[a], actions[a], a] += 1
                 for a in range(n_arms):
                     if u_type == 1:
-                        objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
+                        objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) \
+                                           * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
                     elif u_type == 2:
-                        objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
+                        objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) \
+                                           / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
                     else:
                         objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
 
@@ -191,13 +195,15 @@ def Process_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states
         duration = end_time - start_time
 
     if save_data:
-        joblib.dump([all_probs, all_sumwis, all_rewards, all_objectives], f'./output/safesofttsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        joblib.dump([all_probs, all_sumwis, all_rewards, all_objectives],
+                    f'./output/safesofttsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
     return all_probs, all_sumwis, all_rewards, all_objectives
 
 
-def SingleProcess_LearnSafeTSRB(n, PlanW, plan_indices, n_trials_safety, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
-                                method, tru_rew, tru_dyn, initial_states, u_type, u_order, max_wi):
+def SingleProcess_LearnSafeTSRB(n, PlanW, plan_indices, n_trials_safety, l_episodes, n_episodes, n_steps, n_states,
+                                n_arms, n_choices, thresholds, t_type, t_increasing, method, tru_rew, tru_dyn,
+                                initial_states, u_type, u_order, max_wi):
 
     print(f'Learning iteration {n + 1}')
     start_time = time.time()
@@ -271,7 +277,9 @@ def SingleProcess_LearnSafeTSRB(n, PlanW, plan_indices, n_trials_safety, l_episo
             learn_indices = LearnW.w_indices
 
         for a in range(n_arms):
-            results['all_learn_transitionerrors'][l, a] = np.max(np.abs(est_transitions[:, :, :, a] - tru_dyn[:, :, :, a]))
+            results['all_learn_transitionerrors'][l, a] = np.max(
+                np.abs(est_transitions[:, :, :, a] - tru_dyn[:, :, :, a])
+            )
             # print(np.max(np.abs(learn_indices[a] - plan_indices[a])))
             results['all_learn_wierrors'][l, a] = np.max(np.abs(learn_indices[a] - plan_indices[a]))
             results['all_plan_rewards'][l, a] = np.round(np.mean(plan_totalrewards[a, :]), 2)
@@ -299,8 +307,9 @@ def SingleProcess_LearnSafeTSRB(n, PlanW, plan_indices, n_trials_safety, l_episo
     return results
 
 
-def MultiProcess_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
-                               method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
+def MultiProcess_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                               t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order,
+                               save_data, max_wi):
     n_trials_safety = n_states * n_steps
 
     all_plan_rewards = np.zeros((n_iterations, l_episodes, n_arms))
@@ -318,8 +327,10 @@ def MultiProcess_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_
     plan_sumwis = [np.sum(plan_indices[a]) for a in range(n_arms)]
 
     with ProcessPoolExecutor() as executor:
-        futures = [executor.submit(SingleProcess_LearnSafeTSRB, n, PlanW, plan_indices, n_trials_safety, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
-                                   method, tru_rew, tru_dyn, initial_states, u_type, u_order, max_wi) for n in range(n_iterations)]
+        futures = [executor.submit(SingleProcess_LearnSafeTSRB, n, PlanW, plan_indices, n_trials_safety, l_episodes,
+                                   n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
+                                   method, tru_rew, tru_dyn, initial_states, u_type, u_order, max_wi)
+                   for n in range(n_iterations)]
 
         for n, future in enumerate(futures):
             result = future.result()
@@ -332,14 +343,17 @@ def MultiProcess_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_
             all_learn_transitionerrors[n] = result['all_learn_transitionerrors']
 
     if save_data:
-        joblib.dump([all_learn_transitionerrors, all_learn_wierrors, all_learn_rewards, all_learn_objectives, all_plan_rewards, all_plan_objectives],
+        joblib.dump([all_learn_transitionerrors, all_learn_wierrors, all_learn_rewards, all_learn_objectives,
+                     all_plan_rewards, all_plan_objectives],
                     f'./output/learnsafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
-    return all_learn_transitionerrors, all_learn_wierrors, all_learn_rewards, all_learn_objectives, all_plan_rewards, all_plan_objectives
+    return all_learn_transitionerrors, all_learn_wierrors, all_learn_rewards, all_learn_objectives, all_plan_rewards, \
+           all_plan_objectives
 
 
-def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
-                          method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
+def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                          t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data,
+                          max_wi):
     n_trials_safety = n_states * n_steps
 
     ##################################################### Process
@@ -362,7 +376,8 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
         start_time = time.time()
 
         if t_type < 10:
-            all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+            all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+                                                 for _ in range(n_arms)])
             Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, 0, :], t_type, t_increasing)
             LearnW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
         else:
@@ -379,12 +394,9 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
         counts = np.ones((n_states, n_states, 2, n_arms))
 
         for l in range(l_episodes):
-
-            # print(f'Episode {l + 1} of {l_episodes} / Iteration {n+1} / Last iteration was {np.round(duration, 1)} seconds')
-            # totalrewards, objectives, cnts = Process_SingleSoftSafeRB(SafeW, n_episodes, n_steps, n_states, 2, n_choices, thresholds, tru_rew,
-            #                                                           tru_dyn, sw_indices, initial_states, u_type, u_order)
-            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = Process_LearnSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, n_arms,
-                                                                                                                 n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
+                Process_LearnSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, n_arms,
+                                    n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
             counts = counts + cnts
 
             # print('Update...')
@@ -399,7 +411,9 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
                         cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
                         for s2 in range(1, s1):
                             cnt.append(est_transitions[s1, s2, 0, a])
-                    all_learn_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+                    all_learn_probs[n, l, a] = np.round(
+                        np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+                        , 2)
                 if t_type == 3:
                     cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
                     for s1 in range(1, n_states - 1):
@@ -424,11 +438,6 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
             print(f"==================================== Episode {l}")
             for a in range(n_arms):
                 if l > l_episodes - 3:
-                    # print(f"------------- Arm {a}")
-                    # print("True Indices:")
-                    # print(plan_indices[a][:, :, :])
-                    # print("Learned Indices:")
-                    # print(sw_indices[a][:, :, :])
                     print(f'------------------ Arm {a}')
                     print(counts[:, :, 0, a])
                     print(counts[:, :, 1, a])
@@ -438,26 +447,20 @@ def Process_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_state
                 all_learn_rewards[n, l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)
                 all_learn_objectives[n, l, a] = np.round(np.mean(learn_objectives[a, :]), 2)
 
-            # print(f'pr = {np.round(np.mean(all_learn_probs[n, l, :]), 2)}')
-            # print(f'true-sw = {np.round(np.mean(plan_sumwis), 2)}')
-            # print(f'true-re = {np.round(np.mean(all_plan_rewards[n, l, :]), 2)}')
-            # print(f'true-ob = {np.round(np.mean(all_plan_objectives[n, l, :]), 2)}')
-            # print(f'sw = {np.round(np.mean(all_learn_sumwis[n, l, :]), 2)}')
-            # print(f're = {np.round(np.mean(all_learn_rewards[n, l, :]), 2)}')
-            # print(f'ob = {np.round(np.mean(all_learn_objectives[n, l, :]), 2)}')
-
         end_time = time.time()
         duration = end_time - start_time
 
     if save_data:
-        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, all_plan_objectives],
+        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards,
+                     all_plan_objectives],
                     f'./output/learnsafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
     return all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, all_plan_objectives
 
 
-def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
-                              method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
+def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                              t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order,
+                              save_data, max_wi):
     n_trials_safety = n_states * n_steps
     ##################################################### Process
     all_plan_rewards = np.zeros((n_iterations, l_episodes, n_arms))
@@ -479,7 +482,8 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
         start_time = time.time()
 
         if t_type < 10:
-            all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+            all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+                                                 for _ in range(n_arms)])
             Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, 0, :], t_type, t_increasing)
             LearnW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
         else:
@@ -496,12 +500,10 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
         counts = np.ones((n_states, n_states, 2, n_arms))
 
         for l in range(l_episodes):
-
-            # print(f'Episode {l + 1} of {l_episodes} / Iteration {n+1} / Last iteration was {np.round(duration, 1)} seconds')
-            # totalrewards, objectives, cnts = Process_SingleSoftSafeRB(SafeW, n_episodes, n_steps, n_states, 2, n_choices, thresholds, tru_rew,
-            #                                                           tru_dyn, sw_indices, initial_states, u_type, u_order)
-            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = Process_LearnSoftSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, n_arms,
-                                                                                                                     n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
+                Process_LearnSoftSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states,
+                                        n_arms, n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type,
+                                        u_order)
             counts = counts + cnts
 
             # print('Update...')
@@ -516,7 +518,9 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
                         cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
                         for s2 in range(1, s1):
                             cnt.append(est_transitions[s1, s2, 0, a])
-                    all_learn_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+                    all_learn_probs[n, l, a] = np.round(
+                        np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+                        , 2)
                 if t_type == 3:
                     cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
                     for s1 in range(1, n_states - 1):
@@ -545,26 +549,20 @@ def Process_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
                 all_learn_rewards[n, l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)
                 all_learn_objectives[n, l, a] = np.round(np.mean(learn_objectives[a, :]), 2)
 
-            # print(f'pr = {np.round(np.mean(all_learn_probs[n, l, :]), 2)}')
-            # print(f'true-sw = {np.round(np.mean(plan_sumwis), 2)}')
-            # print(f'true-re = {np.round(np.mean(all_plan_rewards[n, l, :]), 2)}')
-            # print(f'true-ob = {np.round(np.mean(all_plan_objectives[n, l, :]), 2)}')
-            # print(f'sw = {np.round(np.mean(all_learn_sumwis[n, l, :]), 2)}')
-            # print(f're = {np.round(np.mean(all_learn_rewards[n, l, :]), 2)}')
-            # print(f'ob = {np.round(np.mean(all_learn_objectives[n, l, :]), 2)}')
-
         end_time = time.time()
         duration = end_time - start_time
 
     if save_data:
-        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, all_plan_objectives],
+        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards,
+                     all_plan_objectives],
                     f'./output/learnsafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
     return all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, all_plan_objectives
 
 
-def Process_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
-                                method, tru_rew, initial_states, u_type, u_order, save_data, max_wi):
+def Process_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices,
+                                thresholds, t_type, t_increasing, method, tru_rew, initial_states, u_type, u_order,
+                                save_data, max_wi):
     n_trials_safety = n_states * n_steps
     ##################################################### Process
     all_plan_rewards = np.zeros((n_priors*n_iterations, l_episodes, n_arms))
@@ -606,7 +604,8 @@ def Process_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, 
             np.random.shuffle(pr_rp_1)
             pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
             np.random.shuffle(pr_pp_1)
-            prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
+            prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0,
+                           pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
         elif t_type == 12:
             n_states = 4
             pr_ss_0 = np.round(np.linspace(0.668, 0.738, n_arms), 3)
@@ -669,7 +668,8 @@ def Process_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, 
             start_time = time.time()
 
             if t_type < 10:
-                all_learn_probs[indx, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+                all_learn_probs[indx, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+                                                        for _ in range(n_arms)])
                 Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[indx, 0, :], t_type, t_increasing)
                 LearnW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
             else:
@@ -686,12 +686,10 @@ def Process_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, 
             counts = np.ones((n_states, n_states, 2, n_arms))
 
             for l in range(l_episodes):
-
-                # print(f'Episode {l + 1} of {l_episodes} / Iteration {n+1} / Last iteration was {np.round(duration, 1)} seconds')
-                # totalrewards, objectives, cnts = Process_SingleSoftSafeRB(SafeW, n_episodes, n_steps, n_states, 2, n_choices, thresholds, tru_rew,
-                #                                                           tru_dyn, sw_indices, initial_states, u_type, u_order)
-                plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = Process_LearnSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, n_arms,
-                                                                                                                     n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+                plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
+                    Process_LearnSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states,
+                                        n_arms, n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type,
+                                        u_order)
                 counts = counts + cnts
 
                 # print('Update...')
@@ -706,7 +704,9 @@ def Process_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, 
                             cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
                             for s2 in range(1, s1):
                                 cnt.append(est_transitions[s1, s2, 0, a])
-                        all_learn_probs[indx, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+                        all_learn_probs[indx, l, a] = np.round(
+                            np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+                            , 2)
                     if t_type == 3:
                         cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
                         for s1 in range(1, n_states - 1):
@@ -719,12 +719,15 @@ def Process_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, 
                         all_learn_probs[indx, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
 
                 if t_type < 10:
-                    Mest = MarkovDynamics(n_arms, n_states, np.round(all_learn_probs[indx, l, :], 2), t_type, t_increasing)
-                    SafeW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
+                    Mest = MarkovDynamics(n_arms, n_states, np.round(all_learn_probs[indx, l, :], 2), t_type,
+                                          t_increasing)
+                    SafeW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order,
+                                        thresholds)
                     SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
                     sw_indices = SafeW.w_indices
                 else:
-                    SafeW = SafeWhittle(n_states, n_arms, tru_rew, est_transitions, n_steps, u_type, u_order, thresholds)
+                    SafeW = SafeWhittle(n_states, n_arms, tru_rew, est_transitions, n_steps, u_type, u_order,
+                                        thresholds)
                     SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
                     sw_indices = SafeW.w_indices
 
@@ -748,14 +751,18 @@ def Process_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, 
             duration = end_time - start_time
 
     if save_data:
-        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, all_plan_objectives],
-                    f'./output/learnsaferandomtsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        joblib.dump(
+            [all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards,
+             all_plan_objectives],
+            f'./output/learnsaferandomtsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
-    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, all_plan_objectives
+    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, \
+           all_plan_objectives
 
 
-def MultiProcess_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
-                                     t_type, t_increasing, method, tru_rew, initial_states, u_type, u_order, save_data, max_wi):
+def MultiProcess_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms,
+                                     n_choices, thresholds, t_type, t_increasing, method, tru_rew, initial_states,
+                                     u_type, u_order, save_data, max_wi):
 
     n_trials_safety = n_states * n_steps
     ##################################################### Process
@@ -800,7 +807,8 @@ def MultiProcess_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episo
                 np.random.shuffle(pr_rp_1)
                 pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
                 np.random.shuffle(pr_pp_1)
-                prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
+                prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0,
+                               pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
             elif t_type == 12:
                 n_states = 4
                 pr_ss_0 = np.round(np.linspace(0.668, 0.738, n_arms), 3)
@@ -859,8 +867,10 @@ def MultiProcess_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episo
 
                 all_plan_sumwis[indx] = [np.sum(plan_indices[a]) for a in range(n_arms)]
 
-                futures.append(executor.submit(SingleProcess_LearnSafeTSRB, indx, PlanW, plan_indices, n_trials_safety, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
-                                               t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order, max_wi))
+                futures.append(executor.submit(SingleProcess_LearnSafeTSRB, indx, PlanW, plan_indices, n_trials_safety,
+                                               l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                               t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type,
+                                               u_order, max_wi))
 
         for indx, future in enumerate(futures):
             result = future.result()
@@ -872,14 +882,18 @@ def MultiProcess_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episo
             all_learn_probs[indx] = result['all_learn_probs']
 
     if save_data:
-        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, all_plan_objectives],
-                    f'./output/learnsaferandomtsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        joblib.dump([
+            all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards,
+            all_plan_objectives],
+            f'./output/learnsaferandomtsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
-    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, all_plan_objectives
+    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, \
+           all_plan_objectives
 
 
-def Process_LearnSoftSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
-                                    method, tru_rew, initial_states, u_type, u_order, save_data, max_wi):
+def Process_LearnSoftSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices,
+                                    thresholds, t_type, t_increasing, method, tru_rew, initial_states, u_type, u_order,
+                                    save_data, max_wi):
     n_trials_safety = n_states * n_steps
     ##################################################### Process
     all_plan_rewards = np.zeros((n_iterations, l_episodes, n_arms))
@@ -896,7 +910,6 @@ def Process_LearnSoftSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_step
         print(f'Learning iteration {n + 1} out of {n_iterations}')
         start_time = time.time()
 
-        # prob_remain = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
         v = np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
         prob_remain = np.round(np.linspace(v, v, n_arms), 2)
         M = MarkovDynamics(n_arms, n_states, prob_remain, t_type, t_increasing)
@@ -907,7 +920,8 @@ def Process_LearnSoftSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_step
         all_plan_sumwis[n, 0, :] = np.array([np.sum(plan_indices[a]) for a in range(n_arms)])
 
         if t_type < 10:
-            all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+            all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+                                                 for _ in range(n_arms)])
             Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, 0, :], t_type, t_increasing)
             LearnW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
         else:
@@ -924,12 +938,10 @@ def Process_LearnSoftSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_step
         counts = np.ones((n_states, n_states, 2, n_arms))
 
         for l in range(l_episodes):
-
-            # print(f'Episode {l + 1} of {l_episodes} / Iteration {n+1} / Last iteration was {np.round(duration, 1)} seconds')
-            # totalrewards, objectives, cnts = Process_SingleSoftSafeRB(SafeW, n_episodes, n_steps, n_states, 2, n_choices, thresholds, tru_rew,
-            #                                                           tru_dyn, sw_indices, initial_states, u_type, u_order)
-            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = Process_LearnSoftSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, n_arms,
-                                                                                                                     n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
+                Process_LearnSoftSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states,
+                                        n_arms, n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type,
+                                        u_order)
             counts = counts + cnts
 
             # print('Update...')
@@ -944,7 +956,9 @@ def Process_LearnSoftSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_step
                         cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
                         for s2 in range(1, s1):
                             cnt.append(est_transitions[s1, s2, 0, a])
-                    all_learn_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+                    all_learn_probs[n, l, a] = np.round(
+                        np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+                        , 2)
                 if t_type == 3:
                     cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
                     for s1 in range(1, n_states - 1):
@@ -974,26 +988,21 @@ def Process_LearnSoftSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_step
                 all_learn_rewards[n, l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)
                 all_learn_objectives[n, l, a] = np.round(np.mean(learn_objectives[a, :]), 2)
 
-            # print(f'pr = {np.round(np.mean(all_learn_probs[n, l, :]), 2)}')
-            # print(f'true-sw = {np.round(np.mean(plan_sumwis), 2)}')
-            # print(f'true-re = {np.round(np.mean(all_plan_rewards[n, l, :]), 2)}')
-            # print(f'true-ob = {np.round(np.mean(all_plan_objectives[n, l, :]), 2)}')
-            # print(f'sw = {np.round(np.mean(all_learn_sumwis[n, l, :]), 2)}')
-            # print(f're = {np.round(np.mean(all_learn_rewards[n, l, :]), 2)}')
-            # print(f'ob = {np.round(np.mean(all_learn_objectives[n, l, :]), 2)}')
-
         end_time = time.time()
         duration = end_time - start_time
 
     if save_data:
-        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, all_plan_objectives],
+        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards,
+                     all_plan_objectives],
                     f'./output/learnsafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
-    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, all_plan_objectives
+    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, \
+           all_plan_objectives
 
 
-def Process_SingleSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices, thresholds, t_type, t_increasing,
-                           method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
+def Process_SingleSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices, thresholds,
+                           t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data,
+                           max_wi):
     n_trials_safety = n_states * n_steps
 
     ##################################################### Process
@@ -1018,7 +1027,7 @@ def Process_SingleSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_stat
 
         for l in range(l_episodes):
 
-            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iteration was {np.round(duration, 1)} seconds')
+            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iter was {np.round(duration, 1)} seconds')
             totalrewards = np.zeros((2, n_episodes))
             objectives = np.zeros((2, n_episodes))
 
@@ -1040,9 +1049,11 @@ def Process_SingleSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_stat
                         counts[_states[a], states[a], actions[a]] += 1
                 for a in range(2):
                     if u_type == 1:
-                        objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
+                        objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) \
+                                           * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
                     elif u_type == 2:
-                        objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
+                        objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) \
+                                           / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
                     else:
                         objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
 
@@ -1090,13 +1101,16 @@ def Process_SingleSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_stat
         duration = end_time - start_time
 
     if save_data:
-        joblib.dump([all_probs, all_sumwis, all_rewards, all_objectives], f'./output/singlesafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        joblib.dump([
+            all_probs, all_sumwis, all_rewards, all_objectives
+        ], f'./output/singlesafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
     return all_probs, all_sumwis, all_rewards, all_objectives
 
 
-def Process_SingleSafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices, thresholds, t_type, t_increasing,
-                               method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
+def Process_SingleSafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices, thresholds,
+                               t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order,
+                               save_data, max_wi):
     n_trials_safety = n_states * n_steps
 
     ##################################################### Process
@@ -1130,11 +1144,10 @@ def Process_SingleSafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_
 
         for l in range(l_episodes):
 
-            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iteration was {np.round(duration, 1)} seconds')
-            # totalrewards, objectives, cnts = Process_SingleSoftSafeRB(SafeW, n_episodes, n_steps, n_states, 2, n_choices, thresholds, tru_rew,
-            #                                                           tru_dyn, sw_indices, initial_states, u_type, u_order)
-            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = Process_LSSSRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, 2,
-                                                                                                            n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iter was {np.round(duration, 1)} seconds')
+            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
+                Process_LSSSRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, 2, n_choices,
+                               thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
             counts = counts + cnts[:, :, :, 0]
 
             # print('Update...')
@@ -1185,7 +1198,1219 @@ def Process_SingleSafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_
         duration = end_time - start_time
 
     if save_data:
-        joblib.dump([all_learn_probs, all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_rewards, all_plan_objectives],
-                    f'./output/learnsinglesafesofttsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+        joblib.dump([
+            all_learn_probs, all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_rewards,
+            all_plan_objectives],
+            f'./output/learnsinglesafesofttsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
 
-    return all_learn_probs, all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, all_plan_objectives
+    return all_learn_probs, all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, \
+           all_plan_objectives
+
+
+def ProcessAvg_SafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type,
+                        t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data, max_wi):
+    n_trials_safety = n_arms * n_states * n_steps
+
+    ##################################################### Process
+    all_rewards = np.zeros((n_iterations, l_episodes, n_arms))
+    all_objectives = np.zeros((n_iterations, l_episodes, n_arms))
+    all_sumwis = np.zeros((n_iterations, l_episodes, n_arms))
+    all_probs = np.round((0.1 / n_states), 2) * np.ones((n_iterations, l_episodes, n_arms))
+    duration = 0
+
+    for n in range(n_iterations):
+
+        # print(f'Learning iteration {n + 1} out of {n_iterations}')
+        start_time = time.time()
+        M = MarkovDynamics(n_arms, n_states, all_probs[n, :, 0], t_type, t_increasing)
+        SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, M.transitions, u_type, u_order, thresholds)
+        SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+        sw_indices = SafeW.w_indices
+        counts = np.ones((n_states, n_states, 2, n_arms))
+
+        for l in range(l_episodes):
+
+            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iter was {np.round(duration, 1)} seconds')
+            totalrewards = np.zeros((n_arms, n_episodes))
+            objectives = np.zeros((n_arms, n_episodes))
+
+            for k in range(n_episodes):
+
+                states = initial_states.copy()
+                _lifted = np.zeros(n_arms, dtype=np.int32)
+                for t in range(n_steps):
+                    _states = np.copy(states)
+                    for a in range(n_arms):
+                        _lifted[a] = max(0, min(SafeW.n_augment[a] - 1, _lifted[a] + _states[a]))
+                    actions = SafeW.Whittle_policy(sw_indices, n_choices, _states, _lifted)
+                    for a in range(n_arms):
+                        if len(tru_rew.shape) == 3:
+                            totalrewards[a, k] += tru_rew[_states[a], actions[a], a]
+                        else:
+                            totalrewards[a, k] += tru_rew[_states[a], a]
+                        states[a] = np.random.choice(n_states, p=tru_dyn[_states[a], :, actions[a], a])
+                        counts[_states[a], states[a], actions[a], a] += 1
+                for a in range(n_arms):
+                    if u_type == 1:
+                        objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) \
+                                           * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
+                    elif u_type == 2:
+                        objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) \
+                                           / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
+                    else:
+                        objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+
+            # print('Update...')
+            est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+            for a in range(n_arms):
+                for s1 in range(n_states):
+                    for act in range(2):
+                        est_transitions[s1, :, act, a] = dirichlet.rvs(counts[s1, :, act, a])
+                if t_type == 5:
+                    cnt = [est_transitions[0, -1, 1, a]]
+                    for s1 in range(1, n_states):
+                        cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
+                        for s2 in range(1, s1):
+                            cnt.append(est_transitions[s1, s2, 0, a])
+                    all_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+                if t_type == 3:
+                    cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
+                    for s1 in range(1, n_states - 1):
+                        cnt.append((1 / (n_states - s1 - 1)) * est_transitions[s1, s1, 1, a])
+                        cnt.append((1 / (n_states - s1)) * est_transitions[s1, s1, 0, a])
+                        for s2 in range(1, s1):
+                            cnt.append(est_transitions[s1, s2, 0, a])
+                    for s2 in range(1, n_states):
+                        cnt.append(est_transitions[n_states - 1, s2, 0, a])
+                    all_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+
+            Mest = MarkovDynamics(n_arms, n_states, all_probs[n, l, :], t_type, t_increasing)
+            SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+            SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+            sw_indices = SafeW.w_indices
+
+            for a in range(n_arms):
+                all_sumwis[n, l, a] = np.sum(sw_indices[a])
+                all_rewards[n, l, a] = np.mean(totalrewards[a, :])
+                all_objectives[n, l, a] = np.mean(objectives[a, :])
+
+        end_time = time.time()
+        duration = end_time - start_time
+
+    if save_data:
+        joblib.dump([
+            all_probs, all_sumwis, all_rewards, all_objectives
+        ], f'./output/safetsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+
+    return all_probs, all_sumwis, all_rewards, all_objectives
+
+
+def ProcessAvg_SafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                            t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data,
+                            max_wi):
+    n_trials_safety = n_arms * n_states * n_steps
+
+    ##################################################### Process
+    all_rewards = np.zeros((n_iterations, l_episodes, n_arms))
+    all_objectives = np.zeros((n_iterations, l_episodes, n_arms))
+    all_sumwis = np.zeros((n_iterations, l_episodes, n_arms))
+    all_probs = np.round((0.1 / n_states), 2) * np.ones((n_iterations, l_episodes, n_arms))
+    duration = 0
+
+    for n in range(n_iterations):
+
+        # print(f'Iteration {n + 1} / {n_iterations}')
+        start_time = time.time()
+        M = MarkovDynamics(n_arms, n_states, all_probs[n, :, 0], t_type, t_increasing)
+        SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, M.transitions, u_type, u_order, thresholds)
+        SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+        sw_indices = SafeW.w_indices
+        counts = np.ones((n_states, n_states, 2, n_arms))
+
+        for l in range(l_episodes):
+
+            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iter was {np.round(duration, 1)} seconds')
+            totalrewards = np.zeros((n_arms, n_episodes))
+            objectives = np.zeros((n_arms, n_episodes))
+
+            for k in range(n_episodes):
+
+                states = initial_states.copy()
+                _lifted = np.zeros(n_arms, dtype=np.int32)
+                for t in range(n_steps):
+                    _states = np.copy(states)
+                    for a in range(n_arms):
+                        _lifted[a] = max(0, min(SafeW.n_augment[a] - 1, _lifted[a] + _states[a]))
+                    actions = SafeW.Whittle_softpolicy(sw_indices, n_choices, _states, _lifted)
+                    for a in range(n_arms):
+                        if len(tru_rew.shape) == 3:
+                            totalrewards[a, k] += tru_rew[_states[a], actions[a], a]
+                        else:
+                            totalrewards[a, k] += tru_rew[_states[a], a]
+                        states[a] = np.random.choice(n_states, p=tru_dyn[_states[a], :, actions[a], a])
+                        counts[_states[a], states[a], actions[a], a] += 1
+                for a in range(n_arms):
+                    if u_type == 1:
+                        objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) \
+                                           * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
+                    elif u_type == 2:
+                        objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) \
+                                           / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
+                    else:
+                        objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+
+            # print('Update...')
+            est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+            for a in range(n_arms):
+                for s1 in range(n_states):
+                    for act in range(2):
+                        est_transitions[s1, :, act, a] = dirichlet.rvs(counts[s1, :, act, a])
+                if t_type == 5:
+                    cnt = [est_transitions[0, -1, 1, a]]
+                    for s1 in range(1, n_states):
+                        cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
+                        for s2 in range(1, s1):
+                            cnt.append(est_transitions[s1, s2, 0, a])
+                    all_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+                if t_type == 3:
+                    cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
+                    for s1 in range(1, n_states - 1):
+                        cnt.append((1 / (n_states - s1 - 1)) * est_transitions[s1, s1, 1, a])
+                        cnt.append((1 / (n_states - s1)) * est_transitions[s1, s1, 0, a])
+                        for s2 in range(1, s1):
+                            cnt.append(est_transitions[s1, s2, 0, a])
+                    for s2 in range(1, n_states):
+                        cnt.append(est_transitions[n_states - 1, s2, 0, a])
+                    all_probs[n, l, a] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+
+            Mest = MarkovDynamics(n_arms, n_states, all_probs[n, l, :], t_type, t_increasing)
+            SafeW = SafeWhittle(n_states, n_arms, tru_rew, Mest.transitions, n_steps, u_type, u_order, thresholds)
+            SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+            sw_indices = SafeW.w_indices
+
+            for a in range(n_arms):
+                all_sumwis[n, l, a] = np.sum(sw_indices[a])
+                all_rewards[n, l, a] = np.mean(totalrewards[a, :])
+                all_objectives[n, l, a] = np.mean(objectives[a, :])
+
+        end_time = time.time()
+        duration = end_time - start_time
+
+    if save_data:
+        joblib.dump([
+            all_probs, all_sumwis, all_rewards, all_objectives
+        ], f'./output/safesofttsrb_{n_steps}{n_states}{n_arms}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+
+    return all_probs, all_sumwis, all_rewards, all_objectives
+
+
+def SingleProcessAvg_LearnSafeTSRB(n, PlanW, plan_indices, n_trials_safety, l_episodes, n_episodes, n_steps, n_states,
+                                   n_arms, n_choices, thresholds, t_type, t_increasing, method, tru_rew, tru_dyn,
+                                   initial_states, u_type, u_order, max_wi):
+
+    print(f'Learning iteration {n + 1}')
+    start_time = time.time()
+
+    if t_type < 10:
+        all_learn_probs = np.array([np.round(random.uniform(0.5 / n_states, 0.5 / n_states), 2) for _ in range(n_arms)])
+        Mest = MarkovDynamics(n_arms, n_states, all_learn_probs, t_type, t_increasing)
+        LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+    else:
+        est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+        for a in range(n_arms):
+            for s1 in range(n_states):
+                for act in range(2):
+                    est_transitions[s1, :, act, a] = dirichlet.rvs(np.ones(n_states))
+        LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+
+    LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+    learn_indices = LearnW.w_indices
+
+    counts = np.ones((n_states, n_states, 2, n_arms))
+
+    results = {
+        'all_plan_rewards': np.zeros((l_episodes, n_arms)),
+        'all_plan_objectives': np.zeros((l_episodes, n_arms)),
+        'all_learn_rewards': np.zeros((l_episodes, n_arms)),
+        'all_learn_objectives': np.zeros((l_episodes, n_arms)),
+        'all_learn_wierrors': np.zeros((l_episodes, n_arms)),
+        'all_learn_probs': np.zeros((l_episodes, n_arms)),
+        'all_learn_transitionerrors': np.zeros((l_episodes, n_arms))
+    }
+
+    for l in range(l_episodes):
+        plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = ProcessAvg_LearnSafeRB(
+            PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, n_arms,
+            n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+        counts = counts + cnts
+
+        # Update estimated transitions and probabilities
+        est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+        for a in range(n_arms):
+            for s1 in range(n_states):
+                for act in range(2):
+                    est_transitions[s1, :, act, a] = dirichlet.rvs(counts[s1, :, act, a])
+            if t_type == 5:
+                cnt = [est_transitions[0, -1, 1, a]]
+                for s1 in range(1, n_states):
+                    cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
+                    for s2 in range(1, s1):
+                        cnt.append(est_transitions[s1, s2, 0, a])
+                results['all_learn_probs'][l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+            if t_type == 3:
+                cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
+                for s1 in range(1, n_states - 1):
+                    cnt.append((1 / (n_states - s1 - 1)) * est_transitions[s1, s1, 1, a])
+                    cnt.append((1 / (n_states - s1)) * est_transitions[s1, s1, 0, a])
+                    for s2 in range(1, s1):
+                        cnt.append(est_transitions[s1, s2, 0, a])
+                for s2 in range(1, n_states):
+                    cnt.append(est_transitions[n_states - 1, s2, 0, a])
+                results['all_learn_probs'][l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+
+        if t_type < 10:
+            Mest = MarkovDynamics(n_arms, n_states, np.round(results['all_learn_probs'][l, :], 2), t_type, t_increasing)
+            est_transitions = Mest.transitions
+            LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+            LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+            learn_indices = LearnW.w_indices
+        else:
+            LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+            LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+            learn_indices = LearnW.w_indices
+
+        for a in range(n_arms):
+            results['all_learn_transitionerrors'][l, a] = np.max(
+                np.abs(est_transitions[:, :, :, a] - tru_dyn[:, :, :, a])
+            )
+            # print(np.max(np.abs(learn_indices[a] - plan_indices[a])))
+            results['all_learn_wierrors'][l, a] = np.max(np.abs(learn_indices[a] - plan_indices[a]))
+            results['all_plan_rewards'][l, a] = np.round(np.mean(plan_totalrewards[a, :]), 2)
+            results['all_plan_objectives'][l, a] = np.round(np.mean(plan_objectives[a, :]), 2)
+            results['all_learn_rewards'][l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)
+            results['all_learn_objectives'][l, a] = np.round(np.mean(learn_objectives[a, :]), 2)
+
+    if n == 0:
+
+        for a in range(n_arms):
+            print('------- Count:')
+            print('Passive:')
+            print(counts[:, :, 0, a])
+            print(est_transitions[:, :, 0, a])
+            print(tru_dyn[:, :, 0, a])
+            print('Active:')
+            print(counts[:, :, 1, a])
+            print(est_transitions[:, :, 1, a])
+            print(tru_dyn[:, :, 1, a])
+
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f'Iteration {n + 1} completed in {duration:.2f} seconds')
+
+    return results
+
+
+def MultiProcessAvg_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices,
+                                  thresholds, t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type,
+                                  u_order, save_data, max_wi):
+    n_trials_safety = n_states * n_steps
+
+    all_plan_rewards = np.zeros((n_iterations, l_episodes, n_arms))
+    all_plan_objectives = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_rewards = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_objectives = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_wierrors = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_probs = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_transitionerrors = np.zeros((n_iterations, l_episodes, n_arms))
+    duration = 0
+
+    PlanW = SafeWhittleAvg(n_states, n_arms, tru_rew, tru_dyn, u_type, u_order, thresholds)
+    PlanW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+    plan_indices = PlanW.w_indices
+    plan_sumwis = [np.sum(plan_indices[a]) for a in range(n_arms)]
+
+    with ProcessPoolExecutor() as executor:
+        futures = [executor.submit(SingleProcessAvg_LearnSafeTSRB, n, PlanW, plan_indices, n_trials_safety, l_episodes,
+                                   n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, t_type, t_increasing,
+                                   method, tru_rew, tru_dyn, initial_states, u_type, u_order, max_wi)
+                   for n in range(n_iterations)]
+
+        for n, future in enumerate(futures):
+            result = future.result()
+            all_plan_rewards[n] = result['all_plan_rewards']
+            all_plan_objectives[n] = result['all_plan_objectives']
+            all_learn_rewards[n] = result['all_learn_rewards']
+            all_learn_objectives[n] = result['all_learn_objectives']
+            all_learn_wierrors[n] = result['all_learn_wierrors']
+            all_learn_probs[n] = result['all_learn_probs']
+            all_learn_transitionerrors[n] = result['all_learn_transitionerrors']
+
+    if save_data:
+        joblib.dump([all_learn_transitionerrors, all_learn_wierrors, all_learn_rewards, all_learn_objectives,
+                     all_plan_rewards, all_plan_objectives],
+                    f'./output/learnsafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+
+    return all_learn_transitionerrors, all_learn_wierrors, all_learn_rewards, all_learn_objectives, all_plan_rewards, \
+           all_plan_objectives
+
+
+def ProcessAvg_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                             t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order, save_data,
+                             max_wi):
+    n_trials_safety = n_states * n_steps
+
+    ##################################################### Process
+    all_plan_rewards = np.zeros((n_iterations, l_episodes, n_arms))
+    all_plan_objectives = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_rewards = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_objectives = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_sumwis = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_probs = np.ones((n_iterations, l_episodes, n_arms))
+    duration = 0
+
+    PlanW = SafeWhittleAvg(n_states, n_arms, tru_rew, tru_dyn, u_type, u_order, thresholds)
+    PlanW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+    plan_indices = PlanW.w_indices
+    plan_sumwis = [np.sum(plan_indices[a]) for a in range(n_arms)]
+
+    for n in range(n_iterations):
+
+        print(f'Learning iteration {n + 1} out of {n_iterations}')
+        start_time = time.time()
+
+        if t_type < 10:
+            all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+                                                 for _ in range(n_arms)])
+            Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, 0, :], t_type, t_increasing)
+            LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+        else:
+            est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+            for a in range(n_arms):
+                for s1 in range(n_states):
+                    for act in range(2):
+                        est_transitions[s1, :, act, a] = dirichlet.rvs(np.ones(n_states))
+            LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+
+        LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+        learn_indices = LearnW.w_indices
+
+        counts = np.ones((n_states, n_states, 2, n_arms))
+
+        for l in range(l_episodes):
+
+            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
+                ProcessAvg_LearnSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states,
+                                       n_arms, n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+            counts = counts + cnts
+
+            # print('Update...')
+            est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+            for a in range(n_arms):
+                for s1 in range(n_states):
+                    for act in range(2):
+                        est_transitions[s1, :, act, a] = dirichlet.rvs(counts[s1, :, act, a])
+                if t_type == 5:
+                    cnt = [est_transitions[0, -1, 1, a]]
+                    for s1 in range(1, n_states):
+                        cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
+                        for s2 in range(1, s1):
+                            cnt.append(est_transitions[s1, s2, 0, a])
+                    all_learn_probs[n, l, a] = np.round(
+                        np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+                        , 2)
+                if t_type == 3:
+                    cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
+                    for s1 in range(1, n_states - 1):
+                        cnt.append((1 / (n_states - s1 - 1)) * est_transitions[s1, s1, 1, a])
+                        cnt.append((1 / (n_states - s1)) * est_transitions[s1, s1, 0, a])
+                        for s2 in range(1, s1):
+                            cnt.append(est_transitions[s1, s2, 0, a])
+                    for s2 in range(1, n_states):
+                        cnt.append(est_transitions[n_states - 1, s2, 0, a])
+                    all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+
+            if t_type < 10:
+                Mest = MarkovDynamics(n_arms, n_states, np.round(all_learn_probs[n, l, :], 2), t_type, t_increasing)
+                SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+                SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+                sw_indices = SafeW.w_indices
+            else:
+                SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+                SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+                sw_indices = SafeW.w_indices
+
+            print(f"==================================== Episode {l}")
+            for a in range(n_arms):
+                if l > l_episodes - 3:
+                    # print(f"------------- Arm {a}")
+                    # print("True Indices:")
+                    # print(plan_indices[a][:, :, :])
+                    # print("Learned Indices:")
+                    # print(sw_indices[a][:, :, :])
+                    print(f'------------------ Arm {a}')
+                    print(counts[:, :, 0, a])
+                    print(counts[:, :, 1, a])
+                all_learn_sumwis[n, l, a] = np.sum(sw_indices[a])
+                all_plan_rewards[n, l, a] = np.round(np.mean(plan_totalrewards[a, :]), 2)
+                all_plan_objectives[n, l, a] = np.round(np.mean(plan_objectives[a, :]), 2)
+                all_learn_rewards[n, l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)
+                all_learn_objectives[n, l, a] = np.round(np.mean(learn_objectives[a, :]), 2)
+
+        end_time = time.time()
+        duration = end_time - start_time
+
+    if save_data:
+        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards,
+                     all_plan_objectives],
+                    f'./output/learnsafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+
+    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, all_plan_objectives
+
+
+def ProcessAvg_LearnSoftSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                 t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order,
+                                 save_data, max_wi):
+    n_trials_safety = n_states * n_steps
+    ##################################################### Process
+    all_plan_rewards = np.zeros((n_iterations, l_episodes, n_arms))
+    all_plan_objectives = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_rewards = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_objectives = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_sumwis = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_probs = np.ones((n_iterations, l_episodes, n_arms))
+    duration = 0
+
+    PlanW = SafeWhittleAvg(n_states, n_arms, tru_rew, tru_dyn, u_type, u_order, thresholds)
+    PlanW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+    plan_indices = PlanW.w_indices
+    plan_sumwis = [np.sum(plan_indices[a]) for a in range(n_arms)]
+
+    for n in range(n_iterations):
+
+        print(f'Learning iteration {n + 1} out of {n_iterations}')
+        start_time = time.time()
+
+        if t_type < 10:
+            all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+                                                 for _ in range(n_arms)])
+            Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, 0, :], t_type, t_increasing)
+            LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+        else:
+            est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+            for a in range(n_arms):
+                for s1 in range(n_states):
+                    for act in range(2):
+                        est_transitions[s1, :, act, a] = dirichlet.rvs(np.ones(n_states))
+            LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+
+        LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+        learn_indices = LearnW.w_indices
+
+        counts = np.ones((n_states, n_states, 2, n_arms))
+
+        for l in range(l_episodes):
+
+            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
+                ProcessAvg_LearnSoftSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states,
+                                           n_arms, n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type,
+                                           u_order)
+            counts = counts + cnts
+
+            # print('Update...')
+            est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+            for a in range(n_arms):
+                for s1 in range(n_states):
+                    for act in range(2):
+                        est_transitions[s1, :, act, a] = dirichlet.rvs(counts[s1, :, act, a])
+                if t_type == 5:
+                    cnt = [est_transitions[0, -1, 1, a]]
+                    for s1 in range(1, n_states):
+                        cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
+                        for s2 in range(1, s1):
+                            cnt.append(est_transitions[s1, s2, 0, a])
+                    all_learn_probs[n, l, a] = np.round(
+                        np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+                        , 2)
+                if t_type == 3:
+                    cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
+                    for s1 in range(1, n_states - 1):
+                        cnt.append((1 / (n_states - s1 - 1)) * est_transitions[s1, s1, 1, a])
+                        cnt.append((1 / (n_states - s1)) * est_transitions[s1, s1, 0, a])
+                        for s2 in range(1, s1):
+                            cnt.append(est_transitions[s1, s2, 0, a])
+                    for s2 in range(1, n_states):
+                        cnt.append(est_transitions[n_states - 1, s2, 0, a])
+                    all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+
+            if t_type < 10:
+                Mest = MarkovDynamics(n_arms, n_states, np.round(all_learn_probs[n, l, :], 2), t_type, t_increasing)
+                SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+                SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+                sw_indices = SafeW.w_indices
+            else:
+                SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+                SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+                sw_indices = SafeW.w_indices
+
+            for a in range(n_arms):
+                all_learn_sumwis[n, l, a] = np.sum(sw_indices[a])
+                all_plan_rewards[n, l, a] = np.round(np.mean(plan_totalrewards[a, :]), 2)
+                all_plan_objectives[n, l, a] = np.round(np.mean(plan_objectives[a, :]), 2)
+                all_learn_rewards[n, l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)
+                all_learn_objectives[n, l, a] = np.round(np.mean(learn_objectives[a, :]), 2)
+
+            # print(f'pr = {np.round(np.mean(all_learn_probs[n, l, :]), 2)}')
+            # print(f'true-sw = {np.round(np.mean(plan_sumwis), 2)}')
+            # print(f'true-re = {np.round(np.mean(all_plan_rewards[n, l, :]), 2)}')
+            # print(f'true-ob = {np.round(np.mean(all_plan_objectives[n, l, :]), 2)}')
+            # print(f'sw = {np.round(np.mean(all_learn_sumwis[n, l, :]), 2)}')
+            # print(f're = {np.round(np.mean(all_learn_rewards[n, l, :]), 2)}')
+            # print(f'ob = {np.round(np.mean(all_learn_objectives[n, l, :]), 2)}')
+
+        end_time = time.time()
+        duration = end_time - start_time
+
+    if save_data:
+        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards,
+                     all_plan_objectives],
+                    f'./output/learnsafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+
+    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, all_plan_objectives
+
+
+def ProcessAvg_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices,
+                                   thresholds, t_type, t_increasing, method, tru_rew, initial_states, u_type, u_order,
+                                   save_data, max_wi):
+    n_trials_safety = n_states * n_steps
+    ##################################################### Process
+    all_plan_rewards = np.zeros((n_priors*n_iterations, l_episodes, n_arms))
+    all_plan_objectives = np.zeros((n_priors*n_iterations, l_episodes, n_arms))
+    all_plan_sumwis = np.zeros((n_priors*n_iterations, l_episodes, n_arms))
+    all_learn_rewards = np.zeros((n_priors*n_iterations, l_episodes, n_arms))
+    all_learn_objectives = np.zeros((n_priors*n_iterations, l_episodes, n_arms))
+    all_learn_sumwis = np.zeros((n_priors*n_iterations, l_episodes, n_arms))
+    all_learn_probs = np.ones((n_priors*n_iterations, l_episodes, n_arms))
+    duration = 0
+
+    for m in range(n_priors):
+
+        if t_type < 10:
+            prob_remain = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+        elif t_type == 11:
+            n_states = 4
+            pr_ss_0 = np.round(np.linspace(0.596, 0.690, n_arms), 3)
+            np.random.shuffle(pr_ss_0)
+            pr_sr_0 = np.round(np.linspace(0.045, 0.061, n_arms), 3)
+            np.random.shuffle(pr_sr_0)
+            pr_sp_0 = np.round(np.linspace(0.201, 0.287, n_arms), 3)
+            np.random.shuffle(pr_sp_0)
+            pr_rr_0 = np.round(np.linspace(0.759, 0.822, n_arms), 3)
+            np.random.shuffle(pr_rr_0)
+            pr_rp_0 = np.round(np.linspace(0.130, 0.169, n_arms), 3)
+            np.random.shuffle(pr_rp_0)
+            pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+            np.random.shuffle(pr_pp_0)
+            pr_ss_1 = np.round(np.linspace(0.733, 0.801, n_arms), 3)
+            np.random.shuffle(pr_ss_1)
+            pr_sr_1 = np.round(np.linspace(0.047, 0.078, n_arms), 3)
+            np.random.shuffle(pr_sr_1)
+            pr_sp_1 = np.round(np.linspace(0.115, 0.171, n_arms), 3)
+            np.random.shuffle(pr_sp_1)
+            pr_rr_1 = np.round(np.linspace(0.758, 0.847, n_arms), 3)
+            np.random.shuffle(pr_rr_1)
+            pr_rp_1 = np.round(np.linspace(0.121, 0.193, n_arms), 3)
+            np.random.shuffle(pr_rp_1)
+            pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+            np.random.shuffle(pr_pp_1)
+            prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0,
+                           pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
+        elif t_type == 12:
+            n_states = 4
+            pr_ss_0 = np.round(np.linspace(0.668, 0.738, n_arms), 3)
+            np.random.shuffle(pr_ss_0)
+            pr_sr_0 = np.round(np.linspace(0.045, 0.061, n_arms), 3)
+            np.random.shuffle(pr_sr_0)
+            pr_rr_0 = np.round(np.linspace(0.831, 0.870, n_arms), 3)
+            np.random.shuffle(pr_rr_0)
+            pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+            np.random.shuffle(pr_pp_0)
+            pr_ss_1 = np.round(np.linspace(0.782, 0.833, n_arms), 3)
+            np.random.shuffle(pr_ss_1)
+            pr_sr_1 = np.round(np.linspace(0.047, 0.078, n_arms), 3)
+            np.random.shuffle(pr_sr_1)
+            pr_rr_1 = np.round(np.linspace(0.807, 0.879, n_arms), 3)
+            np.random.shuffle(pr_rr_1)
+            pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+            np.random.shuffle(pr_pp_1)
+            prob_remain = [pr_ss_0, pr_sr_0, pr_rr_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_rr_1, pr_pp_1]
+        elif t_type == 13:
+            n_states = 3
+            pr_ss_0 = np.round(np.linspace(0.657, 0.762, n_arms), 3)
+            np.random.shuffle(pr_ss_0)
+            pr_sp_0 = np.round(np.linspace(0.201, 0.287, n_arms), 3)
+            np.random.shuffle(pr_sp_0)
+            pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+            np.random.shuffle(pr_pp_0)
+            pr_ss_1 = np.round(np.linspace(0.806, 0.869, n_arms), 3)
+            np.random.shuffle(pr_ss_1)
+            pr_sp_1 = np.round(np.linspace(0.115, 0.171, n_arms), 3)
+            np.random.shuffle(pr_sp_1)
+            pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+            np.random.shuffle(pr_pp_1)
+            prob_remain = [pr_ss_0, pr_sp_0, pr_pp_0, pr_ss_1, pr_sp_1, pr_pp_1]
+        elif t_type == 14:
+            n_states = 3
+            pr_ss_0 = np.round(np.linspace(0.713, 0.799, n_arms), 3)
+            np.random.shuffle(pr_ss_0)
+            pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+            np.random.shuffle(pr_pp_0)
+            pr_ss_1 = np.round(np.linspace(0.829, 0.885, n_arms), 3)
+            np.random.shuffle(pr_ss_1)
+            pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+            np.random.shuffle(pr_pp_1)
+            prob_remain = [pr_ss_0, pr_pp_0, pr_ss_1, pr_pp_1]
+
+        M = MarkovDynamics(n_arms, n_states, prob_remain, t_type, t_increasing)
+        tru_dyn = M.transitions
+        PlanW = SafeWhittleAvg(n_states, n_arms, tru_rew, tru_dyn, u_type, u_order, thresholds)
+        PlanW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+        plan_indices = PlanW.w_indices
+
+        for n in range(n_iterations):
+
+            indx = m*n_iterations+n
+
+            all_plan_sumwis[indx, 0, :] = np.array([np.sum(plan_indices[a]) for a in range(n_arms)])
+
+            print(f'Learning iteration {indx + 1} out of {n_priors * n_iterations}')
+            start_time = time.time()
+
+            if t_type < 10:
+                all_learn_probs[indx, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+                                                        for _ in range(n_arms)])
+                Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[indx, 0, :], t_type, t_increasing)
+                LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+            else:
+                est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+                for a in range(n_arms):
+                    for s1 in range(n_states):
+                        for act in range(2):
+                            est_transitions[s1, :, act, a] = dirichlet.rvs(np.ones(n_states))
+                LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+
+            LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+            learn_indices = LearnW.w_indices
+
+            counts = np.ones((n_states, n_states, 2, n_arms))
+
+            for l in range(l_episodes):
+                plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
+                    ProcessAvg_LearnSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states,
+                                           n_arms, n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type,
+                                           u_order)
+                counts = counts + cnts
+
+                # print('Update...')
+                est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+                for a in range(n_arms):
+                    for s1 in range(n_states):
+                        for act in range(2):
+                            est_transitions[s1, :, act, a] = dirichlet.rvs(counts[s1, :, act, a])
+                    if t_type == 5:
+                        cnt = [est_transitions[0, -1, 1, a]]
+                        for s1 in range(1, n_states):
+                            cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
+                            for s2 in range(1, s1):
+                                cnt.append(est_transitions[s1, s2, 0, a])
+                        all_learn_probs[indx, l, a] = np.round(
+                            np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+                            , 2)
+                    if t_type == 3:
+                        cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
+                        for s1 in range(1, n_states - 1):
+                            cnt.append((1 / (n_states - s1 - 1)) * est_transitions[s1, s1, 1, a])
+                            cnt.append((1 / (n_states - s1)) * est_transitions[s1, s1, 0, a])
+                            for s2 in range(1, s1):
+                                cnt.append(est_transitions[s1, s2, 0, a])
+                        for s2 in range(1, n_states):
+                            cnt.append(est_transitions[n_states - 1, s2, 0, a])
+                        all_learn_probs[indx, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+
+                if t_type < 10:
+                    Mest = MarkovDynamics(n_arms, n_states, np.round(all_learn_probs[indx, l, :], 2), t_type,
+                                          t_increasing)
+                    SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+                    SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+                    sw_indices = SafeW.w_indices
+                else:
+                    SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+                    SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+                    sw_indices = SafeW.w_indices
+
+                for a in range(n_arms):
+                    all_plan_sumwis[indx, l, a] = all_plan_sumwis[indx, 0, a]
+                    all_plan_rewards[indx, l, a] = np.round(np.mean(plan_totalrewards[a, :]), 2)
+                    all_plan_objectives[indx, l, a] = np.round(np.mean(plan_objectives[a, :]), 2)
+                    all_learn_sumwis[indx, l, a] = np.sum(sw_indices[a])
+                    all_learn_rewards[indx, l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)
+                    all_learn_objectives[indx, l, a] = np.round(np.mean(learn_objectives[a, :]), 2)
+
+            end_time = time.time()
+            duration = end_time - start_time
+
+    if save_data:
+        joblib.dump([
+            all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards,
+            all_plan_objectives
+        ], f'./output/learnsaferandomtsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+
+    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, \
+           all_plan_objectives
+
+
+def MultiProcessAvg_LearnSafeRandomTSRB(n_priors, n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms,
+                                        n_choices, thresholds, t_type, t_increasing, method, tru_rew, initial_states,
+                                        u_type, u_order, save_data, max_wi):
+
+    n_trials_safety = n_states * n_steps
+    ##################################################### Process
+    all_plan_rewards = np.zeros((n_priors * n_iterations, l_episodes, n_arms))
+    all_plan_objectives = np.zeros((n_priors * n_iterations, l_episodes, n_arms))
+    all_plan_sumwis = np.zeros((n_priors * n_iterations, l_episodes, n_arms))
+    all_learn_rewards = np.zeros((n_priors * n_iterations, l_episodes, n_arms))
+    all_learn_objectives = np.zeros((n_priors * n_iterations, l_episodes, n_arms))
+    all_learn_sumwis = np.zeros((n_priors * n_iterations, l_episodes, n_arms))
+    all_learn_probs = np.ones((n_priors * n_iterations, l_episodes, n_arms))
+
+    with ProcessPoolExecutor() as executor:
+
+        futures = []
+        for m in range(n_priors):
+
+            if t_type < 10:
+                prob_remain = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+                                        for _ in range(n_arms)])
+            elif t_type == 11:
+                n_states = 4
+                pr_ss_0 = np.round(np.linspace(0.596, 0.690, n_arms), 3)
+                np.random.shuffle(pr_ss_0)
+                pr_sr_0 = np.round(np.linspace(0.045, 0.061, n_arms), 3)
+                np.random.shuffle(pr_sr_0)
+                pr_sp_0 = np.round(np.linspace(0.201, 0.287, n_arms), 3)
+                np.random.shuffle(pr_sp_0)
+                pr_rr_0 = np.round(np.linspace(0.759, 0.822, n_arms), 3)
+                np.random.shuffle(pr_rr_0)
+                pr_rp_0 = np.round(np.linspace(0.130, 0.169, n_arms), 3)
+                np.random.shuffle(pr_rp_0)
+                pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+                np.random.shuffle(pr_pp_0)
+                pr_ss_1 = np.round(np.linspace(0.733, 0.801, n_arms), 3)
+                np.random.shuffle(pr_ss_1)
+                pr_sr_1 = np.round(np.linspace(0.047, 0.078, n_arms), 3)
+                np.random.shuffle(pr_sr_1)
+                pr_sp_1 = np.round(np.linspace(0.115, 0.171, n_arms), 3)
+                np.random.shuffle(pr_sp_1)
+                pr_rr_1 = np.round(np.linspace(0.758, 0.847, n_arms), 3)
+                np.random.shuffle(pr_rr_1)
+                pr_rp_1 = np.round(np.linspace(0.121, 0.193, n_arms), 3)
+                np.random.shuffle(pr_rp_1)
+                pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+                np.random.shuffle(pr_pp_1)
+                prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0,
+                               pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
+            elif t_type == 12:
+                n_states = 4
+                pr_ss_0 = np.round(np.linspace(0.668, 0.738, n_arms), 3)
+                np.random.shuffle(pr_ss_0)
+                pr_sr_0 = np.round(np.linspace(0.045, 0.061, n_arms), 3)
+                np.random.shuffle(pr_sr_0)
+                pr_rr_0 = np.round(np.linspace(0.831, 0.870, n_arms), 3)
+                np.random.shuffle(pr_rr_0)
+                pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+                np.random.shuffle(pr_pp_0)
+                pr_ss_1 = np.round(np.linspace(0.782, 0.833, n_arms), 3)
+                np.random.shuffle(pr_ss_1)
+                pr_sr_1 = np.round(np.linspace(0.047, 0.078, n_arms), 3)
+                np.random.shuffle(pr_sr_1)
+                pr_rr_1 = np.round(np.linspace(0.807, 0.879, n_arms), 3)
+                np.random.shuffle(pr_rr_1)
+                pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+                np.random.shuffle(pr_pp_1)
+                prob_remain = [pr_ss_0, pr_sr_0, pr_rr_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_rr_1, pr_pp_1]
+            elif t_type == 13:
+                n_states = 3
+                pr_ss_0 = np.round(np.linspace(0.657, 0.762, n_arms), 3)
+                np.random.shuffle(pr_ss_0)
+                pr_sp_0 = np.round(np.linspace(0.201, 0.287, n_arms), 3)
+                np.random.shuffle(pr_sp_0)
+                pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+                np.random.shuffle(pr_pp_0)
+                pr_ss_1 = np.round(np.linspace(0.806, 0.869, n_arms), 3)
+                np.random.shuffle(pr_ss_1)
+                pr_sp_1 = np.round(np.linspace(0.115, 0.171, n_arms), 3)
+                np.random.shuffle(pr_sp_1)
+                pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+                np.random.shuffle(pr_pp_1)
+                prob_remain = [pr_ss_0, pr_sp_0, pr_pp_0, pr_ss_1, pr_sp_1, pr_pp_1]
+            elif t_type == 14:
+                n_states = 3
+                pr_ss_0 = np.round(np.linspace(0.713, 0.799, n_arms), 3)
+                np.random.shuffle(pr_ss_0)
+                pr_pp_0 = np.round(np.linspace(0.882, 0.922, n_arms), 3)
+                np.random.shuffle(pr_pp_0)
+                pr_ss_1 = np.round(np.linspace(0.829, 0.885, n_arms), 3)
+                np.random.shuffle(pr_ss_1)
+                pr_pp_1 = np.round(np.linspace(0.879, 0.921, n_arms), 3)
+                np.random.shuffle(pr_pp_1)
+                prob_remain = [pr_ss_0, pr_pp_0, pr_ss_1, pr_pp_1]
+
+            M = MarkovDynamics(n_arms, n_states, prob_remain, t_type, t_increasing)
+            tru_dyn = M.transitions
+            PlanW = SafeWhittleAvg(n_states, n_arms, tru_rew, tru_dyn, u_type, u_order, thresholds)
+            PlanW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+            plan_indices = PlanW.w_indices
+
+            for n in range(n_iterations):
+
+                indx = m * n_iterations + n
+
+                all_plan_sumwis[indx] = [np.sum(plan_indices[a]) for a in range(n_arms)]
+
+                futures.append(executor.submit(SingleProcessAvg_LearnSafeTSRB, indx, PlanW, plan_indices,
+                                               n_trials_safety, l_episodes, n_episodes, n_steps, n_states, n_arms,
+                                               n_choices, thresholds, t_type, t_increasing, method, tru_rew, tru_dyn,
+                                               initial_states, u_type, u_order, max_wi))
+
+        for indx, future in enumerate(futures):
+            result = future.result()
+            all_plan_rewards[indx] = result['all_plan_rewards']
+            all_plan_objectives[indx] = result['all_plan_objectives']
+            all_learn_rewards[indx] = result['all_learn_rewards']
+            all_learn_objectives[indx] = result['all_learn_objectives']
+            all_learn_sumwis[indx] = result['all_learn_sumwis']
+            all_learn_probs[indx] = result['all_learn_probs']
+
+    if save_data:
+        joblib.dump([
+            all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards,
+            all_plan_objectives
+        ], f'./output/learnsaferandomtsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+
+    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, \
+           all_plan_objectives
+
+
+def ProcessAvg_LearnSoftSafeTSRBRandom(n_iterations, l_episodes, n_episodes, n_steps, n_states, n_arms, n_choices,
+                                       thresholds, t_type, t_increasing, method, tru_rew, initial_states, u_type,
+                                       u_order, save_data, max_wi):
+    n_trials_safety = n_states * n_steps
+    ##################################################### Process
+    all_plan_rewards = np.zeros((n_iterations, l_episodes, n_arms))
+    all_plan_objectives = np.zeros((n_iterations, l_episodes, n_arms))
+    all_plan_sumwis = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_rewards = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_objectives = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_sumwis = np.zeros((n_iterations, l_episodes, n_arms))
+    all_learn_probs = np.ones((n_iterations, l_episodes, n_arms))
+    duration = 0
+
+    for n in range(n_iterations):
+
+        print(f'Learning iteration {n + 1} out of {n_iterations}')
+        start_time = time.time()
+
+        # prob_remain = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2) for _ in range(n_arms)])
+        v = np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+        prob_remain = np.round(np.linspace(v, v, n_arms), 2)
+        M = MarkovDynamics(n_arms, n_states, prob_remain, t_type, t_increasing)
+        tru_dyn = M.transitions
+        PlanW = SafeWhittleAvg(n_states, n_arms, tru_rew, tru_dyn, u_type, u_order, thresholds)
+        PlanW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+        plan_indices = PlanW.w_indices
+        all_plan_sumwis[n, 0, :] = np.array([np.sum(plan_indices[a]) for a in range(n_arms)])
+
+        if t_type < 10:
+            all_learn_probs[n, 0, :] = np.array([np.round(random.uniform(0.1 / n_states, 1 / n_states), 2)
+                                                 for _ in range(n_arms)])
+            Mest = MarkovDynamics(n_arms, n_states, all_learn_probs[n, 0, :], t_type, t_increasing)
+            LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+        else:
+            est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+            for a in range(n_arms):
+                for s1 in range(n_states):
+                    for act in range(2):
+                        est_transitions[s1, :, act, a] = dirichlet.rvs(np.ones(n_states))
+            LearnW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+
+        LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+        learn_indices = LearnW.w_indices
+
+        counts = np.ones((n_states, n_states, 2, n_arms))
+
+        for l in range(l_episodes):
+            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
+                ProcessAvg_LearnSoftSafeRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states,
+                                           n_arms, n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type,
+                                           u_order)
+            counts = counts + cnts
+
+            # print('Update...')
+            est_transitions = np.zeros((n_states, n_states, 2, n_arms))
+            for a in range(n_arms):
+                for s1 in range(n_states):
+                    for act in range(2):
+                        est_transitions[s1, :, act, a] = dirichlet.rvs(counts[s1, :, act, a])
+                if t_type == 5:
+                    cnt = [est_transitions[0, -1, 1, a]]
+                    for s1 in range(1, n_states):
+                        cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1, a])
+                        for s2 in range(1, s1):
+                            cnt.append(est_transitions[s1, s2, 0, a])
+                    all_learn_probs[n, l, a] = np.round(
+                        np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+                        , 2)
+                if t_type == 3:
+                    cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1, a]]
+                    for s1 in range(1, n_states - 1):
+                        cnt.append((1 / (n_states - s1 - 1)) * est_transitions[s1, s1, 1, a])
+                        cnt.append((1 / (n_states - s1)) * est_transitions[s1, s1, 0, a])
+                        for s2 in range(1, s1):
+                            cnt.append(est_transitions[s1, s2, 0, a])
+                    for s2 in range(1, n_states):
+                        cnt.append(est_transitions[n_states - 1, s2, 0, a])
+                    all_learn_probs[n, l, a] = np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states)
+
+            if t_type < 10:
+                Mest = MarkovDynamics(n_arms, n_states, np.round(all_learn_probs[n, l, :], 2), t_type, t_increasing)
+                SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+                SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+                sw_indices = SafeW.w_indices
+            else:
+                SafeW = SafeWhittleAvg(n_states, n_arms, tru_rew, est_transitions, u_type, u_order, thresholds)
+                SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+                sw_indices = SafeW.w_indices
+
+            for a in range(n_arms):
+                all_plan_sumwis[n, l, a] = all_plan_sumwis[n, 0, a]
+                all_plan_rewards[n, l, a] = np.round(np.mean(plan_totalrewards[a, :]), 2)
+                all_plan_objectives[n, l, a] = np.round(np.mean(plan_objectives[a, :]), 2)
+                all_learn_sumwis[n, l, a] = np.sum(sw_indices[a])
+                all_learn_rewards[n, l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)
+                all_learn_objectives[n, l, a] = np.round(np.mean(learn_objectives[a, :]), 2)
+
+        end_time = time.time()
+        duration = end_time - start_time
+
+    if save_data:
+        joblib.dump([all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards,
+                     all_plan_objectives],
+                    f'./output/learnsafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+
+    return all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_sumwis, all_plan_rewards, \
+           all_plan_objectives
+
+
+def ProcessAvg_SingleSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices, thresholds,
+                              t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type, u_order,
+                              save_data, max_wi):
+    n_trials_safety = n_states * n_steps
+
+    ##################################################### Process
+    all_rewards = np.zeros((n_iterations, l_episodes, 2))
+    all_objectives = np.zeros((n_iterations, l_episodes, 2))
+    all_sumwis = np.zeros((n_iterations, l_episodes))
+    all_probs = np.round((0.1 / n_states), 2) * np.ones((n_iterations, l_episodes))
+    duration = 0
+
+    for n in range(n_iterations):
+
+        # print(f'Learning iteration {n + 1} out of {n_iterations}')
+        start_time = time.time()
+
+        M = MarkovDynamics(1, n_states, [all_probs[n, 0]], t_type, t_increasing)
+        SafeW = SafeWhittleAvg(n_states, 1, tru_rew, M.transitions, u_type, u_order, thresholds)
+        SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+        sw_indices = SafeW.w_indices
+        sw_indices.append(fixed_wi * np.ones_like(np.array(sw_indices[0])))
+
+        counts = np.ones((n_states, n_states, 2))
+
+        for l in range(l_episodes):
+
+            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iter was {np.round(duration, 1)} seconds')
+            totalrewards = np.zeros((2, n_episodes))
+            objectives = np.zeros((2, n_episodes))
+
+            for k in range(n_episodes):
+
+                states = initial_states.copy()
+                _lifted = np.zeros(2, dtype=np.int32)
+                for t in range(n_steps):
+                    _states = np.copy(states)
+                    _lifted[0] = max(0, min(SafeW.n_augment[0] - 1, _lifted[0] + _states[0]))
+                    _lifted[1] = 0
+                    actions = SafeW.Whittle_policy(sw_indices, n_choices, _states, _lifted)
+                    for a in range(2):
+                        if len(tru_rew.shape) == 3:
+                            totalrewards[a, k] += tru_rew[_states[a], actions[a], a]
+                        else:
+                            totalrewards[a, k] += tru_rew[_states[a], a]
+                        states[a] = np.random.choice(n_states, p=tru_dyn[_states[a], :, actions[a], a])
+                        counts[_states[a], states[a], actions[a]] += 1
+                for a in range(2):
+                    if u_type == 1:
+                        objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) \
+                                           * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
+                    elif u_type == 2:
+                        objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) \
+                                           / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
+                    else:
+                        objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+
+            # print('Update...')
+            est_transitions = np.zeros((n_states, n_states, 2))
+            for s1 in range(n_states):
+                for act in range(2):
+                    est_transitions[s1, :, act] = dirichlet.rvs(counts[s1, :, act])
+            if t_type == 5:
+                cnt = [est_transitions[0, -1, 1]]
+                for s1 in range(1, n_states):
+                    cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1])
+                    for s2 in range(1, s1):
+                        cnt.append(est_transitions[s1, s2, 0])
+                all_probs[n, l] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+            if t_type == 3:
+                cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1]]
+                for s1 in range(1, n_states - 1):
+                    cnt.append((1 / (n_states - s1 - 1)) * est_transitions[s1, s1, 1])
+                    cnt.append((1 / (n_states - s1)) * est_transitions[s1, s1, 0])
+                    for s2 in range(1, s1):
+                        cnt.append(est_transitions[s1, s2, 0])
+                for s2 in range(1, n_states):
+                    cnt.append(est_transitions[n_states - 1, s2, 0])
+                all_probs[n, l] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+
+            Mest = MarkovDynamics(1, n_states, [all_probs[n, l]], t_type, t_increasing)
+            SafeW = SafeWhittleAvg(n_states, 1, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+            SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+            sw_indices = SafeW.w_indices
+            all_sumwis[n, l] = np.sum(sw_indices)
+
+            sw_indices.append(fixed_wi * np.ones_like(np.array(sw_indices[0])))
+
+            for a in range(2):
+                all_rewards[n, l, a] = np.mean(totalrewards[a, :])
+                all_objectives[n, l, a] = np.mean(objectives[a, :])
+
+            print(f'pr = {all_probs[n, l]}')
+            print(f'sw = {all_sumwis[n, l]}')
+            print(f're = {np.mean(all_rewards[n, l, :])}')
+            print(f'ob = {np.mean(all_objectives[n, l, :])}')
+
+        end_time = time.time()
+        duration = end_time - start_time
+
+    if save_data:
+        joblib.dump([all_probs, all_sumwis, all_rewards, all_objectives],
+                    f'./output/singlesafetsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+
+    return all_probs, all_sumwis, all_rewards, all_objectives
+
+
+def ProcessAvg_SingleSafeSoftTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_states, fixed_wi, n_choices,
+                                  thresholds, t_type, t_increasing, method, tru_rew, tru_dyn, initial_states, u_type,
+                                  u_order, save_data, max_wi):
+    n_trials_safety = n_states * n_steps
+
+    ##################################################### Process
+    all_plan_rewards = np.zeros((n_iterations, l_episodes, 2))
+    all_plan_objectives = np.zeros((n_iterations, l_episodes, 2))
+    all_learn_rewards = np.zeros((n_iterations, l_episodes, 2))
+    all_learn_objectives = np.zeros((n_iterations, l_episodes, 2))
+    all_learn_sumwis = np.zeros((n_iterations, l_episodes))
+    all_learn_probs = np.round((0.1 / n_states), 2) * np.ones((n_iterations, l_episodes))
+    duration = 0
+
+    PlanW = SafeWhittleAvg(n_states, 1, tru_rew, tru_dyn, u_type, u_order, thresholds)
+    PlanW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+    plan_indices = PlanW.w_indices
+    plan_sumwis = np.round(np.sum(plan_indices), 2)
+    plan_indices.append(fixed_wi * np.ones_like(np.array(plan_indices[0])))
+
+    for n in range(n_iterations):
+
+        # print(f'Learning iteration {n + 1} out of {n_iterations}')
+        start_time = time.time()
+
+        Mest = MarkovDynamics(1, n_states, [all_learn_probs[n, 0]], t_type, t_increasing)
+        LearnW = SafeWhittleAvg(n_states, 1, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+        LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+        learn_indices = LearnW.w_indices
+        # print(learn_indices)
+        learn_indices.append(fixed_wi * np.ones_like(np.array(learn_indices[0])))
+
+        counts = np.ones((n_states, n_states, 2))
+
+        for l in range(l_episodes):
+
+            print(f'Episode {l + 1} of {l_episodes} / Iteration {n} / last iter was {np.round(duration, 1)} seconds')
+            plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
+                ProcessAvg_LSSSRB(PlanW, plan_indices, LearnW, learn_indices, n_episodes, n_steps, n_states, 2,
+                                  n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+            counts = counts + cnts[:, :, :, 0]
+
+            # print('Update...')
+            est_transitions = np.zeros((n_states, n_states, 2))
+            for s1 in range(n_states):
+                for act in range(2):
+                    est_transitions[s1, :, act] = dirichlet.rvs(counts[s1, :, act])
+            if t_type == 5:
+                cnt = [est_transitions[0, -1, 1]]
+                for s1 in range(1, n_states):
+                    cnt.append((1 / (s1 + 1)) * est_transitions[s1, -1, 1])
+                    for s2 in range(1, s1):
+                        cnt.append(est_transitions[s1, s2, 0])
+                all_learn_probs[n, l] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+            if t_type == 3:
+                cnt = [(1 / (n_states - 1)) * est_transitions[0, 0, 1]]
+                for s1 in range(1, n_states - 1):
+                    cnt.append((1 / (n_states - s1 - 1)) * est_transitions[s1, s1, 1])
+                    cnt.append((1 / (n_states - s1)) * est_transitions[s1, s1, 0])
+                    for s2 in range(1, s1):
+                        cnt.append(est_transitions[s1, s2, 0])
+                for s2 in range(1, n_states):
+                    cnt.append(est_transitions[n_states - 1, s2, 0])
+                all_learn_probs[n, l] = np.round(np.minimum(np.maximum(0.1 / n_states, np.mean(cnt)), 1 / n_states), 2)
+
+            Mest = MarkovDynamics(1, n_states, [all_learn_probs[n, l]], t_type, t_increasing)
+            LearnW = SafeWhittleAvg(n_states, 1, tru_rew, Mest.transitions, u_type, u_order, thresholds)
+            LearnW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
+            learn_indices = LearnW.w_indices
+            # print(learn_indices)
+            all_learn_sumwis[n, l] = np.round(np.sum(learn_indices), 2)
+            learn_indices.append(fixed_wi * np.ones_like(np.array(learn_indices[0])))
+
+            for a in range(2):
+                all_plan_rewards[n, l, a] = np.round(np.mean(plan_totalrewards[a, :]), 2)
+                all_plan_objectives[n, l, a] = np.round(np.mean(plan_objectives[a, :]), 2)
+                all_learn_rewards[n, l, a] = np.round(np.mean(learn_totalrewards[a, :]), 2)
+                all_learn_objectives[n, l, a] = np.round(np.mean(learn_objectives[a, :]), 2)
+
+            print(f'pr = {all_learn_probs[n, l]}')
+            print(f'sw = {all_learn_sumwis[n, l]}')
+            print(f'true-re = {np.round(np.mean(all_plan_rewards[n, l, :]), 2)}')
+            print(f'true-ob = {np.round(np.mean(all_plan_objectives[n, l, :]), 2)}')
+            print(f're = {np.round(np.mean(all_learn_rewards[n, l, :]), 2)}')
+            print(f'ob = {np.round(np.mean(all_learn_objectives[n, l, :]), 2)}')
+
+        end_time = time.time()
+        duration = end_time - start_time
+
+    if save_data:
+        joblib.dump([
+            all_learn_probs, all_learn_sumwis, all_learn_rewards, all_learn_objectives, all_plan_rewards,
+            all_plan_objectives
+        ], f'./output/learnsinglesafesofttsrb_{n_steps}{n_states}{t_type}{u_type}{n_choices}{thresholds[0]}.joblib')
+
+    return all_learn_probs, all_learn_sumwis, all_learn_rewards, all_learn_objectives, plan_sumwis, all_plan_rewards, \
+           all_plan_objectives

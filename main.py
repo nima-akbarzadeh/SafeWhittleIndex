@@ -8,9 +8,9 @@ import joblib
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps = 5
+    n_steps = 100
     n_states = 2
-    n_arms = 10
+    n_arms = 3
     n_coeff = 1
     u_type = 3
     u_order = 1
@@ -131,11 +131,18 @@ if __name__ == '__main__':
     sw_bandits = SafeW.w_indices
 
     print('Process Begins ...')
-    rew_r, obj_r, _ = Process_Random(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
-    rew_m, obj_m, _ = Process_Greedy(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
-    rew_w, obj_w, _ = Process_WhtlRB(W, w_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
-    rew_ss, obj_ss, _, _, _ = Process_LearnSoftSafeRB(SafeW, sw_bandits, SafeW, sw_bandits.copy(), n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
-    rew_s, obj_s, _ = Process_SafeRB(SafeW, sw_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits, transition_bandits, initial_states, u_type, u_order)
+    rew_r, obj_r, _ = Process_Random(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits,
+                                     transition_bandits, initial_states, u_type, u_order)
+    rew_m, obj_m, _ = Process_Greedy(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits,
+                                     transition_bandits, initial_states, u_type, u_order)
+    rew_w, obj_w, _ = ProcessAvg_WhtlRB(W, w_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                        reward_bandits, transition_bandits, initial_states, u_type, u_order)
+    rew_ss, obj_ss, _, _, _ = ProcessAvg_LearnSoftSafeRB(SafeW, sw_bandits, SafeW, sw_bandits.copy(), n_episodes,
+                                                         n_steps, n_states, n_arms, n_choices, thresholds,
+                                                         reward_bandits, transition_bandits, initial_states, u_type,
+                                                         u_order)
+    rew_s, obj_s, _ = ProcessAvg_SafeRB(SafeW, sw_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
+                                        reward_bandits, transition_bandits, initial_states, u_type, u_order)
     print('Process Ends ...')
 
     print("=============== REWARD/OBJECTIVE PER-ARM =====================")

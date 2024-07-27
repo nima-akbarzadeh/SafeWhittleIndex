@@ -313,16 +313,18 @@ if __name__ == '__main__':
         mean_relm[f'threshold_set_{th}'] = 0
         mean_relr[f'threshold_set_{th}'] = 0
 
-    param_list = [(nt, ns, nc, ft_type, tt, ut, uo, th, fr, method, n_episodes, PATH3)
-                  for nt in n_steps_set
-                  for ns in n_states_set
-                  for nc in armcoef_set
-                  for ft_type in f_type_set
-                  for tt in t_type_set
-                  for ut in u_type_set
-                  for uo in u_order_set
-                  for th in threshold_set
-                  for fr in fraction_set]
+    param_list = [
+        (nt, ns, nc, ft_type, tt, ut, uo, th, fr, method, n_episodes, PATH3)
+        for nt in n_steps_set
+        for ns in n_states_set
+        for nc in armcoef_set
+        for ft_type in f_type_set
+        for tt in t_type_set
+        for ut in u_type_set
+        for uo in u_order_set
+        for th in threshold_set
+        for fr in fraction_set
+    ]
 
     # Execute the function for each combination of parameters
     with ProcessPoolExecutor() as executor:
