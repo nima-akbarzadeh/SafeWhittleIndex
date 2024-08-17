@@ -359,7 +359,7 @@ class SafeWhittleAvg:
         self.all_valus = []
 
         for a in range(num_arms):
-            all_total_rewards = self.num_s
+            all_total_rewards = np.linspace(0, 1, self.num_s)
 
             self.n_augment[a] = len(all_total_rewards)
             self.all_rews.append(all_total_rewards)
