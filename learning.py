@@ -3,7 +3,7 @@ from concurrent.futures import ProcessPoolExecutor
 from scipy.stats import dirichlet
 import joblib
 from Markov import *
-from safe_whittle import *
+from whittle import *
 from processes import *
 import time
 

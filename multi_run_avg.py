@@ -1,9 +1,8 @@
 from concurrent.futures import ProcessPoolExecutor
 from processes import *
 from whittle import *
-from safe_whittle import *
 from Markov import *
-import numpy as np
+import numpy
 import pandas as pd
 import joblib
 import warnings
@@ -11,106 +10,106 @@ warnings.filterwarnings("ignore")
 
 
 def multiprocess_combination(params):
-    nt, ns, nc, ft_type, tt, ut, uo, th, fr, method, n_episodes, PATH3 = params
+    nt, ns, np, nc, ft_type, tt, ut, uo, th, fr, method, n_episodes, PATH3 = params
 
     na = nc * ns
     if ft_type == 'hom':
-        ft = np.ones(na, dtype=np.int32)
+        ft = numpy.ones(na, dtype=numpy.int32)
     else:
-        ft = 1 + np.arange(na)
+        ft = 1 + numpy.arange(na)
 
     if tt == 0:
-        prob_remain = np.round(np.linspace(0.1, 0.9, na), 2)
-        np.random.shuffle(prob_remain)
+        prob_remain = numpy.round(numpy.linspace(0.1, 0.9, na), 2)
+        numpy.random.shuffle(prob_remain)
     elif tt == 1:
-        prob_remain = np.round(np.linspace(0.05, 0.45, na), 2)
-        np.random.shuffle(prob_remain)
+        prob_remain = numpy.round(numpy.linspace(0.05, 0.45, na), 2)
+        numpy.random.shuffle(prob_remain)
     elif tt == 2:
-        prob_remain = np.round(np.linspace(0.05, 0.45, na), 2)
-        np.random.shuffle(prob_remain)
+        prob_remain = numpy.round(numpy.linspace(0.05, 0.45, na), 2)
+        numpy.random.shuffle(prob_remain)
     elif tt == 3:
-        prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
-        # np.random.shuffle(prob_remain)
+        prob_remain = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
+        # numpy.random.shuffle(prob_remain)
     elif tt == 4:
-        prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
-        np.random.shuffle(prob_remain)
+        prob_remain = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
+        numpy.random.shuffle(prob_remain)
     elif tt == 5:
-        prob_remain = np.round(np.linspace(0.1 / ns, 1 / ns, na), 2)
-        np.random.shuffle(prob_remain)
+        prob_remain = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
+        numpy.random.shuffle(prob_remain)
     elif tt == 6:
-        prob_remain = np.round(np.linspace(0.2, 0.8, na), 2)
-        np.random.shuffle(prob_remain)
+        prob_remain = numpy.round(numpy.linspace(0.2, 0.8, na), 2)
+        numpy.random.shuffle(prob_remain)
     elif tt == 11:
-        pr_ss_0 = np.round(np.linspace(0.596, 0.690, na), 3)
-        np.random.shuffle(pr_ss_0)
-        pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
-        np.random.shuffle(pr_sr_0)
-        pr_sp_0 = np.round(np.linspace(0.201, 0.287, na), 3)
-        np.random.shuffle(pr_sp_0)
-        pr_rr_0 = np.round(np.linspace(0.759, 0.822, na), 3)
-        np.random.shuffle(pr_rr_0)
-        pr_rp_0 = np.round(np.linspace(0.130, 0.169, na), 3)
-        np.random.shuffle(pr_rp_0)
-        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
-        np.random.shuffle(pr_pp_0)
-        pr_ss_1 = np.round(np.linspace(0.733, 0.801, na), 3)
-        np.random.shuffle(pr_ss_1)
-        pr_sr_1 = np.round(np.linspace(0.047, 0.078, na), 3)
-        np.random.shuffle(pr_sr_1)
-        pr_sp_1 = np.round(np.linspace(0.115, 0.171, na), 3)
-        np.random.shuffle(pr_sp_1)
-        pr_rr_1 = np.round(np.linspace(0.758, 0.847, na), 3)
-        np.random.shuffle(pr_rr_1)
-        pr_rp_1 = np.round(np.linspace(0.121, 0.193, na), 3)
-        np.random.shuffle(pr_rp_1)
-        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
-        np.random.shuffle(pr_pp_1)
+        pr_ss_0 = numpy.round(numpy.linspace(0.596, 0.690, na), 3)
+        numpy.random.shuffle(pr_ss_0)
+        pr_sr_0 = numpy.round(numpy.linspace(0.045, 0.061, na), 3)
+        numpy.random.shuffle(pr_sr_0)
+        pr_sp_0 = numpy.round(numpy.linspace(0.201, 0.287, na), 3)
+        numpy.random.shuffle(pr_sp_0)
+        pr_rr_0 = numpy.round(numpy.linspace(0.759, 0.822, na), 3)
+        numpy.random.shuffle(pr_rr_0)
+        pr_rp_0 = numpy.round(numpy.linspace(0.130, 0.169, na), 3)
+        numpy.random.shuffle(pr_rp_0)
+        pr_pp_0 = numpy.round(numpy.linspace(0.882, 0.922, na), 3)
+        numpy.random.shuffle(pr_pp_0)
+        pr_ss_1 = numpy.round(numpy.linspace(0.733, 0.801, na), 3)
+        numpy.random.shuffle(pr_ss_1)
+        pr_sr_1 = numpy.round(numpy.linspace(0.047, 0.078, na), 3)
+        numpy.random.shuffle(pr_sr_1)
+        pr_sp_1 = numpy.round(numpy.linspace(0.115, 0.171, na), 3)
+        numpy.random.shuffle(pr_sp_1)
+        pr_rr_1 = numpy.round(numpy.linspace(0.758, 0.847, na), 3)
+        numpy.random.shuffle(pr_rr_1)
+        pr_rp_1 = numpy.round(numpy.linspace(0.121, 0.193, na), 3)
+        numpy.random.shuffle(pr_rp_1)
+        pr_pp_1 = numpy.round(numpy.linspace(0.879, 0.921, na), 3)
+        numpy.random.shuffle(pr_pp_1)
         prob_remain = [pr_ss_0, pr_sr_0, pr_sp_0, pr_rr_0, pr_rp_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_sp_1, pr_rr_1, pr_rp_1, pr_pp_1]
     elif tt == 12:
-        pr_ss_0 = np.round(np.linspace(0.668, 0.738, na), 3)
-        np.random.shuffle(pr_ss_0)
-        pr_sr_0 = np.round(np.linspace(0.045, 0.061, na), 3)
-        np.random.shuffle(pr_sr_0)
-        pr_rr_0 = np.round(np.linspace(0.831, 0.870, na), 3)
-        np.random.shuffle(pr_rr_0)
-        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
-        np.random.shuffle(pr_pp_0)
-        pr_ss_1 = np.round(np.linspace(0.782, 0.833, na), 3)
-        np.random.shuffle(pr_ss_1)
-        pr_sr_1 = np.round(np.linspace(0.047, 0.078, na), 3)
-        np.random.shuffle(pr_sr_1)
-        pr_rr_1 = np.round(np.linspace(0.807, 0.879, na), 3)
-        np.random.shuffle(pr_rr_1)
-        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
-        np.random.shuffle(pr_pp_1)
+        pr_ss_0 = numpy.round(numpy.linspace(0.668, 0.738, na), 3)
+        numpy.random.shuffle(pr_ss_0)
+        pr_sr_0 = numpy.round(numpy.linspace(0.045, 0.061, na), 3)
+        numpy.random.shuffle(pr_sr_0)
+        pr_rr_0 = numpy.round(numpy.linspace(0.831, 0.870, na), 3)
+        numpy.random.shuffle(pr_rr_0)
+        pr_pp_0 = numpy.round(numpy.linspace(0.882, 0.922, na), 3)
+        numpy.random.shuffle(pr_pp_0)
+        pr_ss_1 = numpy.round(numpy.linspace(0.782, 0.833, na), 3)
+        numpy.random.shuffle(pr_ss_1)
+        pr_sr_1 = numpy.round(numpy.linspace(0.047, 0.078, na), 3)
+        numpy.random.shuffle(pr_sr_1)
+        pr_rr_1 = numpy.round(numpy.linspace(0.807, 0.879, na), 3)
+        numpy.random.shuffle(pr_rr_1)
+        pr_pp_1 = numpy.round(numpy.linspace(0.879, 0.921, na), 3)
+        numpy.random.shuffle(pr_pp_1)
         prob_remain = [pr_ss_0, pr_sr_0, pr_rr_0, pr_pp_0, pr_ss_1, pr_sr_1, pr_rr_1, pr_pp_1]
     elif tt == 13:
-        pr_ss_0 = np.round(np.linspace(0.657, 0.762, na), 3)
-        np.random.shuffle(pr_ss_0)
-        pr_sp_0 = np.round(np.linspace(0.201, 0.287, na), 3)
-        np.random.shuffle(pr_sp_0)
-        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
-        np.random.shuffle(pr_pp_0)
-        pr_ss_1 = np.round(np.linspace(0.806, 0.869, na), 3)
-        np.random.shuffle(pr_ss_1)
-        pr_sp_1 = np.round(np.linspace(0.115, 0.171, na), 3)
-        np.random.shuffle(pr_sp_1)
-        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
-        np.random.shuffle(pr_pp_1)
+        pr_ss_0 = numpy.round(numpy.linspace(0.657, 0.762, na), 3)
+        numpy.random.shuffle(pr_ss_0)
+        pr_sp_0 = numpy.round(numpy.linspace(0.201, 0.287, na), 3)
+        numpy.random.shuffle(pr_sp_0)
+        pr_pp_0 = numpy.round(numpy.linspace(0.882, 0.922, na), 3)
+        numpy.random.shuffle(pr_pp_0)
+        pr_ss_1 = numpy.round(numpy.linspace(0.806, 0.869, na), 3)
+        numpy.random.shuffle(pr_ss_1)
+        pr_sp_1 = numpy.round(numpy.linspace(0.115, 0.171, na), 3)
+        numpy.random.shuffle(pr_sp_1)
+        pr_pp_1 = numpy.round(numpy.linspace(0.879, 0.921, na), 3)
+        numpy.random.shuffle(pr_pp_1)
         prob_remain = [pr_ss_0, pr_sp_0, pr_pp_0, pr_ss_1, pr_sp_1, pr_pp_1]
     elif tt == 14:
-        pr_ss_0 = np.round(np.linspace(0.713, 0.799, na), 3)
-        np.random.shuffle(pr_ss_0)
-        pr_pp_0 = np.round(np.linspace(0.882, 0.922, na), 3)
-        np.random.shuffle(pr_pp_0)
-        pr_ss_1 = np.round(np.linspace(0.829, 0.885, na), 3)
-        np.random.shuffle(pr_ss_1)
-        pr_pp_1 = np.round(np.linspace(0.879, 0.921, na), 3)
-        np.random.shuffle(pr_pp_1)
+        pr_ss_0 = numpy.round(numpy.linspace(0.713, 0.799, na), 3)
+        numpy.random.shuffle(pr_ss_0)
+        pr_pp_0 = numpy.round(numpy.linspace(0.882, 0.922, na), 3)
+        numpy.random.shuffle(pr_pp_0)
+        pr_ss_1 = numpy.round(numpy.linspace(0.829, 0.885, na), 3)
+        numpy.random.shuffle(pr_ss_1)
+        pr_pp_1 = numpy.round(numpy.linspace(0.879, 0.921, na), 3)
+        numpy.random.shuffle(pr_pp_1)
         prob_remain = [pr_ss_0, pr_pp_0, pr_ss_1, pr_pp_1]
     else:
-        prob_remain = np.round(np.linspace(0.1, 0.9, na), 2)
-        np.random.shuffle(prob_remain)
+        prob_remain = numpy.round(numpy.linspace(0.1, 0.9, na), 2)
+        numpy.random.shuffle(prob_remain)
 
     R = Values(nt, na, ns, ft, True)
     M = MarkovDynamics(na, ns, prob_remain, tt, True)
@@ -120,13 +119,13 @@ def multiprocess_combination(params):
     WhtlW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=nt * na * ns)
     ww_indices = WhtlW.w_indices
 
-    thresh = th * np.ones(na)
-    SafeW = SafeWhittleAvg(ns, na, R.vals, M.transitions, ut, uo, thresh)
+    thresh = th * numpy.ones(na)
+    SafeW = SafeWhittleAvg([ns, np], na, R.vals, M.transitions, nt, ut, uo, thresh)
     SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=nt * na * ns)
     sw_indices = SafeW.w_indices
 
-    nch = np.maximum(1, int(np.around(fr * na)))
-    initial_states = (ns - 1) * np.ones(na, dtype=np.int32)
+    nch = numpy.maximum(1, int(numpy.around(fr * na)))
+    initial_states = (ns - 1) * numpy.ones(na, dtype=numpy.int32)
 
     rew_r, obj_r, _ = Process_Random(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut, uo)
     rew_m, obj_m, _ = Process_Greedy(n_episodes, nt, ns, na, nch, thresh, R.vals, M.transitions, initial_states, ut, uo)
@@ -139,15 +138,15 @@ def multiprocess_combination(params):
     joblib.dump([rew_w, obj_w], PATH3 + key_value + "_Whittl.joblib")
     joblib.dump([rew_s, obj_s], PATH3 + key_value + "_Safaty.joblib")
 
-    ravg = np.round(np.mean(obj_r), 3)
-    mavg = np.round(np.mean(obj_m), 3)
-    wavg = np.round(np.mean(obj_w), 3)
-    savg = np.round(np.mean(obj_s), 3)
+    ravg = numpy.round(numpy.mean(obj_r), 3)
+    mavg = numpy.round(numpy.mean(obj_m), 3)
+    wavg = numpy.round(numpy.mean(obj_w), 3)
+    savg = numpy.round(numpy.mean(obj_s), 3)
 
-    impr_vl = np.round(savg - wavg, 2)
-    impr_sw = np.round(100 * (savg - wavg) / wavg, 2)
-    impr_sr = np.round(100 * (savg - ravg) / ravg, 2)
-    impr_sm = np.round(100 * (savg - mavg) / mavg, 2)
+    impr_vl = numpy.round(savg - wavg, 2)
+    impr_sw = numpy.round(100 * (savg - wavg) / wavg, 2)
+    impr_sr = numpy.round(100 * (savg - ravg) / ravg, 2)
+    impr_sm = numpy.round(100 * (savg - mavg) / mavg, 2)
 
     return key_value, wavg, savg, impr_vl, impr_sw, impr_sr, impr_sm
 
@@ -155,7 +154,8 @@ def multiprocess_combination(params):
 if __name__ == '__main__':
 
     # Basic Parameters
-    n_steps_set = [3, 4, 5]
+    n_steps_set = [100]
+    n_partitions_set = [50, 100]
     n_states_set = [2, 3, 4, 5]
     armcoef_set = [3, 4, 5]
     f_type_set = ['hom']
@@ -165,13 +165,13 @@ if __name__ == '__main__':
     threshold_set = [0.4, 0.5, 0.6]
     fraction_set = [0.3, 0.4, 0.5]
 
-    PATH1 = f'./output/Res_{t_type_set}{n_states_set}{armcoef_set}.xlsx'
-    PATH2 = f'./output/ResAvg_{t_type_set}{n_states_set}{armcoef_set}.xlsx'
-    PATH3 = f'./output/'
+    PATH1 = f'./output-avg/Res_{t_type_set}{n_states_set}{armcoef_set}.xlsx'
+    PATH2 = f'./output-avg/ResAvg_{t_type_set}{n_states_set}{armcoef_set}.xlsx'
+    PATH3 = f'./output-avg/'
 
     method = 3
     n_episodes = 500
-    # np.random.seed(42)
+    # numpy.random.seed(42)
 
     results1 = {}
     results2 = {}
@@ -195,6 +195,19 @@ if __name__ == '__main__':
     mean_relm = {}
     mean_relr = {}
 
+    for np in n_partitions_set:
+        res1[f'n_partitions_set_{np}'] = []
+        res2[f'n_partitions_set_{np}'] = []
+        res3[f'n_partitions_set_{np}'] = []
+        res4[f'n_partitions_set_{np}'] = []
+        res5[f'n_partitions_set_{np}'] = []
+        res6[f'n_partitions_set_{np}'] = []
+        mean_neut[f'n_partitions_set_{np}'] = 0
+        mean_safe[f'n_partitions_set_{np}'] = 0
+        mean_impr[f'n_partitions_set_{np}'] = 0
+        mean_relw[f'n_partitions_set_{np}'] = 0
+        mean_relm[f'n_partitions_set_{np}'] = 0
+        mean_relr[f'n_partitions_set_{np}'] = 0
     for nt in n_steps_set:
         res1[f'n_steps_set_{nt}'] = []
         res2[f'n_steps_set_{nt}'] = []
@@ -314,9 +327,10 @@ if __name__ == '__main__':
         mean_relr[f'threshold_set_{th}'] = 0
 
     param_list = [
-        (nt, ns, nc, ft_type, tt, ut, uo, th, fr, method, n_episodes, PATH3)
+        (nt, ns, np, nc, ft_type, tt, ut, uo, th, fr, method, n_episodes, PATH3)
         for nt in n_steps_set
         for ns in n_states_set
+        for np in n_partitions_set
         for nc in armcoef_set
         for ft_type in f_type_set
         for tt in t_type_set
@@ -327,13 +341,14 @@ if __name__ == '__main__':
     ]
 
     # Execute the function for each combination of parameters
-    with ProcessPoolExecutor() as executor:
+    with ProcessPoolExecutor(max_workers=6) as executor:
         results = executor.map(multiprocess_combination, param_list)
 
     count = 0
-    total = len(n_steps_set) * len(armcoef_set) * len(n_states_set) * len(f_type_set) * len(t_type_set) * len(u_type_set) * len(u_order_set) * len(fraction_set) * len(threshold_set)
+    total = len(n_steps_set) * len(n_partitions_set)  * len(armcoef_set) * len(n_states_set) * len(f_type_set) * len(t_type_set) * len(u_type_set) * len(u_order_set) * len(fraction_set) * len(threshold_set)
 
     for result in results:
+
         key_value, wavg, savg, impr_vl, impr_sw, impr_sr, impr_sm = result
         results1[key_value] = wavg
         results2[key_value] = savg

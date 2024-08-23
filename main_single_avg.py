@@ -1,7 +1,7 @@
 import numpy as np
-
 from whittle import *
 from processes import *
+from Markov import *
 from learning import *
 import matplotlib.pyplot as plt
 import joblib
@@ -11,17 +11,17 @@ if __name__ == '__main__':
     # Basic Parameters
     n_steps = 100
     n_states = 5
-    n_parts = 10
-    u_type = 1
-    u_order = 1
+    n_parts = 40
+    u_type = 2
+    u_order = 8
     n_arms = 5
-    thresholds = 0.5 * np.ones(n_arms)
+    thresholds = 0.05 * np.ones(n_arms)
 
     transition_type = 3
     function_type = np.ones(n_arms, dtype=np.int32)
 
     n_episodes = 100
-    np.random.seed(42)
+    # np.random.seed(42)
 
     initial_states = (n_states - 1) * np.ones(n_arms, dtype=np.int32)
 
@@ -136,30 +136,22 @@ if __name__ == '__main__':
     n_trials_safety = n_arms * n_states * n_steps
     method = 3
 
-    # fixed_wi = 0.01
-    # fixed_wi = 0.5
-    fixed_wi = 1
-
     W = WhittleAvg(n_states, n_arms, reward_bandits, transition_bandits)
     W.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_neutrl)
     w_bandits = W.w_indices
-    # w_bandits.append(fixed_wi * np.ones_like(np.array(w_bandits[0])))
 
-    SafeW = SafeWhittleAvg([n_states, n_parts], n_arms, reward_bandits, transition_bandits, u_type, u_order, thresholds)
+    SafeW = SafeWhittleAvg([n_states, n_parts], n_arms, reward_bandits, transition_bandits, n_steps, u_type, u_order,
+                             thresholds)
     SafeW.get_whittle_indices(computation_type=method, params=[0, max_wi], n_trials=n_trials_safety)
     sw_bandits = SafeW.w_indices
-    # sw_bandits.append(fixed_wi * np.ones_like(np.array(sw_bandits[0])))
 
-    print('Process Begins ...')
+    # print('Process Begins ...')
     rew_r, obj_r, _ = Process_Random(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits,
                                      transition_bandits, initial_states, u_type, u_order)
     rew_m, obj_m, _ = Process_Greedy(n_episodes, n_steps, n_states, n_arms, n_choices, thresholds, reward_bandits,
                                      transition_bandits, initial_states, u_type, u_order)
     rew_w, obj_w, _ = ProcessAvg_WhtlRB(W, w_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
                                         reward_bandits, transition_bandits, initial_states, u_type, u_order)
-    rew_ss, obj_ss, _ = ProcessAvg_SingleSoftSafeRB(SafeW, sw_bandits, n_episodes, n_steps, n_states, n_arms, n_choices,
-                                                    thresholds, reward_bandits, transition_bandits, initial_states,
-                                                    u_type, u_order)
     rew_s, obj_s, _ = ProcessAvg_SafeRB(SafeW, sw_bandits, n_episodes, n_steps, n_states, n_arms, n_choices, thresholds,
                                         reward_bandits, transition_bandits, initial_states, u_type, u_order)
     print('Process Ends ...')
@@ -178,7 +170,6 @@ if __name__ == '__main__':
     print(f'Random: {np.mean(rew_r)}')
     print(f'Myopic: {np.mean(rew_m)}')
     print(f'Whittl: {np.mean(rew_w)}')
-    print(f'SoSafe: {np.mean(rew_ss)}')
     print(f'Safety: {np.mean(rew_s)}')
 
     print("====================== LOSS ========================")
@@ -190,20 +181,14 @@ if __name__ == '__main__':
     print(f'Random: {np.mean(obj_r)}')
     print(f'Myopic: {np.mean(obj_m)}')
     print(f'Whittl: {np.mean(obj_w)}')
-    print(f'SoSafe: {np.mean(obj_ss)}')
     print(f'Safety: {np.mean(obj_s)}')
 
     print("===================== IMPROVEMENT ========================")
-    print(f'Safety-SoSafe: {100 * (np.mean(obj_s) - np.mean(obj_ss)) / np.mean(obj_ss)}')
     print(f'Safety-Whittl: {100 * (np.mean(obj_s) - np.mean(obj_w)) / np.mean(obj_w)}')
     print(f'Safety-Myopic: {100 * (np.mean(obj_s) - np.mean(obj_m)) / np.mean(obj_m)}')
     print(f'Safety-Random: {100 * (np.mean(obj_s) - np.mean(obj_r)) / np.mean(obj_r)}')
 
-    print('=============================================================================')
-    print(f'true_pr = {prob_remain[0]}')
-    print(f'true_sw = {np.round(np.sum(sw_bandits[0]), 2)}')
-    print(f'true_re = {np.round(np.mean(rew_ss), 2)}')
-    print(f'true_ob = {np.round(np.mean(obj_ss), 2)}')
+    #################################################################################################################
 
     # rb_type = 'soft'  # 'hard' or 'soft'
     # # initial_states = np.random.randint(0, n_states, n_arms)
