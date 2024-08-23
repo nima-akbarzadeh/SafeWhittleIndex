@@ -10,4 +10,4 @@ module load python/3.10
 
 source ~/envs/restless_bandits/bin/activate
 
-python main_avg.py
+python main_run_avg.py
