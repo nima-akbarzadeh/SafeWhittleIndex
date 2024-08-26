@@ -12,14 +12,14 @@ warnings.filterwarnings("ignore")
 
 
 def run_combination(params):
-    nt, ns, np, nc, ft_type, tt, ut, uo, th, fr, method, n_episodes, PATH3 = params
+    nt, ns, np, nc, ft, tt, ut, uo, th, fr, method, n_episodes, PATH3 = params
     na = nc * ns
-    ft = numpy.ones(na, dtype=numpy.int32) if ft_type == 'hom' else 1 + numpy.arange(na)
+    ftype = numpy.ones(na, dtype=numpy.int32) if ft == 'hom' else 1 + numpy.arange(na)
 
     prob_remain = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
     numpy.random.shuffle(prob_remain)
 
-    R = Values(nt, na, ns, ft, True)
+    R = Values(nt, na, ns, ftype, True)
     M = MarkovDynamics(na, ns, prob_remain, tt, True)
 
     WhtlW = WhittleAvg(ns, na, R.vals, M.transitions)
@@ -40,13 +40,13 @@ def run_combination(params):
 
     results = {}
     for name, process in processes:
-        rew, obj, _ = process(n_episodes, nt, ns, na, nch, th * numpy.ones(na), R.vals, M.transitions, initial_states,
-                              ut, uo)
+        rew, obj, _ = process(n_episodes, nt, ns, np, na, nch, th * numpy.ones(na), R.vals, M.transitions,
+                              initial_states, ut, uo)
         joblib.dump([rew, obj],
-                    f"{PATH3}nt{nt}_nc{nc}_ns{ns}_{ft_type}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_{name}.joblib")
+                    f"{PATH3}nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_{name}.joblib")
         results[name] = numpy.round(numpy.mean(obj), 3)
 
-    key_value = f'nt{nt}_np{np}_nc{nc}_ns{ns}_{ft_type}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}'
+    key_value = f'nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}'
     impr_vl = numpy.round(results['Safaty'] - results['Whittl'], 2)
     impr_sw = numpy.round(100 * (results['Safaty'] - results['Whittl']) / results['Whittl'], 2)
     impr_sr = numpy.round(100 * (results['Safaty'] - results['Random']) / results['Random'], 2)
@@ -115,7 +115,7 @@ def main():
             print(
                 f"{count} / {total}: {key_value} ---> MEAN-Rel-W: {impr_sw}, MEAN-Rel-M: {impr_sm}, MEAN-Rel-R: {impr_sr}")
 
-            for param, value in zip(['nt', 'nc', 'ns', 'ft_type', 'tt', 'ut', 'uo', 'fr', 'th'], result[0].split('_')):
+            for param, value in zip(['nt', 'np', 'nc', 'ns', 'ft', 'tt', 'ut', 'uo', 'th', 'fr'], result[0].split('_')):
                 param_key = f'{param}_{value}'
                 for i, avg_key in enumerate(['neut', 'safe', 'impr', 'relw', 'relm', 'relr']):
                     if param_key not in averages[avg_key]:
