@@ -18,22 +18,22 @@ def run_combination(params):
     numpy.random.shuffle(prob_remain)
 
     R = ValuesNS(df, nt, na, ns, ftype, True)
-    M = MarkovDynamicsNS(nt, na, ns, prob_remain, tt, True)
+    M = MarkovDynamics(nt, na, ns, prob_remain, tt, True)
 
-    WhtlW = WhittleNS(ns, na, R.vals, M.transitions, nt)
+    WhtlW = WhittleNSR(ns, na, R.vals, M.transitions, nt)
     WhtlW.get_whittle_indices(computation_type=method, params=[0, 10], n_trials=100)
 
-    SafeW = SafeWhittleNS(ns, na, R.vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
+    SafeW = SafeWhittleNSR(ns, na, R.vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
     SafeW.get_whittle_indices(computation_type=method, params=[0, 10], n_trials=100)
 
     nch = max(1, int(round(fr * na)))
     initial_states = (ns - 1) * numpy.ones(na, dtype=numpy.int32)
 
     processes = [
-        ("Random", ProcessNS_Random),
-        ("Greedy", ProcessNS_Greedy),
-        ("Whittl", lambda *args: ProcessNS_WhtlRB(WhtlW, WhtlW.w_indices, *args)),
-        ("Safaty", lambda *args: ProcessNS_SafeRB(SafeW, SafeW.w_indices, *args))
+        ("Random", ProcessNSR_Random),
+        ("Greedy", ProcessNSR_Greedy),
+        ("Whittl", lambda *args: ProcessNSR_WhtlRB(WhtlW, WhtlW.w_indices, *args)),
+        ("Safaty", lambda *args: ProcessNSR_SafeRB(SafeW, SafeW.w_indices, *args))
     ]
 
     key_value = f'nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}'
@@ -69,9 +69,9 @@ def main():
         'nsrew_discount_set': [0.95],
     }
 
-    PATH1 = f'./output-finite-ns/Res_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
-    PATH2 = f'./output-finite-ns/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
-    PATH3 = f'./output-finite-ns/'
+    PATH1 = f'./output-finite-nsr/Res_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
+    PATH2 = f'./output-finite-nsr/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
+    PATH3 = f'./output-finite-nsr/'
 
     method = 3
     n_episodes = 500

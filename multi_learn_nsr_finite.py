@@ -29,13 +29,13 @@ def run_combination(params):
     numpy.random.shuffle(prob_remain)
 
     R = ValuesNS(df, nt, na, ns, ftype, True)
-    M = MarkovDynamicsNS(nt, na, ns, prob_remain, tt, True)
+    M = MarkovDynamics(nt, na, ns, prob_remain, tt, True)
     thresh = th * numpy.ones(na)
 
     nch = max(1, int(round(fr * na)))
     initial_states = (ns - 1) * numpy.ones(na, dtype=numpy.int32)
 
-    probs_l, _, _, obj_l, _, _, obj_s = ProcessNS_LearnSafeTSRB(
+    probs_l, _, _, obj_l, _, _, obj_s = ProcessNSR_LearnSafeTSRB(
         n_iterations, l_episodes, n_episodes, nt, ns, na, nch,
         thresh, tt, True, method, R.vals, M.transitions,
         initial_states, ut, uo, False
@@ -90,7 +90,7 @@ def main():
         'nsrew_discount_set': [0.95],
     }
 
-    PATH3 = './output-learn-finite-ns/'
+    PATH3 = './output-learn-finite-nsr/'
 
     method = 3
     l_episodes = 250

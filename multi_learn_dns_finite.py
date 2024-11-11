@@ -35,7 +35,7 @@ def run_combination(params):
     nch = max(1, int(round(fr * na)))
     initial_states = (ns - 1) * numpy.ones(na, dtype=numpy.int32)
 
-    probs_l, _, _, obj_l, _, _, obj_s = ProcessNS_LearnSafeTSRB(
+    probs_l, _, _, obj_l, _, _, obj_s = ProcessDNS_LearnSafeTSRB(
         n_iterations, l_episodes, n_episodes, nt, ns, np, na, nch,
         thresh, tt, True, method, R.vals, M.transitions,
         initial_states, ut, uo, False
@@ -90,7 +90,7 @@ def main():
         'nsrew_discount_set': [0.95],
     }
 
-    PATH3 = './output-learn-finite-ns/'
+    PATH3 = './output-learn-finite-dns/'
 
     method = 3
     l_episodes = 250

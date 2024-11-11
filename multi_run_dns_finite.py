@@ -69,9 +69,9 @@ def main():
         'nsrew_discount_set': [0.95],
     }
 
-    PATH1 = f'./output-finite-ns/Res_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
-    PATH2 = f'./output-finite-ns/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
-    PATH3 = f'./output-finite-ns/'
+    PATH1 = f'./output-finite-dns/Res_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
+    PATH2 = f'./output-finite-dns/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
+    PATH3 = f'./output-finite-dns/'
 
     method = 3
     n_episodes = 500
