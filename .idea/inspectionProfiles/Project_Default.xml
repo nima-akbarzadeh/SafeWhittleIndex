@@ -1,0 +1,120 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="63">
+            <item index="0" class="java.lang.String" itemvalue="oauth2client" />
+            <item index="1" class="java.lang.String" itemvalue="fasttext" />
+            <item index="2" class="java.lang.String" itemvalue="googletrans" />
+            <item index="3" class="java.lang.String" itemvalue="locust" />
+            <item index="4" class="java.lang.String" itemvalue="fastapi" />
+            <item index="5" class="java.lang.String" itemvalue="uvicorn" />
+            <item index="6" class="java.lang.String" itemvalue="mysqlclient" />
+            <item index="7" class="java.lang.String" itemvalue="PyJWT" />
+            <item index="8" class="java.lang.String" itemvalue="pycurl" />
+            <item index="9" class="java.lang.String" itemvalue="spacy_lefff" />
+            <item index="10" class="java.lang.String" itemvalue="mkl-random" />
+            <item index="11" class="java.lang.String" itemvalue="mysql-connector-python" />
+            <item index="12" class="java.lang.String" itemvalue="mkl-fft" />
+            <item index="13" class="java.lang.String" itemvalue="XlsxWriter" />
+            <item index="14" class="java.lang.String" itemvalue="spacy" />
+            <item index="15" class="java.lang.String" itemvalue="mysql" />
+            <item index="16" class="java.lang.String" itemvalue="langid" />
+            <item index="17" class="java.lang.String" itemvalue="pyreadline" />
+            <item index="18" class="java.lang.String" itemvalue="xgboost" />
+            <item index="19" class="java.lang.String" itemvalue="xlrd" />
+            <item index="20" class="java.lang.String" itemvalue="navigator-updater" />
+            <item index="21" class="java.lang.String" itemvalue="xlwings" />
+            <item index="22" class="java.lang.String" itemvalue="win-unicode-console" />
+            <item index="23" class="java.lang.String" itemvalue="libarchive-c" />
+            <item index="24" class="java.lang.String" itemvalue="pyodbc" />
+            <item index="25" class="java.lang.String" itemvalue="pytest" />
+            <item index="26" class="java.lang.String" itemvalue="menuinst" />
+            <item index="27" class="java.lang.String" itemvalue="xlwt" />
+            <item index="28" class="java.lang.String" itemvalue="win-inet-pton" />
+            <item index="29" class="java.lang.String" itemvalue="lifelines" />
+            <item index="30" class="java.lang.String" itemvalue="PySocks" />
+            <item index="31" class="java.lang.String" itemvalue="pydotplus" />
+            <item index="32" class="java.lang.String" itemvalue="Unidecode" />
+            <item index="33" class="java.lang.String" itemvalue="python-arango" />
+            <item index="34" class="java.lang.String" itemvalue="multipledispatch" />
+            <item index="35" class="java.lang.String" itemvalue="mock" />
+            <item index="36" class="java.lang.String" itemvalue="unicodecsv" />
+            <item index="37" class="java.lang.String" itemvalue="mkl-service" />
+            <item index="38" class="java.lang.String" itemvalue="gspread" />
+            <item index="39" class="java.lang.String" itemvalue="rake_nltk" />
+            <item index="40" class="java.lang.String" itemvalue="flask-ngrok" />
+            <item index="41" class="java.lang.String" itemvalue="urlextract" />
+            <item index="42" class="java.lang.String" itemvalue="datasets" />
+            <item index="43" class="java.lang.String" itemvalue="gunicorn" />
+            <item index="44" class="java.lang.String" itemvalue="pyap" />
+            <item index="45" class="java.lang.String" itemvalue="sentence_transformers" />
+            <item index="46" class="java.lang.String" itemvalue="pygsheets" />
+            <item index="47" class="java.lang.String" itemvalue="google_api_python_client" />
+            <item index="48" class="java.lang.String" itemvalue="textacy" />
+            <item index="49" class="java.lang.String" itemvalue="yake" />
+            <item index="50" class="java.lang.String" itemvalue="pyArango" />
+            <item index="51" class="java.lang.String" itemvalue="spacy-lookups-data" />
+            <item index="52" class="java.lang.String" itemvalue="tika" />
+            <item index="53" class="java.lang.String" itemvalue="textblob" />
+            <item index="54" class="java.lang.String" itemvalue="termcolor" />
+            <item index="55" class="java.lang.String" itemvalue="zipp" />
+            <item index="56" class="java.lang.String" itemvalue="Pyomo" />
+            <item index="57" class="java.lang.String" itemvalue="cloudpickle" />
+            <item index="58" class="java.lang.String" itemvalue="grpcio" />
+            <item index="59" class="java.lang.String" itemvalue="gym" />
+            <item index="60" class="java.lang.String" itemvalue="numpy" />
+            <item index="61" class="java.lang.String" itemvalue="pytz" />
+            <item index="62" class="java.lang.String" itemvalue="importlib-metadata" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="E301" />
+          <option value="E303" />
+          <option value="E722" />
+          <option value="E402" />
+          <option value="E266" />
+          <option value="E127" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N813" />
+          <option value="N801" />
+          <option value="N806" />
+          <option value="N803" />
+          <option value="N812" />
+          <option value="N802" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyShadowingNamesInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="dict.__getitem__" />
+          <option value="dict.__add__" />
+          <option value="bool.item" />
+          <option value="bool.sum" />
+          <option value="bool.unsqueeze" />
+          <option value="bool.to" />
+          <option value="bool.all" />
+          <option value="tuple.items" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false">
+      <option name="processCode" value="true" />
+      <option name="processLiterals" value="true" />
+      <option name="processComments" value="true" />
+    </inspection_tool>
+  </profile>
+</component>
