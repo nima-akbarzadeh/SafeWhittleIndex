@@ -177,7 +177,7 @@ class Whittle:
 
 
 class SafeWhittle:
-
+    
     def __init__(self, num_states: int, num_arms: int, rewards, transition, horizon, u_type, u_order, thresholds):
         self.num_x = num_states
         self.num_a = num_arms

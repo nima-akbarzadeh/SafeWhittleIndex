@@ -28,7 +28,7 @@ def run_combination(params):
         prob_remain = numpy.round(numpy.linspace(0.1, 0.9, na), 2)
     numpy.random.shuffle(prob_remain)
 
-    R = Values(nt, na, ns, ftype, True)
+    R = Values(na, ns, ftype, True)
     M = MarkovDynamics(na, ns, prob_remain, tt, True)
     thresh = th * numpy.ones(na)
 
@@ -36,9 +36,9 @@ def run_combination(params):
     initial_states = (ns - 1) * numpy.ones(na, dtype=numpy.int32)
 
     probs_l, _, _, obj_l, _, _, obj_s = Process_LearnSafeTSRB(
-        n_iterations, l_episodes, n_episodes, nt, ns, np, na, nch,
+        n_iterations, l_episodes, n_episodes, nt, ns, na, nch,
         thresh, tt, True, method, R.vals, M.transitions,
-        initial_states, ut, uo, False
+        initial_states, ut, uo, False, nt
     )
 
     key_value = f'nt{nt}_np{np}_ns{ns}_nc{nc}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}'

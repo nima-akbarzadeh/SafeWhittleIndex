@@ -38,7 +38,7 @@ def run_combination(params):
     probs_l, _, _, obj_l, _, _, obj_s = ProcessNSR_LearnSafeTSRB(
         n_iterations, l_episodes, n_episodes, nt, ns, na, nch,
         thresh, tt, True, method, R.vals, M.transitions,
-        initial_states, ut, uo, False
+        initial_states, ut, uo, False, nt
     )
 
     key_value = f'nt{nt}_np{np}_ns{ns}_nc{nc}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}'

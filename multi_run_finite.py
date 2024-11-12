@@ -17,7 +17,7 @@ def run_combination(params):
     prob_remain = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
     numpy.random.shuffle(prob_remain)
 
-    R = Values(nt, na, ns, ftype, True)
+    R = Values(na, ns, ftype, True)
     M = MarkovDynamics(na, ns, prob_remain, tt, True)
 
     WhtlW = Whittle(ns, na, R.vals, M.transitions, nt)

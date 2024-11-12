@@ -5,7 +5,7 @@ import numpy as np
 # Define the reward values for each arm
 class Values:
 
-    def __init__(self, num_steps: int, num_arms: int, num_states: int, function_type, increasing: bool, num_actions=1):
+    def __init__(self, num_arms: int, num_states: int, function_type, increasing: bool, num_actions=1):
         self.num_a = num_arms
         self.num_s = num_states
         self.num_act = num_actions
@@ -24,7 +24,6 @@ class Values:
                         self.vals[:, act, a] = (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
                         if not increasing:
                             self.vals[:, act, a] = 1 - self.vals[:, act, a]
-        self.vals = np.round(self.vals / num_steps, 3)
 
 
 # Define the Markov dynamics for each arm
@@ -42,7 +41,7 @@ class MarkovDynamics:
         return np.floor(arr * factor) / factor
 
     def purereset_and_deteriorate(self, prob_remain, transition_type):
-        transitions = np.zeros((self.num_s, self.num_s, 2, self.num_a, self.num_t))
+        transitions = np.zeros((self.num_s, self.num_s, 2, self.num_a))
         for a in range(self.num_a):
             if transition_type == 0:
                 transitions[0, 0, 1, a] = 1
