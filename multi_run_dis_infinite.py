@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 
 
 def run_combination(params):
-    nt, ns, np, nc, ft, tt, ut, uo, th, fr, df, method, n_episodes, PATH3 = params
+    nt, ns, np, nz, nc, ft, tt, ut, uo, th, fr, df, method, n_episodes, PATH3 = params
     na = nc * ns
     ftype = numpy.ones(na, dtype=numpy.int32) if ft == 'hom' else 1 + numpy.arange(na)
 
@@ -20,10 +20,10 @@ def run_combination(params):
     R = Values(na, ns, ftype, True)
     M = MarkovDynamics(na, ns, prob_remain, tt, True)
 
-    WhtlW = WhittleDis(df, ns, na, R.vals, M.transitions)
+    WhtlW = WhittleDisInf(df, ns, na, R.vals, M.transitions)
     WhtlW.get_whittle_indices(computation_type=method, params=[0, int(nt/(1-df))], n_trials=10*int(nt/(1-df)))
 
-    SafeW = SafeWhittleDis(df, [ns, np], na, R.vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
+    SafeW = SafeWhittleDisInf(df, [ns, np, nz], na, R.vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
     SafeW.get_whittle_indices(computation_type=method, params=[0, int(nt/(1-df))], n_trials=10*int(nt/(1-df)))
 
     nch = max(1, int(round(fr * na)))
@@ -32,8 +32,8 @@ def run_combination(params):
     processes = [
         ("Random", ProcessDis_Random),
         ("Greedy", ProcessDis_Greedy),
-        ("Whittl", lambda *args: ProcessDis_WhtlRB(WhtlW, WhtlW.w_indices, *args)),
-        ("Safaty", lambda *args: ProcessDis_SafeRB(SafeW, SafeW.w_indices, *args))
+        ("Whittl", lambda *args: ProcessDisInf_WhtlRB(WhtlW, WhtlW.w_indices, *args)),
+        ("Safaty", lambda *args: ProcessDisInf_SafeRB(SafeW, SafeW.w_indices, *args))
     ]
 
     results = {}
@@ -57,7 +57,8 @@ def main():
 
     param_sets = {
         'n_steps_set': [100],
-        'n_partitions_set': [100],
+        'n_partitions_s_set': [100],
+        'n_partitions_z_set': [100],
         'n_states_set': [3, 5],
         'armcoef_set': [3, 5],
         'f_type_set': ['hom'],
@@ -69,9 +70,9 @@ def main():
         'discount_set': [0.9, 0.95]
     }
 
-    PATH1 = f'./output-dis/Res_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
-    PATH2 = f'./output-dis/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
-    PATH3 = f'./output-dis/'
+    PATH1 = f'./output-disinf/Res_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
+    PATH2 = f'./output-disinf/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
+    PATH3 = f'./output-disinf/'
 
     method = 3
     n_episodes = 2
@@ -84,10 +85,11 @@ def main():
                 averages[avg_key][f'{param}_{value}'] = []
 
     param_list = [
-        (nt, ns, np, nc, ft_type, tt, ut, uo, th, fr, df, method, n_episodes, PATH3)
+        (nt, ns, np, nz, nc, ft_type, tt, ut, uo, th, fr, df, method, n_episodes, PATH3)
         for nt in param_sets['n_steps_set']
         for ns in param_sets['n_states_set']
-        for np in param_sets['n_partitions_set']
+        for np in param_sets['n_partitions_s_set']
+        for nz in param_sets['n_partitions_z_set']
         for nc in param_sets['armcoef_set']
         for ft_type in param_sets['f_type_set']
         for tt in param_sets['t_type_set']
