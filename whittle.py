@@ -619,7 +619,7 @@ class WhittleNS:
 
                 # Get the state-action value functions
                 for act in range(2):
-                    if len(self.reward.shape) == 3:
+                    if len(self.reward.shape) == 4:
                         Q[x, t, act] = self.reward[x, act, arm, t] - penalty * act + np.dot(V[:, t + 1], self.transition[x, :, act, arm, t])
                     else:
                         Q[x, t, act] = self.reward[x, arm, t] - penalty * act + np.dot(V[:, t + 1], self.transition[x, :, act, arm, t])
@@ -707,7 +707,7 @@ class SafeWhittleNS:
             arm_n_realize = []
             all_total_rewards = []
             for t in range(self.horizon):
-                if len(self.rewards.shape) == 3:
+                if len(self.rewards.shape) == 4:
                     immediate_rews = self.rewards[:, :, a, :t+1] 
                     all_immediate_rews = immediate_rews.reshape(-1, immediate_rews.shape[-1]) 
                 else:
@@ -1269,10 +1269,10 @@ class WhittleNSR:
 
                 # Get the state-action value functions
                 for act in range(2):
-                    if len(self.reward.shape) == 3:
-                        Q[x, t, act] = self.reward[x, act, arm, t] - penalty * act + np.dot(V[:, t + 1], self.transition[x, :, act, arm, t])
+                    if len(self.reward.shape) == 4:
+                        Q[x, t, act] = self.reward[x, act, arm, t] - penalty * act + np.dot(V[:, t + 1], self.transition[x, :, act, arm])
                     else:
-                        Q[x, t, act] = self.reward[x, arm, t] - penalty * act + np.dot(V[:, t + 1], self.transition[x, :, act, arm, t])
+                        Q[x, t, act] = self.reward[x, arm, t] - penalty * act + np.dot(V[:, t + 1], self.transition[x, :, act, arm])
 
                 # Get the value function and the policy
                 if Q[x, t, 1] < Q[x, t, 0]:
@@ -1357,7 +1357,7 @@ class SafeWhittleNSR:
             arm_n_realize = []
             all_total_rewards = []
             for t in range(self.horizon):
-                if len(self.rewards.shape) == 3:
+                if len(self.rewards.shape) == 4:
                     immediate_rews = self.rewards[:, :, a, :t+1] 
                     all_immediate_rews = immediate_rews.reshape(-1, immediate_rews.shape[-1]) 
                 else:

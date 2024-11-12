@@ -232,7 +232,7 @@ def ProcessNS_Random(n_episodes, n_steps, n_states, n_bandits, n_choices, thresh
             selected_indices = random.sample(range(n_bandits), n_choices)
             actions = [1 if i in selected_indices else 0 for i in range(n_bandits)]
             for a in range(n_bandits):
-                if len(rewards.shape) == 3:
+                if len(rewards.shape) == 4:
                     totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                 else:
                     totalrewards[a, k] += rewards[_states[a], a, t]
@@ -261,13 +261,13 @@ def ProcessNS_Greedy(n_episodes, n_steps, n_states, n_bandits, n_choices, thresh
         for t in range(n_steps):
             rew_vec = np.zeros(n_bandits)
             for a2 in range(n_bandits):
-                rew_vec[a2] = rewards[states[a2], a2]
+                rew_vec[a2] = rewards[states[a2], a2, t]
             _states = np.copy(states)
             top_indices = np.argsort(rew_vec)[-n_choices:]
             actions = np.zeros_like(rew_vec, dtype=np.int32)
             actions[top_indices] = 1
             for a in range(n_bandits):
-                if len(rewards.shape) == 3:
+                if len(rewards.shape) == 4:
                     totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                 else:
                     totalrewards[a, k] += rewards[_states[a], a, t]
@@ -336,7 +336,7 @@ def ProcessNS_WhtlRB(W, whittle_indices, n_episodes, n_steps, n_states, n_bandit
             _states = np.copy(states)
             actions = W.Whittle_policy(whittle_indices, n_choices, _states, t)
             for a in range(n_bandits):
-                if len(rewards.shape) == 3:
+                if len(rewards.shape) == 4:
                     totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                 else:
                     totalrewards[a, k] += rewards[_states[a], a, t]
@@ -369,7 +369,7 @@ def ProcessNS_SafeRB(SafeW, whittle_indices, n_episodes, n_steps, n_states, n_ba
                 _lifted[a2] = max(0, min(SafeW.n_augment[a2]-1, _lifted[a2] + _states[a2]))
             actions = SafeW.Whittle_policy(whittle_indices, n_choices, _states, _lifted, t)
             for a in range(n_bandits):
-                if len(rewards.shape) == 3:
+                if len(rewards.shape) == 4:
                     totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                 else:
                     totalrewards[a, k] += rewards[_states[a], a, t]
@@ -407,7 +407,7 @@ def ProcessNS_LearnSafeRB(SafeW, whittle_indices, LearnW, learn_indices, n_episo
             actions = SafeW.Whittle_policy(whittle_indices, n_choices, _states, _lifted, t)
             learn_actions = LearnW.Whittle_policy(learn_indices, n_choices, _learn_states, _learn_lifted, t)
             for a in range(n_bandits):
-                if len(rewards.shape) == 3:
+                if len(rewards.shape) == 4:
                     totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                     learn_totalrewards[a, k] += rewards[_learn_states[a], learn_actions[a], a, t]
                 else:
@@ -447,7 +447,7 @@ def ProcessNSR_Random(n_episodes, n_steps, n_states, n_bandits, n_choices, thres
             selected_indices = random.sample(range(n_bandits), n_choices)
             actions = [1 if i in selected_indices else 0 for i in range(n_bandits)]
             for a in range(n_bandits):
-                if len(rewards.shape) == 3:
+                if len(rewards.shape) == 4:
                     totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                 else:
                     totalrewards[a, k] += rewards[_states[a], a, t]
@@ -476,13 +476,13 @@ def ProcessNSR_Greedy(n_episodes, n_steps, n_states, n_bandits, n_choices, thres
         for t in range(n_steps):
             rew_vec = np.zeros(n_bandits)
             for a2 in range(n_bandits):
-                rew_vec[a2] = rewards[states[a2], a2]
+                rew_vec[a2] = rewards[states[a2], a2, t]
             _states = np.copy(states)
             top_indices = np.argsort(rew_vec)[-n_choices:]
             actions = np.zeros_like(rew_vec, dtype=np.int32)
             actions[top_indices] = 1
             for a in range(n_bandits):
-                if len(rewards.shape) == 3:
+                if len(rewards.shape) == 4:
                     totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                 else:
                     totalrewards[a, k] += rewards[_states[a], a, t]
@@ -551,7 +551,7 @@ def ProcessNSR_WhtlRB(W, whittle_indices, n_episodes, n_steps, n_states, n_bandi
             _states = np.copy(states)
             actions = W.Whittle_policy(whittle_indices, n_choices, _states, t)
             for a in range(n_bandits):
-                if len(rewards.shape) == 3:
+                if len(rewards.shape) == 4:
                     totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                 else:
                     totalrewards[a, k] += rewards[_states[a], a, t]
@@ -584,7 +584,7 @@ def ProcessNSR_SafeRB(SafeW, whittle_indices, n_episodes, n_steps, n_states, n_b
                 _lifted[a2] = max(0, min(SafeW.n_augment[a2]-1, _lifted[a2] + _states[a2]))
             actions = SafeW.Whittle_policy(whittle_indices, n_choices, _states, _lifted, t)
             for a in range(n_bandits):
-                if len(rewards.shape) == 3:
+                if len(rewards.shape) == 4:
                     totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                 else:
                     totalrewards[a, k] += rewards[_states[a], a, t]
@@ -622,7 +622,7 @@ def ProcessNSR_LearnSafeRB(SafeW, whittle_indices, LearnW, learn_indices, n_epis
             actions = SafeW.Whittle_policy(whittle_indices, n_choices, _states, _lifted, t)
             learn_actions = LearnW.Whittle_policy(learn_indices, n_choices, _learn_states, _learn_lifted, t)
             for a in range(n_bandits):
-                if len(rewards.shape) == 3:
+                if len(rewards.shape) == 4:
                     totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                     learn_totalrewards[a, k] += rewards[_learn_states[a], learn_actions[a], a, t]
                 else:

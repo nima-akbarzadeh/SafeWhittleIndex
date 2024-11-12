@@ -14,8 +14,9 @@ def run_combination(params):
     na = nc * ns
     ftype = numpy.ones(na, dtype=numpy.int32) if ft == 'hom' else 1 + numpy.arange(na)
 
-    prob_remain = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
-    numpy.random.shuffle(prob_remain)
+    prob_remain_1d = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
+    numpy.random.shuffle(prob_remain_1d)
+    prob_remain = numpy.tile(prob_remain_1d, (nt, 1)).T
 
     R = ValuesNS(df, nt, na, ns, ftype, True)
     M = MarkovDynamicsNS(nt, na, ns, prob_remain, tt, True)
@@ -23,7 +24,7 @@ def run_combination(params):
     WhtlW = WhittleNS(ns, na, R.vals, M.transitions, nt)
     WhtlW.get_whittle_indices(computation_type=method, params=[0, 10], n_trials=100)
 
-    SafeW = SafeWhittleNS([ns, np], na, R.vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
+    SafeW = SafeWhittleDNS([ns, np], na, R.vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
     SafeW.get_whittle_indices(computation_type=method, params=[0, 10], n_trials=100)
 
     nch = max(1, int(round(fr * na)))

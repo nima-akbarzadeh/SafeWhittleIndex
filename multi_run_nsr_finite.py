@@ -18,7 +18,7 @@ def run_combination(params):
     numpy.random.shuffle(prob_remain)
 
     R = ValuesNS(df, nt, na, ns, ftype, True)
-    M = MarkovDynamics(nt, na, ns, prob_remain, tt, True)
+    M = MarkovDynamics(na, ns, prob_remain, tt, True)
 
     WhtlW = WhittleNSR(ns, na, R.vals, M.transitions, nt)
     WhtlW.get_whittle_indices(computation_type=method, params=[0, 10], n_trials=100)

@@ -15,18 +15,19 @@ def run_combination(params):
     ftype = numpy.ones(na, dtype=numpy.int32) if ft == 'hom' else 1 + numpy.arange(na)
 
     if tt == 0:
-        prob_remain = numpy.round(numpy.linspace(0.1, 0.9, na), 2)
+        prob_remain_1d = numpy.round(numpy.linspace(0.1, 0.9, na), 2)
     elif tt == 1 or tt == 2:
-        prob_remain = numpy.round(numpy.linspace(0.05, 0.45, na), 2)
+        prob_remain_1d = numpy.round(numpy.linspace(0.05, 0.45, na), 2)
     elif tt == 3:
-        prob_remain = numpy.round(numpy.linspace(0.1 / ns, 0.1 / ns, na), 2)
+        prob_remain_1d = numpy.round(numpy.linspace(0.1 / ns, 0.1 / ns, na), 2)
     elif tt == 4 or tt == 5:
-        prob_remain = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
+        prob_remain_1d = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
     elif tt == 6:
-        prob_remain = numpy.round(numpy.linspace(0.2, 0.8, na), 2)
+        prob_remain_1d = numpy.round(numpy.linspace(0.2, 0.8, na), 2)
     else:
-        prob_remain = numpy.round(numpy.linspace(0.1, 0.9, na), 2)
-    numpy.random.shuffle(prob_remain)
+        prob_remain_1d = numpy.round(numpy.linspace(0.1, 0.9, na), 2)
+    numpy.random.shuffle(prob_remain_1d)
+    prob_remain = numpy.tile(prob_remain_1d, (nt, 1)).T
 
     R = ValuesNS(df, nt, na, ns, ftype, True)
     M = MarkovDynamicsNS(nt, na, ns, prob_remain, tt, True)
