@@ -32,8 +32,8 @@ def run_combination(params):
     processes = [
         ("Random", ProcessDis_Random),
         ("Greedy", ProcessDis_Greedy),
-        ("Whittl", lambda *args: ProcessDisInf_WhtlRB(WhtlW, WhtlW.w_indices, *args)),
-        ("Safaty", lambda *args: ProcessDisInf_SafeRB(SafeW, SafeW.w_indices, *args))
+        ("Whittl", lambda *args: ProcessDisInf_WhtlRB(WhtlW, *args)),
+        ("Safaty", lambda *args: ProcessDisInf_SafeRB(SafeW, *args))
     ]
 
     results = {}

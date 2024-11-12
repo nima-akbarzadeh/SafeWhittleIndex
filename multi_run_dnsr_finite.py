@@ -32,8 +32,8 @@ def run_combination(params):
     processes = [
         ("Random", ProcessNSR_Random),
         ("Greedy", ProcessNSR_Greedy),
-        ("Whittl", lambda *args: ProcessNSR_WhtlRB(WhtlW, WhtlW.w_indices, *args)),
-        ("Safaty", lambda *args: ProcessNSR_SafeRB(SafeW, SafeW.w_indices, *args))
+        ("Whittl", lambda *args: ProcessNSR_WhtlRB(WhtlW, *args)),
+        ("Safaty", lambda *args: ProcessNSR_SafeRB(SafeW, *args))
     ]
 
     key_value = f'nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}'
