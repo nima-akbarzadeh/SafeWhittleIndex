@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 
 
 def run_combination(params):
-    nt, ns, np, nc, ft, tt, ut, uo, th, fr, df, method, l_episodes, n_episodes, n_iterations, PATH3 = params
+    nt, ns, np, nz, nc, ft, tt, ut, uo, th, fr, df, method, l_episodes, n_episodes, n_iterations, PATH3 = params
     na = nc * ns
     ftype = numpy.ones(na, dtype=numpy.int32) if ft == 'hom' else 1 + numpy.arange(na)
 
@@ -36,12 +36,11 @@ def run_combination(params):
     initial_states = (ns - 1) * numpy.ones(na, dtype=numpy.int32)
 
     probs_l, _, _, obj_l, _, _, obj_s = ProcessDisInf_LearnSafeTSRB(
-        n_iterations, l_episodes, n_episodes, nt, ns, np, na, nch,
-        thresh, tt, True, method, R.vals, M.transitions,
-        initial_states, ut, uo, False, nt
+        df, n_iterations, l_episodes, n_episodes, nt, ns, np, nz, na, nch,
+        thresh, tt, True, method, R.vals, M.transitions, initial_states, ut, uo, False
     )
 
-    key_value = f'nt{nt}_np{np}_ns{ns}_nc{nc}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}'
+    key_value = f'nt{nt}_np{np}_nz{nz}_ns{ns}_nc{nc}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}'
 
     wip_obj = numpy.mean(numpy.sum(obj_s, axis=2), axis=0)
     joblib.dump(wip_obj, f'{PATH3}wip_obj_{key_value}.joblib')
@@ -79,6 +78,7 @@ def main():
     param_sets = {
         'n_steps_set': [100],
         'n_partitions_set': [50],
+        'z_partitions_set': [50],
         'n_states_set': [2, 3],
         'armcoef_set': [1, 2],
         'f_type_set': ['hom'],
@@ -104,10 +104,11 @@ def main():
                 averages[avg_key][f'{param}_{value}'] = []
 
     param_list = [
-        (nt, ns, np, nc, ft_type, tt, ut, uo, th, fr, df, method, l_episodes, n_episodes, n_iterations, PATH3)
+        (nt, ns, np, nz, nc, ft_type, tt, ut, uo, th, fr, df, method, l_episodes, n_episodes, n_iterations, PATH3)
         for nt in param_sets['n_steps_set']
         for ns in param_sets['n_states_set']
         for np in param_sets['n_partitions_set']
+        for nz in param_sets['z_partitions_set']
         for nc in param_sets['armcoef_set']
         for ft_type in param_sets['f_type_set']
         for tt in param_sets['t_type_set']

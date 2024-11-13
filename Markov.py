@@ -24,6 +24,7 @@ class Values:
                         self.vals[:, act, a] = (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
                         if not increasing:
                             self.vals[:, act, a] = 1 - self.vals[:, act, a]
+        self.vals = np.round(self.vals, 2)
 
 
 # Define the Markov dynamics for each arm
@@ -240,7 +241,7 @@ class ValuesNS:
                             self.vals[:, act, a, t] = (self.discount**t) * (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
                             if not increasing:
                                 self.vals[:, act, a, t] = 1 - self.vals[:, act, a, t]
-        self.vals = np.round(self.vals, digits=2)
+        self.vals = np.round(self.vals, 2)
 
 # Define the Markov dynamics for each arm
 class MarkovDynamicsNS:

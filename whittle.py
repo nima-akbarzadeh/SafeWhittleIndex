@@ -461,8 +461,8 @@ class SafeWhittleD:
         self.w_indices = []
 
     def get_reward_partition(self, reward_value):
-        index = np.searchsorted(self.s_cutting_points, reward_value, side='right')
-        if index == len(self.s_cutting_points):
+        index = np.searchsorted(self.cutting_points, reward_value, side='right')
+        if index == len(self.cutting_points):
             index -= 1
 
         return index - 1
@@ -984,7 +984,7 @@ class SafeWhittleNS:
                     for act in range(2):
 
                         # Convert the next state of the second dimension into an index ranged from 1 to L
-                        nxt_l = self.all_rews[arm].index(self.all_rews[arm][l] + self.rewards[x, arm, t])
+                        nxt_l = self.all_rews[arm].index(np.round(self.all_rews[arm][l] + self.rewards[x, arm, t], 2))
                         Q[l, x, t, act] = np.round(- penalty * act / self.horizon + np.dot(V[nxt_l, :, t + 1], self.transition[x, :, act, arm, t]), self.digits + 1)
 
                     # Get the value function and the policy
@@ -1077,8 +1077,8 @@ class SafeWhittleDNS:
         self.w_indices = []
 
     def get_reward_partition(self, reward_value):
-        index = np.searchsorted(self.s_cutting_points, reward_value, side='right')
-        if index == len(self.s_cutting_points):
+        index = np.searchsorted(self.cutting_points, reward_value, side='right')
+        if index == len(self.cutting_points):
             index -= 1
 
         return index - 1
@@ -1437,14 +1437,28 @@ class SafeWhittleNSR:
         for a in range(num_arms):
             arm_n_realize = []
             all_total_rewards = []
+            prev_rewards_by_t = set([0])  # Initialize with a zero sum to start accumulating
             for t in range(self.horizon):
+                # Extract only the current rewards at time t to update previous results
                 if len(self.rewards.shape) == 4:
-                    immediate_rews = self.rewards[:, :, a, :t+1] 
-                    all_immediate_rews = immediate_rews.reshape(-1, immediate_rews.shape[-1]) 
+                    current_rewards = self.rewards[:, :, a, t]
+                    current_rewards = current_rewards.flatten()  # Flatten for consistent processing
                 else:
-                    all_immediate_rews = self.rewards[:, a, :t+1]
-                all_total_rewards_by_t = possible_ns_reward_sums(all_immediate_rews)
+                    current_rewards = self.rewards[:, a, t]
+
+                # Use previous total rewards and only add new rewards at time t
+                all_total_rewards_by_t = set()
+                for prev_sum in prev_rewards_by_t:
+                    for reward in current_rewards:
+                        all_total_rewards_by_t.add(prev_sum + reward)
+
+                # Convert set to sorted list for consistent ordering and results
+                all_total_rewards_by_t = sorted(all_total_rewards_by_t)
                 arm_n_realize.append(len(all_total_rewards_by_t))
+                
+                # Update prev_rewards_by_t for the next time step
+                prev_rewards_by_t = set(all_total_rewards_by_t)
+                
                 if t == self.horizon - 1:
                     all_total_rewards = all_total_rewards_by_t
 
@@ -1586,7 +1600,7 @@ class SafeWhittleNSR:
                     for act in range(2):
 
                         # Convert the next state of the second dimension into an index ranged from 1 to L
-                        nxt_l = self.all_rews[arm].index(self.all_rews[arm][l] + self.rewards[x, arm, t])
+                        nxt_l = self.all_rews[arm].index(np.round(self.all_rews[arm][l] + self.rewards[x, arm, t], 2))
                         Q[l, x, t, act] = np.round(- penalty * act / self.horizon + np.dot(V[nxt_l, :, t + 1], self.transition[x, :, act, arm]), self.digits + 1)
 
                     # Get the value function and the policy
@@ -1677,8 +1691,8 @@ class SafeWhittleDNSR:
         self.w_indices = []
 
     def get_reward_partition(self, reward_value):
-        index = np.searchsorted(self.s_cutting_points, reward_value, side='right')
-        if index == len(self.s_cutting_points):
+        index = np.searchsorted(self.cutting_points, reward_value, side='right')
+        if index == len(self.cutting_points):
             index -= 1
 
         return index - 1
@@ -2016,12 +2030,11 @@ class SafeWhittleDis:
 
         self.digits = 3
         self.n_augment = [0] * num_arms
-        self.n_discnts = [0] * num_arms
+        self.n_discnts = len(self.all_total_discnts)
         self.all_valus = []
 
         for a in range(num_arms):
             self.n_augment[a] = len(self.all_total_rewards)
-            self.n_discnts[a] = len(self.all_total_discnts)
 
             arm_valus = []
             for total_rewards in self.all_total_rewards:
@@ -2077,7 +2090,7 @@ class SafeWhittleDis:
                     print(f'ref Q1: {ref_Q_new[e[0], e[1], e[2], 1]}')
                     print(f'nxt Q0: {nxt_Q_new[e[0], e[1], e[2], 0]}')
                     print(f'nxt Q1: {nxt_Q_new[e[0], e[1], e[2], 1]}')
-                return False, np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x, self.horizon))
+                return False, np.zeros((self.n_augment[arm], self.n_discnts, self.num_x, self.horizon))
             else:
                 elements = np.argwhere((ref_pol_new == 1) & (nxt_pol_new == 0))
                 for e in elements:
@@ -2086,7 +2099,7 @@ class SafeWhittleDis:
 
     def whittle_brute_force(self, lower_bound, upper_bound, num_trials):
         for arm in range(self.num_a):
-            arm_indices = np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x, self.horizon))
+            arm_indices = np.zeros((self.n_augment[arm], self.n_discnts, self.num_x, self.horizon))
             penalty_ref = lower_bound
             ref_pol, _, ref_Q = self.bellman_equation(arm, penalty_ref)
             upb_pol, _, _ = self.bellman_equation(arm, upper_bound)
@@ -2108,7 +2121,7 @@ class SafeWhittleDis:
 
     def whittle_binary_search(self, lower_bound, upper_bound, l_steps):
         for arm in range(self.num_a):
-            arm_indices = np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x, self.horizon))
+            arm_indices = np.zeros((self.n_augment[arm], self.n_discnts, self.num_x, self.horizon))
             penalty_ref = lower_bound
             ref_pol, _, ref_Q = self.bellman_equation(arm, penalty_ref)
             ubp_pol, _, _ = self.bellman_equation(arm, upper_bound)
@@ -2138,16 +2151,16 @@ class SafeWhittleDis:
     def bellman_equation(self, arm, penalty):
 
         # Value function initialization
-        V = np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x, self.horizon + 1), dtype=np.float32)
+        V = np.zeros((self.n_augment[arm], self.n_discnts, self.num_x, self.horizon + 1), dtype=np.float32)
         for l in range(self.n_augment[arm]):
-            for z in range(self.n_discnts[arm]):
-                V[l, z, :, self.horizon] = self.all_valus[arm][l] * (1/z) * np.ones(self.num_x)
+            for z in range(self.n_discnts):
+                V[l, z, :, self.horizon] = self.all_valus[arm][l] * (1/self.all_total_discnts[z]) * np.ones(self.num_x)
 
         # State-action value function
-        Q = np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x, self.horizon, 2), dtype=np.float32)
+        Q = np.zeros((self.n_augment[arm], self.n_discnts, self.num_x, self.horizon, 2), dtype=np.float32)
 
         # Policy function
-        pi = np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x, self.horizon), dtype=np.int32)
+        pi = np.zeros((self.n_augment[arm], self.n_discnts, self.num_x, self.horizon), dtype=np.int32)
 
         # Backward induction timing
         t = self.horizon - 1
@@ -2156,7 +2169,7 @@ class SafeWhittleDis:
         while t >= 0:
             for x in range(self.num_x):
                 for y in range(self.n_augment[arm]):
-                    for z in range(self.n_discnts[arm]):
+                    for z in range(self.n_discnts):
                         for act in range(2):
 
                             if len(self.rewards.shape) == 3:
@@ -2375,12 +2388,11 @@ class SafeWhittleDisInf:
 
         self.digits = 3
         self.n_augment = [0] * num_arms
-        self.n_discnts = [0] * num_arms
+        self.n_discnts = len(self.all_total_discnts)
         self.all_valus = []
 
         for a in range(num_arms):
             self.n_augment[a] = len(self.all_total_rewards)
-            self.n_discnts[a] = len(self.all_total_discnts)
 
             arm_valus = []
             for total_rewards in self.all_total_rewards:
@@ -2431,7 +2443,7 @@ class SafeWhittleDisInf:
                 print(f'ref Q1: {ref_Q[e[0], e[1], e[2], 1]}')
                 print(f'nxt Q0: {nxt_Q[e[0], e[1], e[2], 0]}')
                 print(f'nxt Q1: {nxt_Q[e[0], e[1], e[2], 1]}')
-            return False, np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x))
+            return False, np.zeros((self.n_augment[arm], self.n_discnts, self.num_x))
         else:
             elements = np.argwhere((ref_pol == 1) & (nxt_pol == 0))
             for e in elements:
@@ -2440,7 +2452,7 @@ class SafeWhittleDisInf:
 
     def whittle_brute_force(self, lower_bound, upper_bound, num_trials):
         for arm in range(self.num_a):
-            arm_indices = np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x))
+            arm_indices = np.zeros((self.n_augment[arm], self.n_discnts, self.num_x))
             penalty_ref = lower_bound
             ref_pol, _, ref_Q = self.bellman_equation(arm, penalty_ref)
             upb_pol, _, _ = self.bellman_equation(arm, upper_bound)
@@ -2462,7 +2474,7 @@ class SafeWhittleDisInf:
 
     def whittle_binary_search(self, lower_bound, upper_bound, l_steps):
         for arm in range(self.num_a):
-            arm_indices = np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x))
+            arm_indices = np.zeros((self.n_augment[arm], self.n_discnts, self.num_x))
             penalty_ref = lower_bound
             ref_pol, _, ref_Q = self.bellman_equation(arm, penalty_ref)
             ubp_pol, _, _ = self.bellman_equation(arm, upper_bound)
@@ -2492,16 +2504,16 @@ class SafeWhittleDisInf:
     def bellman_equation(self, arm, penalty):
 
         # Value function initialization
-        V = np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x, self.horizon + 1), dtype=np.float32)
+        V = np.zeros((self.n_augment[arm], self.n_discnts, self.num_x, self.horizon + 1), dtype=np.float32)
         for l in range(self.n_augment[arm]):
-            for z in range(self.n_discnts[arm]):
-                V[l, z, :, self.horizon] = self.all_valus[arm][l] * (1/z) * np.ones(self.num_x)
+            for z in range(self.n_discnts):
+                V[l, z, :, self.horizon] = self.all_valus[arm][l] * (1/self.all_total_discnts[z]) * np.ones(self.num_x)
 
         # State-action value function
-        Q = np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x, self.horizon, 2), dtype=np.float32)
+        Q = np.zeros((self.n_augment[arm], self.n_discnts, self.num_x, self.horizon, 2), dtype=np.float32)
 
         # Policy function
-        pi = np.zeros((self.n_augment[arm], self.n_discnts[arm], self.num_x, self.horizon), dtype=np.int32)
+        pi = np.zeros((self.n_augment[arm], self.n_discnts, self.num_x, self.horizon), dtype=np.int32)
 
         # Backward induction timing
         t = self.horizon - 1
@@ -2514,7 +2526,7 @@ class SafeWhittleDisInf:
 
                 # Loop over the second dimension of the state space
                 for y in range(self.n_augment[arm]):
-                    for z in range(self.n_discnts[arm]):
+                    for z in range(self.n_discnts):
                         for act in range(2):
 
                             if len(self.rewards.shape) == 3:
