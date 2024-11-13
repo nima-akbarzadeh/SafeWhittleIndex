@@ -2535,9 +2535,9 @@ class SafeWhittleDisInf:
             if diff >= 1e-4:
                 t = t - 1
             else:
-                return pi[0, -1, :, t], V[0, -1, :, t], Q[0, -1, :, t, :]
+                return pi[:, :, :, t], V[:, :, :, t], Q[:, :, :, t, :]
 
-        return pi[0, -1, :, 0], V[0, -1, :, 0], Q[0, -1, :, 0, :]
+        return pi[:, :, :, 0], V[:, :, :, 0], Q[:, :, :, 0, :]
 
     @staticmethod
     def Whittle_policy(whittle_indices, n_selection, current_x, current_l, current_z):
