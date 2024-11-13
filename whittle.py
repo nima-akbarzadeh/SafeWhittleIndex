@@ -1,7 +1,5 @@
 ### Risk-Neutral & Risk-Aware Whittle Index
 import numpy as np
-from scipy.special import softmax
-from itertools import product
 
 
 class Whittle:
@@ -821,33 +819,25 @@ class SafeWhittleNS:
         for a in range(num_arms):
             arm_n_realize = []
             all_total_rewards = []
-            prev_rewards_by_t = set([0])  # Initialize with a zero sum to start accumulating
+            prev_rewards_by_t = set([0])
             for t in range(self.horizon):
-                # Extract only the current rewards at time t to update previous results
                 if len(self.rewards.shape) == 4:
-                    current_rewards = self.rewards[:, :, a, t]
-                    current_rewards = current_rewards.flatten()  # Flatten for consistent processing
+                    current_rewards = self.rewards[:, :, a, t].flatten()
                 else:
                     current_rewards = self.rewards[:, a, t]
-
-                # Use previous total rewards and only add new rewards at time t
                 all_total_rewards_by_t = set()
                 for prev_sum in prev_rewards_by_t:
                     for reward in current_rewards:
-                        all_total_rewards_by_t.add(prev_sum + reward)
-
-                # Convert set to sorted list for consistent ordering and results
+                        all_total_rewards_by_t.add(np.round(prev_sum + reward, 2))
                 all_total_rewards_by_t = sorted(all_total_rewards_by_t)
                 arm_n_realize.append(len(all_total_rewards_by_t))
-                
-                # Update prev_rewards_by_t for the next time step
                 prev_rewards_by_t = set(all_total_rewards_by_t)
                 
                 if t == self.horizon - 1:
                     all_total_rewards = all_total_rewards_by_t
 
             self.n_augment[a] = len(all_total_rewards)
-            self.all_rews.append(all_total_rewards)
+            self.all_rews.append(sorted(list(all_total_rewards)))
             self.n_realize.append(arm_n_realize)
 
             arm_valus = []
@@ -984,7 +974,8 @@ class SafeWhittleNS:
                     for act in range(2):
 
                         # Convert the next state of the second dimension into an index ranged from 1 to L
-                        nxt_l = self.all_rews[arm].index(np.round(self.all_rews[arm][l] + self.rewards[x, arm, t], 2))
+                        tolerance = 1e-9
+                        nxt_l = next(i for i, val in enumerate(self.all_rews[arm]) if abs(val - np.round(self.all_rews[arm][l] + self.rewards[x, arm, t], 2)) < tolerance)
                         Q[l, x, t, act] = np.round(- penalty * act / self.horizon + np.dot(V[nxt_l, :, t + 1], self.transition[x, :, act, arm, t]), self.digits + 1)
 
                     # Get the value function and the policy
@@ -1437,33 +1428,25 @@ class SafeWhittleNSR:
         for a in range(num_arms):
             arm_n_realize = []
             all_total_rewards = []
-            prev_rewards_by_t = set([0])  # Initialize with a zero sum to start accumulating
+            prev_rewards_by_t = set([0])
             for t in range(self.horizon):
-                # Extract only the current rewards at time t to update previous results
                 if len(self.rewards.shape) == 4:
-                    current_rewards = self.rewards[:, :, a, t]
-                    current_rewards = current_rewards.flatten()  # Flatten for consistent processing
+                    current_rewards = self.rewards[:, :, a, t].flatten()
                 else:
                     current_rewards = self.rewards[:, a, t]
-
-                # Use previous total rewards and only add new rewards at time t
                 all_total_rewards_by_t = set()
                 for prev_sum in prev_rewards_by_t:
                     for reward in current_rewards:
-                        all_total_rewards_by_t.add(prev_sum + reward)
-
-                # Convert set to sorted list for consistent ordering and results
+                        all_total_rewards_by_t.add(np.round(prev_sum + reward, 2))
                 all_total_rewards_by_t = sorted(all_total_rewards_by_t)
                 arm_n_realize.append(len(all_total_rewards_by_t))
-                
-                # Update prev_rewards_by_t for the next time step
                 prev_rewards_by_t = set(all_total_rewards_by_t)
                 
                 if t == self.horizon - 1:
                     all_total_rewards = all_total_rewards_by_t
 
             self.n_augment[a] = len(all_total_rewards)
-            self.all_rews.append(all_total_rewards)
+            self.all_rews.append(sorted(list(all_total_rewards)))
             self.n_realize.append(arm_n_realize)
 
             arm_valus = []
@@ -1600,7 +1583,8 @@ class SafeWhittleNSR:
                     for act in range(2):
 
                         # Convert the next state of the second dimension into an index ranged from 1 to L
-                        nxt_l = self.all_rews[arm].index(np.round(self.all_rews[arm][l] + self.rewards[x, arm, t], 2))
+                        tolerance = 1e-9
+                        nxt_l = next(i for i, val in enumerate(self.all_rews[arm]) if abs(val - np.round(self.all_rews[arm][l] + self.rewards[x, arm, t], 2)) < tolerance)
                         Q[l, x, t, act] = np.round(- penalty * act / self.horizon + np.dot(V[nxt_l, :, t + 1], self.transition[x, :, act, arm]), self.digits + 1)
 
                     # Get the value function and the policy

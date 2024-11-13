@@ -225,16 +225,17 @@ class ValuesNS:
         self.num_a = num_arms
         self.num_s = num_states
         self.num_act = num_actions
-        for t in range(self.num_t):
-            if self.num_act == 1:
-                self.vals = np.ones((self.num_s, self.num_a, self.num_t))
+        if self.num_act == 1:
+            self.vals = np.ones((self.num_s, self.num_a, self.num_t))
+            for t in range(self.num_t):
                 for a in range(self.num_a):
                     if function_type[a] > 0:
                         self.vals[:, a, t] = (self.discount**t) * (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
                         if not increasing:
                             self.vals[:, a, t] = 1 - self.vals[:, a, t]
-            else:
-                self.vals = np.ones((self.num_s, self.num_act, self.num_a, self.num_t))
+        else:
+            self.vals = np.ones((self.num_s, self.num_act, self.num_a, self.num_t))
+            for t in range(self.num_t):
                 for a in range(self.num_a):
                     for act in range(self.num_act):
                         if function_type[a] > 0:
@@ -242,6 +243,7 @@ class ValuesNS:
                             if not increasing:
                                 self.vals[:, act, a, t] = 1 - self.vals[:, act, a, t]
         self.vals = np.round(self.vals, 2)
+
 
 # Define the Markov dynamics for each arm
 class MarkovDynamicsNS:

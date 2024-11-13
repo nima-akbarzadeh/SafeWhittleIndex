@@ -78,7 +78,7 @@ def run_combination(params):
 
 def main():
     param_sets = {
-        'n_steps_set': [100],
+        'n_steps_set': [10],
         'n_partitions_set': [50],
         'n_states_set': [2, 3],
         'armcoef_set': [1, 2],
