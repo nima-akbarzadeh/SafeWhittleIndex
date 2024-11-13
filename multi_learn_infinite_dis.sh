@@ -10,4 +10,4 @@ module load python/3.10
 
 source ~/envs/restless_bandits/bin/activate
 
-python multi_run_dis.py
+python multi_learn_finite_dis.py

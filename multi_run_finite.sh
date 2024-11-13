@@ -10,4 +10,4 @@ module load python/3.10
 
 source ~/envs/restless_bandits/bin/activate
 
-python main.py
+python multi_run_finite.py
