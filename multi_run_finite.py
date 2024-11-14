@@ -1,3 +1,4 @@
+import os
 import numpy
 import pandas as pd
 import joblib
@@ -71,6 +72,8 @@ def main():
     PATH1 = f'./output-finite/Res_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
     PATH2 = f'./output-finite/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
     PATH3 = f'./output-finite/'
+    if not os.path.exists(PATH3):
+            os.makedirs(PATH3)
 
     method = 3
     n_episodes = 500

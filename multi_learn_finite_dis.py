@@ -1,3 +1,4 @@
+import os
 import numpy
 from learning import *
 from Markov import *
@@ -56,7 +57,7 @@ def run_combination(params):
     plt.title(key_value)
     plt.legend()
     plt.grid(True)
-    plt.savefig(f'{PATH3}regret/{key_value}_performance.png')
+    plt.savefig(f'{PATH3}{key_value}_performance.png')
     plt.close()
 
     prb_err = numpy.abs(
@@ -68,7 +69,7 @@ def run_combination(params):
     plt.title(key_value)
     plt.legend()
     plt.grid(True)
-    plt.savefig(f'{PATH3}proberrors/{key_value}_proberrors.png')
+    plt.savefig(f'{PATH3}{key_value}_proberrors.png')
     plt.close()
 
     return wip_obj, lrp_obj, lrp_reg
@@ -91,6 +92,8 @@ def main():
     }
 
     PATH3 = './output-learn-dis/'
+    if not os.path.exists(PATH3):
+            os.makedirs(PATH3)
 
     method = 3
     l_episodes = 250

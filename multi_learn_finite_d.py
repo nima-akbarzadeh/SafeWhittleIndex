@@ -1,3 +1,4 @@
+import os
 import numpy
 from learning import *
 from Markov import *
@@ -90,7 +91,9 @@ def main():
     }
 
     PATH3 = './output-learn-d-finite/'
-
+    if not os.path.exists(PATH3):
+            os.makedirs(PATH3)
+            
     method = 3
     l_episodes = 250
     n_episodes = 10
