@@ -40,10 +40,8 @@ def run_combination(params):
     key_value = f'nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}'
     results = {}
     for name, process in processes:
-        rew, obj, _ = process(n_episodes, nt, ns, na, nch, th * numpy.ones(na), R.vals, M.transitions,
-                              initial_states, ut, uo)
-        joblib.dump([rew, obj],
-                    f"{PATH3}_{key_value}_{name}.joblib")
+        rew, obj, _ = process(n_episodes, nt, ns, na, nch, th * numpy.ones(na), R.vals, M.transitions, initial_states, ut, uo)
+        joblib.dump([rew, obj], f"{PATH3}_{key_value}_{name}.joblib")
         results[name] = numpy.round(numpy.mean(obj), 3)
 
     impr_vl = numpy.round(results['Safaty'] - results['Whittl'], 2)
@@ -58,13 +56,13 @@ def main():
 
     param_sets = {
         'n_steps_set': [10],
-        'n_partitions_set': [100],
-        'n_states_set': [3, 5],
-        'armcoef_set': [3, 5],
+        'n_partitions_set': [10],
+        'n_states_set': [3],
+        'armcoef_set': [3],
         'f_type_set': ['hom'],
         't_type_set': [3],
-        'u_type_set': [1, 2],
-        'u_order_set': [4, 16],
+        'u_type_set': [1],
+        'u_order_set': [16],
         'threshold_set': [0.3, 0.5],
         'fraction_set': [0.3, 0.5],
         'nsrew_discount_set': [0.95],
@@ -74,7 +72,7 @@ def main():
     PATH2 = f'./output-finite-nsr/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
     PATH3 = f'./output-finite-nsr/'
     if not os.path.exists(PATH3):
-            os.makedirs(PATH3)
+        os.makedirs(PATH3)
 
     method = 3
     n_episodes = 500

@@ -221,6 +221,89 @@ def Process_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandits,
     return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
 
 
+def ProcessD_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, thresholds, rewards,
+                    transitions, initial_states, u_type, u_order):
+
+    ##################################################### Process
+    totalrewards = np.zeros((n_bandits, n_episodes))
+    objectives = np.zeros((n_bandits, n_episodes))
+    counts = np.zeros((n_states, n_states, 2, n_bandits))
+    for k in range(n_episodes):
+        states = initial_states.copy()
+        _lifted = np.zeros(n_bandits, dtype=np.int32)
+        for t in range(n_steps):
+            _states = np.copy(states)
+            # for b in range(n_bandits):
+                # _lifted[b] = max(0, min(SafeW.n_augment[b]-1, _lifted[b]))
+            _lifted = [SafeW.get_reward_partition(totalrewards[a, k]) for a in range(n_bandits)]
+            actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
+            for a in range(n_bandits):
+                if len(rewards.shape) == 3:
+                    totalrewards[a, k] += rewards[_states[a], actions[a], a]
+                else:
+                    totalrewards[a, k] += rewards[_states[a], a]
+                states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
+                counts[_states[a], states[a], actions[a], a] += 1
+        for a in range(n_bandits):
+            if u_type == 1:
+                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
+            elif u_type == 2:
+                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
+            else:
+                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+
+    return np.around(totalrewards, 2), np.around(objectives, 2), counts
+
+
+def ProcessD_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandits,
+                         n_choices, thresholds, rewards, transitions, initial_states, u_type, u_order):
+    totalrewards = np.zeros((n_bandits, n_episodes))
+    objectives = np.zeros((n_bandits, n_episodes))
+    learn_totalrewards = np.zeros((n_bandits, n_episodes))
+    learn_objectives = np.zeros((n_bandits, n_episodes))
+    counts = np.zeros((n_states, n_states, 2, n_bandits))
+    for k in range(n_episodes):
+        states = initial_states.copy()
+        learn_states = initial_states.copy()
+        _lifted = np.zeros(n_bandits, dtype=np.int32)
+        _learn_lifted = np.zeros(n_bandits, dtype=np.int32)
+        for t in range(n_steps):
+            _states = np.copy(states)
+            _learn_states = np.copy(learn_states)
+            # for b in range(n_bandits):
+            #     _lifted[b] = max(0, min(SafeW.n_augment[b]-1, _lifted[b] + _states[b]))
+            #     _learn_lifted[b] = max(0, min(SafeW.n_augment[b]-1, _learn_lifted[b] + _learn_states[b]))
+            _lifted = [SafeW.get_reward_partition(totalrewards[a, k]) for a in range(n_bandits)]
+            _learn_lifted = [LearnW.get_reward_partition(totalrewards[a, k]) for a in range(n_bandits)]
+            actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
+            learn_actions = LearnW.Whittle_policy(LearnW.w_indices, n_choices, _learn_states, _learn_lifted, t)
+            for a in range(n_bandits):
+                if len(rewards.shape) == 3:
+                    totalrewards[a, k] += rewards[_states[a], actions[a], a]
+                    learn_totalrewards[a, k] += rewards[_learn_states[a], learn_actions[a], a]
+                else:
+                    totalrewards[a, k] += rewards[_states[a], a]
+                    learn_totalrewards[a, k] += rewards[_learn_states[a], a]
+                states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
+                if actions[a] == learn_actions[a] and _states[a] == _learn_states[a]:
+                    learn_states[a] = np.copy(states[a])
+                else:
+                    learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a])
+                counts[_learn_states[a], learn_states[a], learn_actions[a], a] += 1
+        for a in range(n_bandits):
+            if u_type == 1:
+                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
+                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
+            elif u_type == 2:
+                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
+                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
+            else:
+                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+
+    return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
+
+
 def ProcessNS_Random(n_episodes, n_steps, n_states, n_bandits, n_choices, thresholds, rewards, transitions,
                      initial_states, u_type, u_order):
 
@@ -431,6 +514,81 @@ def ProcessNS_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandit
     return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
 
 
+def ProcessDNS_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, thresholds, rewards,
+                      transitions, initial_states, u_type, u_order):
+
+    ##################################################### Process
+    totalrewards = np.zeros((n_bandits, n_episodes))
+    objectives = np.zeros((n_bandits, n_episodes))
+    counts = np.zeros((n_states, n_states, 2, n_bandits, n_steps))
+    for k in range(n_episodes):
+        states = initial_states.copy()
+        for t in range(n_steps):
+            _states = np.copy(states)
+            _lifted = [SafeW.get_reward_partition(totalrewards[a, k]) for a in range(n_bandits)]
+            actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
+            for a in range(n_bandits):
+                if len(rewards.shape) == 4:
+                    totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
+                else:
+                    totalrewards[a, k] += rewards[_states[a], a, t]
+                states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a, t])
+                counts[_states[a], states[a], actions[a], a, t] += 1
+        for a in range(n_bandits):
+            if u_type == 1:
+                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
+            elif u_type == 2:
+                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
+            else:
+                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+
+    return np.around(totalrewards, 2), np.around(objectives, 2), counts
+
+
+def ProcessDNS_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandits,
+                           n_choices, thresholds, rewards, transitions, initial_states, u_type, u_order):
+    totalrewards = np.zeros((n_bandits, n_episodes))
+    objectives = np.zeros((n_bandits, n_episodes))
+    learn_totalrewards = np.zeros((n_bandits, n_episodes))
+    learn_objectives = np.zeros((n_bandits, n_episodes))
+    counts = np.zeros((n_states, n_states, 2, n_bandits, n_steps))
+    for k in range(n_episodes):
+        states = initial_states.copy()
+        learn_states = initial_states.copy()
+        for t in range(n_steps):
+            _states = np.copy(states)
+            _learn_states = np.copy(learn_states)
+            _lifted = [SafeW.get_reward_partition(totalrewards[a, k]) for a in range(n_bandits)]
+            _learn_lifted = [LearnW.get_reward_partition(totalrewards[a, k]) for a in range(n_bandits)]
+            actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
+            learn_actions = LearnW.Whittle_policy(LearnW.w_indices, n_choices, _learn_states, _learn_lifted, t)
+            for a in range(n_bandits):
+                if len(rewards.shape) == 4:
+                    totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
+                    learn_totalrewards[a, k] += rewards[_learn_states[a], learn_actions[a], a, t]
+                else:
+                    totalrewards[a, k] += rewards[_states[a], a, t]
+                    learn_totalrewards[a, k] += rewards[_learn_states[a], a, t]
+                states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a, t])
+                if actions[a] == learn_actions[a] and _states[a] == _learn_states[a]:
+                    learn_states[a] = np.copy(states[a])
+                else:
+                    learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a, t])
+                counts[_learn_states[a], learn_states[a], learn_actions[a], a, t] += 1
+        for a in range(n_bandits):
+            if u_type == 1:
+                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
+                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
+            elif u_type == 2:
+                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
+                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
+            else:
+                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+
+    return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
+
+
 def ProcessNSR_Random(n_episodes, n_steps, n_states, n_bandits, n_choices, thresholds, rewards, transitions,
                       initial_states, u_type, u_order):
 
@@ -612,6 +770,81 @@ def ProcessNSR_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandi
             _learn_states = np.copy(learn_states)
             _lifted = [SafeW.all_rews[a].index(totalrewards[a, k]) for a in range(n_bandits)]
             _learn_lifted = [LearnW.all_rews[a].index(totalrewards[a, k]) for a in range(n_bandits)]
+            actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
+            learn_actions = LearnW.Whittle_policy(LearnW.w_indices, n_choices, _learn_states, _learn_lifted, t)
+            for a in range(n_bandits):
+                if len(rewards.shape) == 4:
+                    totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
+                    learn_totalrewards[a, k] += rewards[_learn_states[a], learn_actions[a], a, t]
+                else:
+                    totalrewards[a, k] += rewards[_states[a], a, t]
+                    learn_totalrewards[a, k] += rewards[_learn_states[a], a, t]
+                states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
+                if actions[a] == learn_actions[a] and _states[a] == _learn_states[a]:
+                    learn_states[a] = np.copy(states[a])
+                else:
+                    learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a])
+                counts[_learn_states[a], learn_states[a], learn_actions[a], a, t] += 1
+        for a in range(n_bandits):
+            if u_type == 1:
+                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
+                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
+            elif u_type == 2:
+                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
+                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
+            else:
+                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+
+    return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
+
+
+def ProcessDNSR_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, thresholds, rewards,
+                       transitions, initial_states, u_type, u_order):
+
+    ##################################################### Process
+    totalrewards = np.zeros((n_bandits, n_episodes))
+    objectives = np.zeros((n_bandits, n_episodes))
+    counts = np.zeros((n_states, n_states, 2, n_bandits, n_steps))
+    for k in range(n_episodes):
+        states = initial_states.copy()
+        for t in range(n_steps):
+            _states = np.copy(states)
+            _lifted = [SafeW.get_reward_partition(totalrewards[a, k]) for a in range(n_bandits)]
+            actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
+            for a in range(n_bandits):
+                if len(rewards.shape) == 4:
+                    totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
+                else:
+                    totalrewards[a, k] += rewards[_states[a], a, t]
+                states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
+                counts[_states[a], states[a], actions[a], a, t] += 1
+        for a in range(n_bandits):
+            if u_type == 1:
+                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
+            elif u_type == 2:
+                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
+            else:
+                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+
+    return np.around(totalrewards, 2), np.around(objectives, 2), counts
+
+
+def ProcessDNSR_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandits,
+                            n_choices, thresholds, rewards, transitions, initial_states, u_type, u_order):
+    totalrewards = np.zeros((n_bandits, n_episodes))
+    objectives = np.zeros((n_bandits, n_episodes))
+    learn_totalrewards = np.zeros((n_bandits, n_episodes))
+    learn_objectives = np.zeros((n_bandits, n_episodes))
+    counts = np.zeros((n_states, n_states, 2, n_bandits, n_steps))
+    for k in range(n_episodes):
+        states = initial_states.copy()
+        learn_states = initial_states.copy()
+        for t in range(n_steps):
+            _states = np.copy(states)
+            _learn_states = np.copy(learn_states)
+            _lifted = [SafeW.get_reward_partition(totalrewards[a, k]) for a in range(n_bandits)]
+            _learn_lifted = [LearnW.get_reward_partition(totalrewards[a, k]) for a in range(n_bandits)]
             actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
             learn_actions = LearnW.Whittle_policy(LearnW.w_indices, n_choices, _learn_states, _learn_lifted, t)
             for a in range(n_bandits):

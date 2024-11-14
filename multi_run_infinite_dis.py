@@ -75,7 +75,7 @@ def main():
     PATH2 = f'./output-infinite-dis/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
     PATH3 = f'./output-infinite-dis/'
     if not os.path.exists(PATH3):
-            os.makedirs(PATH3)
+        os.makedirs(PATH3)
 
     method = 3
     n_episodes = 2

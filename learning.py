@@ -148,8 +148,8 @@ def ProcessD_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_stat
 
         for l in range(l_episodes):
             plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
-                Process_LearnSafeRB(PlanW, LearnW, n_episodes, n_steps, n_states, n_arms,
-                                    n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+                ProcessD_LearnSafeRB(PlanW, LearnW, n_episodes, n_steps, n_states, n_arms,
+                                     n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
             counts = counts + cnts
 
             # print('Update...')
@@ -354,8 +354,8 @@ def ProcessDNS_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_st
 
         for l in range(l_episodes):
             plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
-                ProcessNS_LearnSafeRB(PlanW, LearnW, n_episodes, n_steps, n_states, n_arms,
-                                      n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+                ProcessDNS_LearnSafeRB(PlanW, LearnW, n_episodes, n_steps, n_states, n_arms,
+                                       n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
             counts = counts + cnts
 
             # print('Update...')
@@ -560,8 +560,8 @@ def ProcessDNSR_LearnSafeTSRB(n_iterations, l_episodes, n_episodes, n_steps, n_s
 
         for l in range(l_episodes):
             plan_totalrewards, plan_objectives, learn_totalrewards, learn_objectives, cnts = \
-                ProcessNSR_LearnSafeRB(PlanW, LearnW, n_episodes, n_steps, n_states, n_arms,
-                                       n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
+                ProcessDNSR_LearnSafeRB(PlanW, LearnW, n_episodes, n_steps, n_states, n_arms,
+                                        n_choices, thresholds, tru_rew, tru_dyn, initial_states, u_type, u_order)
             counts = counts + cnts
 
             # print('Update...')

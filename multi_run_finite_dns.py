@@ -35,7 +35,7 @@ def run_combination(params):
         ("Random", Process_Random),
         ("Greedy", Process_Greedy),
         ("Whittl", lambda *args: ProcessNS_WhtlRB(WhtlW, *args)),
-        ("Safaty", lambda *args: ProcessNS_SafeRB(SafeW, *args))
+        ("Safaty", lambda *args: ProcessDNS_SafeRB(SafeW, *args))
     ]
 
     key_value = f'nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}'
@@ -75,7 +75,7 @@ def main():
     PATH2 = f'./output-finite-dns/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
     PATH3 = f'./output-finite-dns/'
     if not os.path.exists(PATH3):
-            os.makedirs(PATH3)
+        os.makedirs(PATH3)
 
     method = 3
     n_episodes = 500

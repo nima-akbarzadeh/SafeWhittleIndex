@@ -34,7 +34,7 @@ def run_combination(params):
         ("Random", Process_Random),
         ("Greedy", Process_Greedy),
         ("Whittl", lambda *args: Process_WhtlRB(WhtlW, *args)),
-        ("Safaty", lambda *args: Process_SafeRB(SafeW, *args))
+        ("Safaty", lambda *args: ProcessD_SafeRB(SafeW, *args))
     ]
 
     results = {}
@@ -73,7 +73,7 @@ def main():
     PATH2 = f'./output-finite-d/ResAvg_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
     PATH3 = f'./output-finite-d/'
     if not os.path.exists(PATH3):
-            os.makedirs(PATH3)
+        os.makedirs(PATH3)
 
     method = 3
     n_episodes = 500

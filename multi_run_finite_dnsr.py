@@ -34,7 +34,7 @@ def run_combination(params):
         ("Random", ProcessNSR_Random),
         ("Greedy", ProcessNSR_Greedy),
         ("Whittl", lambda *args: ProcessNSR_WhtlRB(WhtlW, *args)),
-        ("Safaty", lambda *args: ProcessNSR_SafeRB(SafeW, *args))
+        ("Safaty", lambda *args: ProcessDNSR_SafeRB(SafeW, *args))
     ]
 
     key_value = f'nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}'
@@ -58,13 +58,13 @@ def main():
 
     param_sets = {
         'n_steps_set': [10],
-        'n_partitions_set': [100],
-        'n_states_set': [3, 5],
-        'armcoef_set': [3, 5],
+        'n_partitions_set': [10],
+        'n_states_set': [3],
+        'armcoef_set': [3],
         'f_type_set': ['hom'],
         't_type_set': [3],
-        'u_type_set': [1, 2],
-        'u_order_set': [4, 16],
+        'u_type_set': [1],
+        'u_order_set': [16],
         'threshold_set': [0.3, 0.5],
         'fraction_set': [0.3, 0.5],
         'nsrew_discount_set': [0.95],

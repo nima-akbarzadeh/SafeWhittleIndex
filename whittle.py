@@ -181,7 +181,7 @@ class SafeWhittle:
             arm_n_realize = []
             all_total_rewards = []
 
-            prev_rewards_by_t = set([0])
+            prev_rewards_by_t = set([0.0])
             for t in range(self.horizon):
 
                 # if len(self.rewards.shape) == 3:
@@ -819,7 +819,7 @@ class SafeWhittleNS:
         for a in range(num_arms):
             arm_n_realize = []
             all_total_rewards = []
-            prev_rewards_by_t = set([0])
+            prev_rewards_by_t = set([0.0])
             for t in range(self.horizon):
                 if len(self.rewards.shape) == 4:
                     current_rewards = self.rewards[:, :, a, t].flatten()
@@ -1428,7 +1428,7 @@ class SafeWhittleNSR:
         for a in range(num_arms):
             arm_n_realize = []
             all_total_rewards = []
-            prev_rewards_by_t = set([0])
+            prev_rewards_by_t = set([0.0])
             for t in range(self.horizon):
                 if len(self.rewards.shape) == 4:
                     current_rewards = self.rewards[:, :, a, t].flatten()
@@ -1656,11 +1656,13 @@ class SafeWhittleDNSR:
         self.digits = 3
         self.n_realize = []
         self.n_augment = [0] * num_arms
+        self.all_rews = []
         self.all_valus = []
 
         for a in range(num_arms):
             self.n_augment[a] = len(self.all_total_rewards)
             self.n_realize.append([self.num_s] * self.horizon)
+            self.all_rews.append(self.all_total_rewards)
 
             arm_valus = []
             for total_rewards in self.all_total_rewards:
