@@ -5,7 +5,7 @@ import numpy as np
 # Define the reward values for each arm
 class Values:
 
-    def __init__(self, num_arms: int, num_states: int, function_type, increasing: bool, num_actions=1):
+    def __init__(self, time_horizon: int, num_arms: int, num_states: int, function_type, increasing: bool, num_actions=1):
         self.num_a = num_arms
         self.num_s = num_states
         self.num_act = num_actions
@@ -24,7 +24,7 @@ class Values:
                         self.vals[:, act, a] = (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
                         if not increasing:
                             self.vals[:, act, a] = 1 - self.vals[:, act, a]
-        self.vals = np.round(self.vals, 2)
+        self.vals = np.round(self.vals / time_horizon, 2)
 
 
 # Define the Markov dynamics for each arm
@@ -230,7 +230,7 @@ class ValuesNS:
             for t in range(self.num_t):
                 for a in range(self.num_a):
                     if function_type[a] > 0:
-                        self.vals[:, a, t] = np.round((self.discount**t) * (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a], 2)
+                        self.vals[:, a, t] = (self.discount**t) * (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
                         if not increasing:
                             self.vals[:, a, t] = 1 - self.vals[:, a, t]
         else:
@@ -239,10 +239,10 @@ class ValuesNS:
                 for a in range(self.num_a):
                     for act in range(self.num_act):
                         if function_type[a] > 0:
-                            self.vals[:, act, a, t] = np.round((self.discount**t) * (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a], 2)
+                            self.vals[:, act, a, t] = (self.discount**t) * (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
                             if not increasing:
                                 self.vals[:, act, a, t] = 1 - self.vals[:, act, a, t]
-
+        self.vals = np.round((1 - self.beta) * self.vals / (1 - self.beta ** time_horizon), 2)
 
 # Define the Markov dynamics for each arm
 class MarkovDynamicsNS:
