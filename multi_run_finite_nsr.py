@@ -11,7 +11,9 @@ warnings.filterwarnings("ignore")
 
 
 def run_combination(params):
-    nt, ns, np, nc, ft, tt, ut, uo, th, fr, df, method, n_episodes, PATH3 = params
+    print('yohoo!')
+    nt, ns, nc, ft, tt, ut, uo, th, fr, df, method, n_episodes, PATH3 = params
+    print([nt, ns, nc, ft, tt, ut, uo, th, fr, df])
     na = nc * ns
     ftype = numpy.ones(na, dtype=numpy.int32) if ft == 'hom' else 1 + numpy.arange(na)
 
@@ -21,15 +23,20 @@ def run_combination(params):
     R = ValuesNS(df, nt, na, ns, ftype, True)
     M = MarkovDynamics(na, ns, prob_remain, tt, True)
 
+    print('start1')
     WhtlW = WhittleNSR(ns, na, R.vals, M.transitions, nt)
+    print('start1.5')
     WhtlW.get_whittle_indices(computation_type=method, params=[0, 10], n_trials=100)
 
+    print('start2')
     SafeW = SafeWhittleNSR(ns, na, R.vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
+    print('start2.5')
     SafeW.get_whittle_indices(computation_type=method, params=[0, 10], n_trials=100)
 
     nch = max(1, int(round(fr * na)))
     initial_states = (ns - 1) * numpy.ones(na, dtype=numpy.int32)
 
+    print('start3')
     processes = [
         ("Random", ProcessNSR_Random),
         ("Greedy", ProcessNSR_Greedy),
@@ -37,9 +44,14 @@ def run_combination(params):
         ("Safaty", lambda *args: ProcessNSR_SafeRB(SafeW, *args))
     ]
 
-    key_value = f'nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}'
+    print('start4')
+    rew, obj, _ = ProcessNSR_Random(n_episodes, nt, ns, na, nch, th * numpy.ones(na), R.vals, M.transitions, initial_states, ut, uo)
+    print([rew, obj])
+
+    key_value = f'nt{nt}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}'
     results = {}
     for name, process in processes:
+        print(name)
         rew, obj, _ = process(n_episodes, nt, ns, na, nch, th * numpy.ones(na), R.vals, M.transitions, initial_states, ut, uo)
         joblib.dump([rew, obj], f"{PATH3}_{key_value}_{name}.joblib")
         results[name] = numpy.round(numpy.mean(obj), 3)
@@ -55,15 +67,14 @@ def run_combination(params):
 def main():
 
     param_sets = {
-        'n_steps_set': [10],
-        'n_partitions_set': [10],
-        'n_states_set': [3],
-        'armcoef_set': [3],
+        'n_steps_set': [3, 5],
+        'n_states_set': [2, 5],
+        'armcoef_set': [3, 5],
         'f_type_set': ['hom'],
         't_type_set': [3],
-        'u_type_set': [1],
-        'u_order_set': [16],
-        'threshold_set': [0.3, 0.5],
+        'u_type_set': [1, 2],
+        'u_order_set': [4, 16],
+        'threshold_set': [0.5, 0.7],
         'fraction_set': [0.3, 0.5],
         'nsrew_discount_set': [0.95],
     }
@@ -85,10 +96,9 @@ def main():
                 averages[avg_key][f'{param}_{value}'] = []
 
     param_list = [
-        (nt, ns, np, nc, ft_type, tt, ut, uo, th, fr, df, method, n_episodes, PATH3)
+        (nt, ns, nc, ft_type, tt, ut, uo, th, fr, df, method, n_episodes, PATH3)
         for nt in param_sets['n_steps_set']
         for ns in param_sets['n_states_set']
-        for np in param_sets['n_partitions_set']
         for nc in param_sets['armcoef_set']
         for ft_type in param_sets['f_type_set']
         for tt in param_sets['t_type_set']
@@ -103,6 +113,7 @@ def main():
 
     # Determine the number of CPUs to use
     num_cpus = cpu_count()-1
+    num_cpus = 1
     print(f"Using {num_cpus} CPUs")
 
     # Create a Pool of workers

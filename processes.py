@@ -147,11 +147,9 @@ def Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, t
     counts = np.zeros((n_states, n_states, 2, n_bandits))
     for k in range(n_episodes):
         states = initial_states.copy()
-        _lifted = np.zeros(n_bandits, dtype=np.int32)
+        _lifted = [0] * n_bandits
         for t in range(n_steps):
             _states = np.copy(states)
-            # for b in range(n_bandits):
-                # _lifted[b] = max(0, min(SafeW.n_augment[b]-1, _lifted[b]))
             _lifted = [SafeW.all_rews[a].index(totalrewards[a, k]) for a in range(n_bandits)]
             actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
             for a in range(n_bandits):

@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 
 
 def run_combination(params):
-    nt, ns, np, nc, ft, tt, ut, uo, th, fr, method, n_episodes, PATH3 = params
+    nt, ns, nc, ft, tt, ut, uo, th, fr, method, n_episodes, PATH3 = params
     na = nc * ns
     ftype = numpy.ones(na, dtype=numpy.int32) if ft == 'hom' else 1 + numpy.arange(na)
 
@@ -42,10 +42,10 @@ def run_combination(params):
         rew, obj, _ = process(n_episodes, nt, ns, na, nch, th * numpy.ones(na), R.vals, M.transitions,
                               initial_states, ut, uo)
         joblib.dump([rew, obj],
-                    f"{PATH3}nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_{name}.joblib")
+                    f"{PATH3}nt{nt}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_{name}.joblib")
         results[name] = numpy.round(numpy.mean(obj), 3)
 
-    key_value = f'nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}'
+    key_value = f'nt{nt}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}'
     impr_vl = numpy.round(results['Safaty'] - results['Whittl'], 2)
     impr_sw = numpy.round(100 * (results['Safaty'] - results['Whittl']) / results['Whittl'], 2)
     impr_sr = numpy.round(100 * (results['Safaty'] - results['Random']) / results['Random'], 2)
@@ -57,15 +57,14 @@ def run_combination(params):
 def main():
 
     param_sets = {
-        'n_steps_set': [10],
-        'n_partitions_set': [100],
-        'n_states_set': [3, 5],
+        'n_steps_set': [3, 5],
+        'n_states_set': [2, 5],
         'armcoef_set': [3, 5],
         'f_type_set': ['hom'],
         't_type_set': [3],
         'u_type_set': [1, 2],
         'u_order_set': [4, 16],
-        'threshold_set': [0.3, 0.5],
+        'threshold_set': [0.5, 0.7],
         'fraction_set': [0.3, 0.5]
     }
 
@@ -76,7 +75,7 @@ def main():
         os.makedirs(PATH3)
 
     method = 3
-    n_episodes = 500
+    n_episodes = 5
 
     results = {key: {} for key in ['1', '2', '3', '4', '5', '6']}
     averages = {key: {} for key in ['neut', 'safe', 'impr', 'relw', 'relm', 'relr']}
@@ -86,10 +85,9 @@ def main():
                 averages[avg_key][f'{param}_{value}'] = []
 
     param_list = [
-        (nt, ns, np, nc, ft_type, tt, ut, uo, th, fr, method, n_episodes, PATH3)
+        (nt, ns, nc, ft_type, tt, ut, uo, th, fr, method, n_episodes, PATH3)
         for nt in param_sets['n_steps_set']
         for ns in param_sets['n_states_set']
-        for np in param_sets['n_partitions_set']
         for nc in param_sets['armcoef_set']
         for ft_type in param_sets['f_type_set']
         for tt in param_sets['t_type_set']
@@ -103,6 +101,7 @@ def main():
 
     # Determine the number of CPUs to use
     num_cpus = cpu_count()-1
+    num_cpus = 1
     print(f"Using {num_cpus} CPUs")
 
     # Create a Pool of workers
