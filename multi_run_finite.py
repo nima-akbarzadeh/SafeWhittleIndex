@@ -18,7 +18,7 @@ def run_combination(params):
     prob_remain = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
     numpy.random.shuffle(prob_remain)
 
-    R = Values(na, ns, ftype, True)
+    R = Values(nt, na, ns, ftype, True)
     M = MarkovDynamics(na, ns, prob_remain, tt, True)
 
     WhtlW = Whittle(ns, na, R.vals, M.transitions, nt)
@@ -57,15 +57,15 @@ def run_combination(params):
 def main():
 
     param_sets = {
-        'n_steps_set': [3, 5],
-        'n_states_set': [2, 5],
-        'armcoef_set': [3, 5],
+        'n_steps_set': [3, 4, 5],
+        'n_states_set': [2, 3, 4, 5],
+        'armcoef_set': [3, 4, 5],
         'f_type_set': ['hom'],
         't_type_set': [3],
         'u_type_set': [1, 2],
-        'u_order_set': [4, 16],
-        'threshold_set': [0.5, 0.7],
-        'fraction_set': [0.3, 0.5]
+        'u_order_set': [4, 8, 16],
+        'threshold_set': [0.5, 0.6, 0.7],
+        'fraction_set': [0.3, 0.4, 0.5]
     }
 
     PATH1 = f'./output-finite/Res_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
@@ -75,7 +75,7 @@ def main():
         os.makedirs(PATH3)
 
     method = 3
-    n_episodes = 5
+    n_episodes = 100
 
     results = {key: {} for key in ['1', '2', '3', '4', '5', '6']}
     averages = {key: {} for key in ['neut', 'safe', 'impr', 'relw', 'relm', 'relr']}
@@ -101,7 +101,6 @@ def main():
 
     # Determine the number of CPUs to use
     num_cpus = cpu_count()-1
-    num_cpus = 1
     print(f"Using {num_cpus} CPUs")
 
     # Create a Pool of workers

@@ -29,7 +29,7 @@ def run_combination(params):
         prob_remain = numpy.round(numpy.linspace(0.1, 0.9, na), 2)
     numpy.random.shuffle(prob_remain)
 
-    R = Values(na, ns, ftype, True)
+    R = Values(nt, na, ns, ftype, True)
     M = MarkovDynamics(na, ns, prob_remain, tt, True)
     thresh = th * numpy.ones(na)
 
