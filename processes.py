@@ -3,6 +3,18 @@ import random
 import numpy as np
 
 
+def compute_risk(totalrewards, thresholds, u_type, u_order, n_bandits):
+    objectives = np.zeros(n_bandits)
+    for a in range(n_bandits):
+            if u_type == 1:
+                objectives[a] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a]))**(1/u_order)
+            elif u_type == 2:
+                objectives[a] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a]-thresholds[a])))
+            else:
+                objectives[a] = 1 if totalrewards[a] >= thresholds[a] else 0
+    return objectives
+
+
 def Process_Random(n_episodes, n_steps, n_states, n_bandits, n_choices, thresholds, rewards, transitions,
                    initial_states, u_type, u_order):
 
@@ -23,13 +35,7 @@ def Process_Random(n_episodes, n_steps, n_states, n_bandits, n_choices, threshol
                     totalrewards[a, k] += rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -58,13 +64,7 @@ def Process_Greedy(n_episodes, n_steps, n_states, n_bandits, n_choices, threshol
                     totalrewards[a, k] += rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -97,13 +97,7 @@ def Process_Myopic(n_episodes, n_steps, n_states, n_bandits, n_choices, threshol
                 totalrewards[a, k] += rewards[_states[a], actions[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -127,13 +121,7 @@ def Process_WhtlRB(W, n_episodes, n_steps, n_states, n_bandits, n_choices, thres
                     totalrewards[a, k] += rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -159,13 +147,7 @@ def Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, t
                     totalrewards[a, k] += rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -205,16 +187,8 @@ def Process_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandits,
                 else:
                     learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a])
                 counts[_learn_states[a], learn_states[a], learn_actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
-                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
+        learn_objectives[:, k] = compute_risk(learn_totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
 
@@ -242,13 +216,7 @@ def ProcessD_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, 
                     totalrewards[a, k] += rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -288,16 +256,8 @@ def ProcessD_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandits
                 else:
                     learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a])
                 counts[_learn_states[a], learn_states[a], learn_actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
-                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
+        learn_objectives[:, k] = compute_risk(learn_totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
 
@@ -322,13 +282,7 @@ def ProcessNS_Random(n_episodes, n_steps, n_states, n_bandits, n_choices, thresh
                     totalrewards[a, k] += rewards[_states[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a, t])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -357,13 +311,7 @@ def ProcessNS_Greedy(n_episodes, n_steps, n_states, n_bandits, n_choices, thresh
                     totalrewards[a, k] += rewards[_states[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a, t])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -396,13 +344,7 @@ def ProcessNS_Myopic(n_episodes, n_steps, n_states, n_bandits, n_choices, thresh
                 totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a, t])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -426,13 +368,7 @@ def ProcessNS_WhtlRB(W, n_episodes, n_steps, n_states, n_bandits, n_choices, thr
                     totalrewards[a, k] += rewards[_states[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a, t])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -457,13 +393,7 @@ def ProcessNS_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices,
                     totalrewards[a, k] += rewards[_states[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a, t])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -498,16 +428,8 @@ def ProcessNS_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandit
                 else:
                     learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a, t])
                 counts[_learn_states[a], learn_states[a], learn_actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
-                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
+        learn_objectives[:, k] = compute_risk(learn_totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
 
@@ -532,13 +454,7 @@ def ProcessDNS_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices
                     totalrewards[a, k] += rewards[_states[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a, t])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -573,16 +489,8 @@ def ProcessDNS_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandi
                 else:
                     learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a, t])
                 counts[_learn_states[a], learn_states[a], learn_actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
-                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
+        learn_objectives[:, k] = compute_risk(learn_totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
 
@@ -607,13 +515,7 @@ def ProcessNSR_Random(n_episodes, n_steps, n_states, n_bandits, n_choices, thres
                     totalrewards[a, k] += rewards[_states[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -642,13 +544,7 @@ def ProcessNSR_Greedy(n_episodes, n_steps, n_states, n_bandits, n_choices, thres
                     totalrewards[a, k] += rewards[_states[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -681,13 +577,7 @@ def ProcessNSR_Myopic(n_episodes, n_steps, n_states, n_bandits, n_choices, thres
                 totalrewards[a, k] += rewards[_states[a], actions[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -711,13 +601,7 @@ def ProcessNSR_WhtlRB(W, n_episodes, n_steps, n_states, n_bandits, n_choices, th
                     totalrewards[a, k] += rewards[_states[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -742,13 +626,7 @@ def ProcessNSR_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices
                     totalrewards[a, k] += rewards[_states[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -783,16 +661,8 @@ def ProcessNSR_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_bandi
                 else:
                     learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a])
                 counts[_learn_states[a], learn_states[a], learn_actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
-                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
+        learn_objectives[:, k] = compute_risk(learn_totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
 
@@ -817,13 +687,7 @@ def ProcessDNSR_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choice
                     totalrewards[a, k] += rewards[_states[a], a, t]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -858,16 +722,8 @@ def ProcessDNSR_LearnSafeRB(SafeW, LearnW, n_episodes, n_steps, n_states, n_band
                 else:
                     learn_states[a] = np.random.choice(n_states, p=transitions[_learn_states[a], :, learn_actions[a], a])
                 counts[_learn_states[a], learn_states[a], learn_actions[a], a, t] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
-                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
+        learn_objectives[:, k] = compute_risk(learn_totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
 
@@ -892,13 +748,7 @@ def ProcessDis_Random(beta, n_episodes, n_steps, n_states, n_bandits, n_choices,
                     totalrewards[a, k] += (beta**t) * rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -927,13 +777,7 @@ def ProcessDis_Greedy(beta, n_episodes, n_steps, n_states, n_bandits, n_choices,
                     totalrewards[a, k] += (beta**t) * rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -966,13 +810,7 @@ def ProcessDis_Myopic(beta, n_episodes, n_steps, n_states, n_bandits, n_choices,
                 totalrewards[a, k] += (beta**t) * rewards[_states[a], actions[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a]**(- 1/u_order) * (np.maximum(0, thresholds[a] - totalrewards[a, k]))**(1/u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1-thresholds[a]))) / (1 + np.exp(-u_order * (totalrewards[a, k]-thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -994,15 +832,7 @@ def ProcessDis_WhtlRB(W, beta, n_episodes, n_steps, n_states, n_bandits, n_choic
                     totalrewards[a, k] += (beta**t) * rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (
-                    np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (
-                            1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -1026,15 +856,7 @@ def ProcessDis_SafeRB(SafeW, beta, n_episodes, n_steps, n_states, n_bandits, n_c
                     totalrewards[a, k] += (beta**t) * rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (
-                    np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (
-                            1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return totalrewards, objectives, counts
 
@@ -1071,20 +893,8 @@ def ProcessDis_LearnSafeRB(SafeW, LearnW, beta, n_episodes, n_steps, n_states, n
                     learn_states[a] = np.random.choice(n_states,
                                                        p=transitions[_learn_states[a], :, learn_actions[a], a])
                 counts[_learn_states[a], learn_states[a], learn_actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (
-                    np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (
-                    np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (
-                            1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (
-                            1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
-                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
+        learn_objectives[:, k] = compute_risk(learn_totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
 
@@ -1106,15 +916,7 @@ def ProcessDisInf_WhtlRB(W, beta, n_episodes, n_steps, n_states, n_bandits, n_ch
                     totalrewards[a, k] += (beta**t) * rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (
-                    np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (
-                            1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return np.around(totalrewards, 2), np.around(objectives, 2), counts
 
@@ -1138,15 +940,7 @@ def ProcessDisInf_SafeRB(SafeW, beta, n_episodes, n_steps, n_states, n_bandits, 
                     totalrewards[a, k] += (beta**t) * rewards[_states[a], a]
                 states[a] = np.random.choice(n_states, p=transitions[_states[a], :, actions[a], a])
                 counts[_states[a], states[a], actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (
-                    np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (
-                            1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return totalrewards, objectives, counts
 
@@ -1183,19 +977,7 @@ def ProcessDisInf_LearnSafeRB(SafeW, LearnW, beta, n_episodes, n_steps, n_states
                     learn_states[a] = np.random.choice(n_states,
                                                        p=transitions[_learn_states[a], :, learn_actions[a], a])
                 counts[_learn_states[a], learn_states[a], learn_actions[a], a] += 1
-        for a in range(n_bandits):
-            if u_type == 1:
-                objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (
-                    np.maximum(0, thresholds[a] - totalrewards[a, k])) ** (1 / u_order)
-                learn_objectives[a, k] = 1 - thresholds[a] ** (- 1 / u_order) * (
-                    np.maximum(0, thresholds[a] - learn_totalrewards[a, k])) ** (1 / u_order)
-            elif u_type == 2:
-                objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (
-                            1 + np.exp(-u_order * (totalrewards[a, k] - thresholds[a])))
-                learn_objectives[a, k] = (1 + np.exp(-u_order * (1 - thresholds[a]))) / (
-                            1 + np.exp(-u_order * (learn_totalrewards[a, k] - thresholds[a])))
-            else:
-                objectives[a, k] = 1 if totalrewards[a, k] >= thresholds[a] else 0
-                learn_objectives[a, k] = 1 if learn_totalrewards[a, k] >= thresholds[a] else 0
+        objectives[:, k] = compute_risk(totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
+        learn_objectives[:, k] = compute_risk(learn_totalrewards[:, k], thresholds, u_type, u_order, n_bandits)
 
     return totalrewards, objectives, learn_totalrewards, learn_objectives, counts
