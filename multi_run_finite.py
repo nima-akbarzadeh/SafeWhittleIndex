@@ -18,13 +18,13 @@ def run_combination(params):
     prob_remain = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
     numpy.random.shuffle(prob_remain)
 
-    R = Values(nt, na, ns, ftype, True)
+    r_vals = values(nt, na, ns, ftype, True)
     M = MarkovDynamics(na, ns, prob_remain, tt, True)
 
-    WhtlW = Whittle(ns, na, R.vals, M.transitions, nt)
+    WhtlW = Whittle(ns, na, r_vals, M.transitions, nt)
     WhtlW.get_whittle_indices(computation_type=method, params=[0, 10], n_trials=100)
 
-    SafeW = SafeWhittle(ns, na, R.vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
+    SafeW = SafeWhittle(ns, na, r_vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
     SafeW.get_whittle_indices(computation_type=method, params=[0, 10], n_trials=100)
 
     nch = max(1, int(round(fr * na)))
@@ -39,7 +39,7 @@ def run_combination(params):
 
     results = {}
     for name, process in processes:
-        rew, obj, _ = process(n_episodes, nt, ns, na, nch, th * numpy.ones(na), R.vals, M.transitions,
+        rew, obj, _ = process(n_episodes, nt, ns, na, nch, th * numpy.ones(na), r_vals, M.transitions,
                               initial_states, ut, uo)
         joblib.dump([rew, obj],
                     f"{PATH3}nt{nt}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_{name}.joblib")

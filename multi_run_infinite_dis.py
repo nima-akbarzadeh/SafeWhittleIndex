@@ -18,13 +18,13 @@ def run_combination(params):
     prob_remain = numpy.round(numpy.linspace(0.1 / ns, 1 / ns, na), 2)
     numpy.random.shuffle(prob_remain)
 
-    R = Values(nt, na, ns, ftype, True)
+    r_vals = values(nt, na, ns, ftype, True)
     M = MarkovDynamics(na, ns, prob_remain, tt, True)
 
-    WhtlW = WhittleDisInf(df, ns, na, R.vals, M.transitions)
+    WhtlW = WhittleDisInf(df, ns, na, r_vals, M.transitions)
     WhtlW.get_whittle_indices(computation_type=method, params=[0, int(nt/(1-df))], n_trials=10*int(nt/(1-df)))
 
-    SafeW = SafeWhittleDisInf(df, [ns, np, nz], na, R.vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
+    SafeW = SafeWhittleDisInf(df, [ns, np, nz], na, r_vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
     SafeW.get_whittle_indices(computation_type=method, params=[0, int(nt/(1-df))], n_trials=10*int(nt/(1-df)))
 
     nch = max(1, int(round(fr * na)))
@@ -39,7 +39,7 @@ def run_combination(params):
 
     results = {}
     for name, process in processes:
-        rew, obj, _ = process(df, n_episodes, nt, ns, na, nch, th * numpy.ones(na), R.vals, M.transitions,
+        rew, obj, _ = process(df, n_episodes, nt, ns, na, nch, th * numpy.ones(na), r_vals, M.transitions,
                               initial_states, ut, uo)
         joblib.dump([rew, obj],
                     f"{PATH3}nt{nt}_np{np}_nc{nc}_ns{ns}_ft{ft}_tt{tt}_ut{ut}_uo{uo}_th{th}_fr{fr}_df{df}_{name}.joblib")
@@ -58,16 +58,16 @@ def main():
 
     param_sets = {
         'n_steps_set': [100],
-        'n_partitions_s_set': [100],
-        'n_partitions_z_set': [100],
-        'n_states_set': [3, 5],
-        'armcoef_set': [3, 5],
+        'n_partitions_s_set': [10],
+        'n_partitions_z_set': [10],
+        'n_states_set': [2, 3, 4, 5],
+        'armcoef_set': [3, 4, 5],
         'f_type_set': ['hom'],
         't_type_set': [3],
         'u_type_set': [1, 2],
-        'u_order_set': [4, 16],
-        'threshold_set': [0.1, 0.2, 0.3],
-        'fraction_set': [0.3, 0.5],
+        'u_order_set': [4, 8, 16],
+        'threshold_set': [0.4, 0.5, 0.6],
+        'fraction_set': [0.3, 0.4, 0.5],
         'discount_set': [0.9, 0.95]
     }
 
@@ -78,7 +78,7 @@ def main():
         os.makedirs(PATH3)
 
     method = 3
-    n_episodes = 2
+    n_episodes = 100
 
     results = {key: {} for key in ['1', '2', '3', '4', '5', '6']}
     averages = {key: {} for key in ['neut', 'safe', 'impr', 'relw', 'relm', 'relr']}

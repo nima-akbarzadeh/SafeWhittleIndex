@@ -3,28 +3,38 @@ import numpy as np
 
 
 # Define the reward values for each arm
-class Values:
+def values(time_horizon, num_arms, num_states, function_type, increasing, num_actions=1):
+    """
+    Calculate values for each arm.
 
-    def __init__(self, time_horizon: int, num_arms: int, num_states: int, function_type, increasing: bool, num_actions=1):
-        self.num_a = num_arms
-        self.num_s = num_states
-        self.num_act = num_actions
-        if num_actions == 1:
-            self.vals = np.ones((self.num_s, self.num_a))
-            for a in range(self.num_a):
+    Parameters:
+    - time_horizon: Total time horizon.
+    - num_arms: Number of arms (actions).
+    - num_states: Number of states.
+    - function_type: List of function types for each arm.
+    - increasing: Boolean indicating if values should increase.
+    - num_actions: Number of actions (default is 1).
+
+    Returns:
+    - vals: A numpy array containing the values.
+    """
+    if num_actions == 1:
+        vals = np.ones((num_states, num_arms))
+        for a in range(num_arms):
+            if function_type[a] > 0:
+                vals[:, a] = (np.linspace(0, num_states-1, num=num_states)) ** function_type[a] / (num_states-1) ** function_type[a]
+                if not increasing:
+                    vals[:, a] = 1 - vals[:, a]
+    else:
+        vals = np.ones((num_states, num_actions, num_arms))
+        for a in range(num_arms):
+            for act in range(num_actions):
                 if function_type[a] > 0:
-                    self.vals[:, a] = (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
+                    vals[:, act, a] = (np.linspace(0, num_states-1, num=num_states)) ** function_type[a] / (num_states-1) ** function_type[a]
                     if not increasing:
-                        self.vals[:, a] = 1 - self.vals[:, a]
-        else:
-            self.vals = np.ones((self.num_s, self.num_act, self.num_a))
-            for a in range(self.num_a):
-                for act in range(self.num_act):
-                    if function_type[a] > 0:
-                        self.vals[:, act, a] = (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
-                        if not increasing:
-                            self.vals[:, act, a] = 1 - self.vals[:, act, a]
-        self.vals = np.round(self.vals / time_horizon, 2)
+                        vals[:, act, a] = 1 - vals[:, act, a]
+    vals = np.round(vals / time_horizon, 2)
+    return vals
 
 
 # Define the Markov dynamics for each arm
@@ -216,33 +226,27 @@ class MarkovDynamics:
         return transitions
 
 
-# Define the reward values for each arm
-class ValuesNS:
-
-    def __init__(self, discount, time_horizon: int, num_arms: int, num_states: int, function_type, increasing: bool, num_actions=1):
-        self.discount = discount
-        self.num_t = time_horizon
-        self.num_a = num_arms
-        self.num_s = num_states
-        self.num_act = num_actions
-        if self.num_act == 1:
-            self.vals = np.ones((self.num_s, self.num_a, self.num_t), dtype=np.float16)
-            for t in range(self.num_t):
-                for a in range(self.num_a):
+def values_ns(discount, time_horizon, num_arms, num_states, function_type, increasing, num_actions=1):
+    if num_actions == 1:
+        vals = np.ones((num_states, num_arms, time_horizon))
+        for t in range(time_horizon):
+            for a in range(num_arms):
+                if function_type[a] > 0:
+                    vals[:, a, t] = (discount**t) * (np.linspace(0, num_states-1, num=num_states)) ** function_type[a] / (num_states-1) ** function_type[a]
+                    if not increasing:
+                        vals[:, a, t] = 1 - vals[:, a, t]
+    else:
+        vals = np.ones((num_states, num_actions, num_arms, time_horizon))
+        for t in range(time_horizon):
+            for a in range(num_arms):
+                for act in range(num_actions):
                     if function_type[a] > 0:
-                        self.vals[:, a, t] = (self.discount**t) * (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
+                        vals[:, act, a, t] = (discount**t) * (np.linspace(0, num_states-1, num=num_states)) ** function_type[a] / (num_states-1) ** function_type[a]
                         if not increasing:
-                            self.vals[:, a, t] = 1 - self.vals[:, a, t]
-        else:
-            self.vals = np.ones((self.num_s, self.num_act, self.num_a, self.num_t), dtype=np.float16)
-            for t in range(self.num_t):
-                for a in range(self.num_a):
-                    for act in range(self.num_act):
-                        if function_type[a] > 0:
-                            self.vals[:, act, a, t] = (self.discount**t) * (np.linspace(0, self.num_s-1, num=self.num_s)) ** function_type[a] / (self.num_s-1) ** function_type[a]
-                            if not increasing:
-                                self.vals[:, act, a, t] = 1 - self.vals[:, act, a, t]
-        self.vals = np.round((1 - self.beta) * self.vals / (1 - self.beta ** time_horizon), 2)
+                            vals[:, act, a, t] = 1 - vals[:, act, a, t]
+    vals = np.round((1 - discount) * vals / (1 - discount ** time_horizon), 2)
+    return vals
+
 
 # Define the Markov dynamics for each arm
 class MarkovDynamicsNS:

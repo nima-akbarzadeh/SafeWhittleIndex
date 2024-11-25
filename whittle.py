@@ -200,7 +200,7 @@ class SafeWhittle:
                 all_total_rewards_by_t = set()
                 for prev_sum in prev_rewards_by_t:
                     for reward in current_rewards:
-                        all_total_rewards_by_t.add(np.round(prev_sum + reward, 3))
+                        all_total_rewards_by_t.add(np.round(prev_sum + reward, 2))
                 all_total_rewards_by_t = sorted(all_total_rewards_by_t)
                 arm_n_realize.append(len(all_total_rewards_by_t))
                 prev_rewards_by_t = set(all_total_rewards_by_t)
@@ -361,24 +361,8 @@ class SafeWhittle:
                         V[l, x, t] = Q[l, x, t, 1]
                         pi[l, x, t] = 1
 
-                    # if l==12 and x==1 and t==0:
-                    #   print('Exact@')
-                    #   print(f'index: {[l, x, t]}')
-                    #   print(f'Q0: {Q[l, x, t, 0]}')
-                    #   print(f'Q1: {Q[l, x, t, 1]}')
-                    #   print(f'po: {pi[l, x, t]}')
-                    #   print(f'v_t+1: {V[nxt_l, :, t+1]}')
-                    #   print(f'tr0: {self.transition[x, :, 0, arm]}')
-                    #   print(f'dot0: {np.dot(V[nxt_l, :, t+1], self.transition[x, :, 0, arm])}')
-                    #   print(f'tr1: {self.transition[x, :, 1, arm]}')
-                    #   print(f'dot1: {np.dot(V[nxt_l, :, t+1], self.transition[x, :, 1, arm])}')
-                    #   print(f'pen: {-penalty}')
-                    #   print(f'pen+dot1: {- penalty + np.dot(V[nxt_l, :, t+1], self.transition[x, :, 1, arm])}')
-
             t = t - 1
 
-        # print(Q[20, :, 4, 0])
-        # print(Q[20, :, 4, 1])
         return pi, V, Q
 
     @staticmethod
@@ -1579,12 +1563,15 @@ class SafeWhittleNSR:
                 # Loop over the second dimension of the state space
                 for l in range(self.n_realize[arm][t]):
 
+                    # Convert the next state of the second dimension into an index ranged from 1 to L
+                    tolerance = 1e-9
+                    for i, val in enumerate(self.all_rews[arm]):
+                        if abs(val - np.round(self.all_rews[arm][l] + self.rewards[x, arm, t], 2)) < tolerance:
+                            nxt_l = i
+                            break
+                        
                     # Get the state-action value functions
                     for act in range(2):
-
-                        # Convert the next state of the second dimension into an index ranged from 1 to L
-                        tolerance = 1e-9
-                        nxt_l = next(i for i, val in enumerate(self.all_rews[arm]) if abs(val - np.round(self.all_rews[arm][l] + self.rewards[x, arm, t], 2)) < tolerance)
                         Q[l, x, t, act] = np.round(- penalty * act / self.horizon + np.dot(V[nxt_l, :, t + 1], self.transition[x, :, act, arm]), self.digits + 1)
 
                     # Get the value function and the policy

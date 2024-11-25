@@ -138,7 +138,7 @@ def Process_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices, t
         _lifted = [0] * n_bandits
         for t in range(n_steps):
             _states = np.copy(states)
-            _lifted = [SafeW.all_rews[a].index(totalrewards[a, k]) for a in range(n_bandits)]
+            _lifted = [SafeW.all_rews[a].index(np.round(totalrewards[a, k], 2)) for a in range(n_bandits)]
             actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
             for a in range(n_bandits):
                 if len(rewards.shape) == 3:
@@ -384,7 +384,7 @@ def ProcessNS_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices,
         states = initial_states.copy()
         for t in range(n_steps):
             _states = np.copy(states)
-            _lifted = [SafeW.all_rews[a].index(totalrewards[a, k]) for a in range(n_bandits)]
+            _lifted = [SafeW.all_rews[a].index(np.round(totalrewards[a, k], 2)) for a in range(n_bandits)]
             actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
             for a in range(n_bandits):
                 if len(rewards.shape) == 4:
@@ -617,7 +617,7 @@ def ProcessNSR_SafeRB(SafeW, n_episodes, n_steps, n_states, n_bandits, n_choices
         states = initial_states.copy()
         for t in range(n_steps):
             _states = np.copy(states)
-            _lifted = [SafeW.all_rews[a].index(totalrewards[a, k]) for a in range(n_bandits)]
+            _lifted = [SafeW.all_rews[a].index(np.round(totalrewards[a, k], 2)) for a in range(n_bandits)]
             actions = SafeW.Whittle_policy(SafeW.w_indices, n_choices, _states, _lifted, t)
             for a in range(n_bandits):
                 if len(rewards.shape) == 4:
