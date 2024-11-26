@@ -59,14 +59,14 @@ def main():
     param_sets = {
         'n_steps_set': [100],
         'n_partitions_s_set': [10, 20],
-        'n_states_set': [2, 3, 4, 5],
-        'armcoef_set': [3, 4, 5],
+        'n_states_set': [2, 5],
+        'armcoef_set': [3, 5],
         'f_type_set': ['hom'],
         't_type_set': [3],
         'u_type_set': [1, 2],
-        'u_order_set': [4, 8, 16],
-        'threshold_set': [0.3, 0.4, 0.5, 0.6, 0.7],
-        'fraction_set': [0.3, 0.4, 0.5],
+        'u_order_set': [4, 16],
+        'threshold_set': [0.3, 0.5, 0.7],
+        'fraction_set': [0.3, 0.5],
         'discount_set': [0.9, 0.95]
     }
 
