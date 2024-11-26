@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 
 
 def run_combination(params):
-    nt, ns, np, nz, nc, ft, tt, ut, uo, th, fr, df, method, n_episodes, PATH3 = params
+    nt, ns, np, nc, ft, tt, ut, uo, th, fr, df, method, n_episodes, PATH3 = params
     na = nc * ns
     ftype = numpy.ones(na, dtype=numpy.int32) if ft == 'hom' else 1 + numpy.arange(na)
 
@@ -24,7 +24,7 @@ def run_combination(params):
     WhtlW = WhittleDisInf(df, ns, na, r_vals, M.transitions)
     WhtlW.get_whittle_indices(computation_type=method, params=[0, int(nt/(1-df))], n_trials=10*int(nt/(1-df)))
 
-    SafeW = SafeWhittleDisInf(df, [ns, np, nz], na, r_vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
+    SafeW = SafeWhittleDisInf(df, [ns, np, np], na, r_vals, M.transitions, nt, ut, uo, th * numpy.ones(na))
     SafeW.get_whittle_indices(computation_type=method, params=[0, int(nt/(1-df))], n_trials=10*int(nt/(1-df)))
 
     nch = max(1, int(round(fr * na)))
@@ -58,15 +58,14 @@ def main():
 
     param_sets = {
         'n_steps_set': [100],
-        'n_partitions_s_set': [10],
-        'n_partitions_z_set': [10],
+        'n_partitions_s_set': [10, 20],
         'n_states_set': [2, 3, 4, 5],
         'armcoef_set': [3, 4, 5],
         'f_type_set': ['hom'],
         't_type_set': [3],
         'u_type_set': [1, 2],
         'u_order_set': [4, 8, 16],
-        'threshold_set': [0.4, 0.5, 0.6],
+        'threshold_set': [0.3, 0.4, 0.5, 0.6, 0.7],
         'fraction_set': [0.3, 0.4, 0.5],
         'discount_set': [0.9, 0.95]
     }
@@ -88,11 +87,10 @@ def main():
                 averages[avg_key][f'{param}_{value}'] = []
 
     param_list = [
-        (nt, ns, np, nz, nc, ft_type, tt, ut, uo, th, fr, df, method, n_episodes, PATH3)
+        (nt, ns, np,  nc, ft_type, tt, ut, uo, th, fr, df, method, n_episodes, PATH3)
         for nt in param_sets['n_steps_set']
         for ns in param_sets['n_states_set']
         for np in param_sets['n_partitions_s_set']
-        for nz in param_sets['n_partitions_z_set']
         for nc in param_sets['armcoef_set']
         for ft_type in param_sets['f_type_set']
         for tt in param_sets['t_type_set']

@@ -64,7 +64,7 @@ def main():
         'u_order_set': [4, 8, 16],
         'threshold_set': [0.3, 0.4, 0.5, 0.6, 0.7],
         'fraction_set': [0.3, 0.4, 0.5],
-        'nsrew_discount_set': [0.9, 0.95],
+        'nsrew_discount_set': [0.5, 0.75, 0.9],
     }
 
     PATH1 = f'./output-finite-nsr/Res_{param_sets["t_type_set"]}{param_sets["n_states_set"]}{param_sets["armcoef_set"]}.xlsx'
